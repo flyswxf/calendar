@@ -1,0 +1,323 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Microsoft YaHei', sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 18px rgba(0, 0, 0, 0.08);
+}
+
+h1 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 20px;
+}
+
+.top-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.top-actions button {
+    padding: 8px 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #fff;
+    color: #334155;
+    cursor: pointer;
+    transition: all .2s ease;
+}
+
+.top-actions button:hover {
+    background: #f1f5f9;
+}
+
+.calendar-section {
+    margin-bottom: 24px;
+}
+
+.calendar-header {
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 10px;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: 80px repeat(7, 1fr);
+    gap: 8px;
+}
+
+.time-col {
+    border-right: 1px dashed #e2e8f0;
+    padding-right: 6px;
+}
+
+.time-slot {
+    height: 48px; /* 1小时 = 48px -> 1分钟 = 0.8px */
+    font-size: 12px;
+    color: #94a3b8;
+    position: relative;
+}
+
+.time-slot::after {
+    content: "";
+    position: absolute;
+    right: -6px;
+    left: 0;
+    bottom: 0;
+    height: 1px;
+    background: #f1f5f9;
+}
+
+.day-col {
+    background: #fafafa;
+    border: 1px solid #f1f5f9;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.day-header {
+    text-align: center;
+    padding: 8px 6px;
+    background: #fff;
+    border-bottom: 1px solid #f1f5f9;
+    font-weight: 600;
+    color: #334155;
+}
+
+.day-col.today .day-header {
+    background: #e6f4ff;
+    color: #1d4ed8;
+}
+
+.day-body {
+    position: relative;
+    height: 48px * 16; /* 16小时可视范围（7:00-23:00）*/
+    min-height: 768px; /* 48*16 fallback */
+    background-image: linear-gradient(#f8fafc 1px, rgba(255,255,255,0) 1px);
+    background-size: 100% 48px;
+}
+
+.event {
+    position: absolute;
+    left: 6px;
+    right: 6px;
+    border-radius: 8px;
+    padding: 8px;
+    font-size: 12px;
+    line-height: 1.2;
+    overflow: hidden;
+}
+
+.event .title { font-weight: 700; display: block; margin-bottom: 4px; }
+.event .meta { color: #475569; font-size: 11px; }
+
+.event.course {
+    background: #eef6ff;
+    border: 1px solid #bfdbfe;
+    color: #1e40af;
+}
+
+.day-col.today .event.course { box-shadow: 0 0 0 2px rgba(29,78,216,0.15) inset; }
+
+.event.focus {
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    color: #065f46;
+}
+
+.now-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #ef4444;
+    box-shadow: 0 0 0 1px rgba(239,68,68,0.25);
+}
+
+.split {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}
+
+.todo-section h2 { margin-bottom: 10px; }
+
+/* 保留并微调既有待办样式 */
+.todo-input {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+#taskInput {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+#addTask {
+    padding: 10px 16px;
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#addTask:hover { background-color: #1d4ed8; }
+
+.task-list { list-style: none; }
+
+.task-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: #f8fafc;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.task-item.completed {
+    background-color: #ecfdf5;
+    text-decoration: line-through;
+    color: #64748b;
+}
+
+.task-checkbox { margin-right: 10px; cursor: pointer; }
+.task-text { flex: 1; }
+
+.delete-btn, .focus-btn {
+    padding: 6px 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-left: 8px;
+}
+
+.delete-btn { background-color: #ef4444; color: #fff; }
+.delete-btn:hover { background-color: #dc2626; }
+
+.focus-btn { background-color: #10b981; color: #fff; }
+.focus-btn:hover { background-color: #059669; }
+
+/* 弹窗样式 */
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+}
+.modal[aria-hidden="false"] { display: flex; }
+
+.modal-content {
+    width: 420px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    overflow: hidden;
+}
+.modal-wide { width: 80vw; max-width: 1000px; }
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.modal-body { padding: 16px; }
+.modal-body label { display: block; font-size: 14px; color: #334155; margin-bottom: 10px; }
+.modal-body input, .modal-body select {
+    width: 100%;
+    margin-top: 6px;
+    padding: 8px 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+}
+
+.modal-actions { text-align: right; margin-top: 8px; }
+.modal-actions button { padding: 8px 14px; border-radius: 8px; border: none; background: #2563eb; color: #fff; }
+
+.close-modal { background: transparent; border: none; font-size: 20px; cursor: pointer; color: #64748b; }
+.close-modal:hover { color: #0f172a; }
+
+.pdf-embed { width: 100%; height: 70vh; border: none; }
+.hint { font-size: 12px; color: #64748b; margin-top: 8px; }
+
+/* 计时器覆盖层 */
+.timer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 60;
+}
+.timer-overlay[aria-hidden="false"] { display: flex; }
+
+.timer-panel {
+    width: 520px;
+    background: #0b1220;
+    color: #e2e8f0;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    overflow: hidden;
+}
+
+.timer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: #0f172a;
+}
+
+.timer-body { padding: 18px; }
+.timer-mode label { margin-right: 12px; cursor: pointer; }
+
+.countdown-setup { font-size: 42px; text-align: center; margin: 8px 0 10px; color: #e2e8f0; }
+.time-number { display: inline-block; min-width: 88px; padding: 4px 8px; border-radius: 8px; background: #111827; outline: none; }
+.time-suffix { margin-left: 6px; font-size: 16px; color: #94a3b8; }
+
+.running-time { text-align: center; font-size: 48px; font-weight: 700; margin: 14px 0; letter-spacing: 1px; }
+
+.timer-actions { display: flex; gap: 8px; justify-content: center; }
+.timer-actions button { padding: 10px 14px; border-radius: 10px; border: none; cursor: pointer; }
+#startTimer { background: #22c55e; color: #052e16; }
+#pauseTimer { background: #fde68a; color: #78350f; }
+#resetTimer { background: #c7d2fe; color: #1e1b4b; }
+#finishTimer { background: #93c5fd; color: #082f49; }
+#stopTimer { background: #fecaca; color: #7f1d1d; }
+
+@media (max-width: 960px) {
+    .calendar-grid { grid-template-columns: 60px repeat(7, 1fr); }
+    .container { margin: 20px auto; padding: 14px; }
+}

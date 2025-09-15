@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学习日历与待办</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>学习日历与待办</h1>
+
+        <div class="top-actions">
+            <div class="calendar-actions">
+                <button id="prevWeek">上一周</button>
+                <button id="goToday">今天</button>
+                <button id="nextWeek">下一周</button>
+            </div>
+            <div class="course-actions">
+                <button id="addCourseBtn">添加课程</button>
+                <button id="importScheduleBtn">导入课表PDF（预览）</button>
+            </div>
+        </div>
+
+        <div id="calendarSection" class="calendar-section">
+            <div class="calendar-header" id="calendarWeekLabel">本周</div>
+            <div class="calendar-grid">
+                <div class="time-col" id="timeCol"></div>
+                <div class="day-col" data-day="1">
+                    <div class="day-header" id="dayHeader-1">周一</div>
+                    <div class="day-body" id="dayBody-1"></div>
+                </div>
+                <div class="day-col" data-day="2">
+                    <div class="day-header" id="dayHeader-2">周二</div>
+                    <div class="day-body" id="dayBody-2"></div>
+                </div>
+                <div class="day-col" data-day="3">
+                    <div class="day-header" id="dayHeader-3">周三</div>
+                    <div class="day-body" id="dayBody-3"></div>
+                </div>
+                <div class="day-col" data-day="4">
+                    <div class="day-header" id="dayHeader-4">周四</div>
+                    <div class="day-body" id="dayBody-4"></div>
+                </div>
+                <div class="day-col" data-day="5">
+                    <div class="day-header" id="dayHeader-5">周五</div>
+                    <div class="day-body" id="dayBody-5"></div>
+                </div>
+                <div class="day-col" data-day="6">
+                    <div class="day-header" id="dayHeader-6">周六</div>
+                    <div class="day-body" id="dayBody-6"></div>
+                </div>
+                <div class="day-col" data-day="0">
+                    <div class="day-header" id="dayHeader-0">周日</div>
+                    <div class="day-body" id="dayBody-0"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="split">
+            <div class="todo-section">
+                <h2>待办事项</h2>
+                <div class="todo-input">
+                    <input type="text" id="taskInput" placeholder="请输入新的待办事项...">
+                    <button id="addTask">添加</button>
+                </div>
+                <ul id="taskList" class="task-list"></ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加课程弹窗 -->
+    <div class="modal" id="courseModal" aria-hidden="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>添加课程</h3>
+                <button class="close-modal" data-close="courseModal">×</button>
+            </div>
+            <div class="modal-body">
+                <label>
+                    课程名称
+                    <input type="text" id="courseTitle" placeholder="例如：高等数学">
+                </label>
+                <label>
+                    上课日
+                    <select id="courseDay">
+                        <option value="1">周一</option>
+                        <option value="2">周二</option>
+                        <option value="3">周三</option>
+                        <option value="4">周四</option>
+                        <option value="5">周五</option>
+                        <option value="6">周六</option>
+                        <option value="0">周日</option>
+                    </select>
+                </label>
+                <label>
+                    开始时间
+                    <input type="time" id="courseStart" value="08:00">
+                </label>
+                <label>
+                    结束时间
+                    <input type="time" id="courseEnd" value="09:40">
+                </label>
+                <label>
+                    上课地点（可选）
+                    <input type="text" id="courseLocation" placeholder="教学楼/教室">
+                </label>
+                <div class="modal-actions">
+                    <button id="saveCourseBtn">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 课表PDF预览弹窗（参考使用） -->
+    <div class="modal" id="pdfModal" aria-hidden="true">
+        <div class="modal-content modal-wide">
+            <div class="modal-header">
+                <h3>课表PDF预览（用于参考录入）</h3>
+                <button class="close-modal" data-close="pdfModal">×</button>
+            </div>
+            <div class="modal-body">
+                <embed src="我的课表.pdf" type="application/pdf" class="pdf-embed" />
+                <p class="hint">提示：当前不进行自动解析，请参考PDF快速添加课程。</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 事件详情弹窗 -->
+    <div class="modal" id="eventDetailModal" aria-hidden="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="detailTitle">课程详情</h3>
+                <button class="close-modal" data-close="eventDetailModal">×</button>
+            </div>
+            <div class="modal-body">
+                <p>时间：<span id="detailTime"></span></p>
+                <p>地点：<span id="detailLocation"></span></p>
+                <p>周次：<span id="detailWeeks"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 专注计时器界面 -->
+    <div class="timer-overlay" id="timerOverlay" aria-hidden="true">
+        <div class="timer-panel">
+            <div class="timer-header">
+                <span id="timerTaskTitle">专注</span>
+                <button class="close-modal" id="exitTimer">×</button>
+            </div>
+            <div class="timer-body">
+                <div class="timer-mode">
+                    <label><input type="radio" name="timerMode" value="countdown" checked> 倒计时</label>
+                    <label><input type="radio" name="timerMode" value="stopwatch"> 正计时</label>
+                </div>
+                <div class="countdown-setup" id="countdownSetup" title="滚动鼠标滚轮调节分钟">
+                    <span class="time-number" id="setupMinutes" tabindex="0">60</span>
+                    <span class="time-suffix">分钟</span>
+                </div>
+                <div class="running-time" id="runningTime">00:00:00</div>
+                <div class="timer-actions">
+                    <button id="startTimer">开始</button>
+                    <button id="pauseTimer" disabled>暂停</button>
+                    <button id="resetTimer" disabled>重置</button>
+                    <button id="finishTimer" disabled>完成</button>
+                    <button id="stopTimer">终止</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
