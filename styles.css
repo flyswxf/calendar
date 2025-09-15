@@ -66,7 +66,7 @@ h1 {
 .time-col {
     border-right: 1px dashed #e2e8f0;
     padding-right: 6px;
-    margin-top: calc(1em + 17px); /* 动态对齐: font-size + padding(8px*2) + border(1px) */
+    /* margin-top将通过JavaScript动态设置以对齐.day-header底部 */
 }
 
 .time-slot {
@@ -383,7 +383,7 @@ h1 {
     }
     
     .time-col {
-        margin-top: calc(1em + 13px); /* 中屏动态对齐: font-size(11px) + padding(6px*2) + border(1px) */
+        /* margin-top将通过JavaScript动态设置 */
     }
     
     .event {
@@ -510,7 +510,7 @@ h1 {
     }
     
     .time-col {
-        margin-top: calc(1em + 9px); /* 小屏动态对齐: font-size(10px) + padding(4px*2) + border(1px) */
+        /* margin-top将通过JavaScript动态设置 */
     }
     
     .event {

@@ -327,6 +327,8 @@ function renderCalendar() {
   renderFocusSessions(weekStart);
   renderTodayHighlight(weekStart);
   renderNowLine(weekStart);
+  // 渲染完成后对齐时间刻度
+  setTimeout(alignTimeColumn, 5);
 }
 
 // ========== 课程弹窗 ========== 
@@ -861,7 +863,27 @@ function checkInitialCleanup() {
 checkInitialCleanup();
 scheduleNextCleanup();
 
-// 监听窗口大小变化，重新渲染日历以确保时间对齐
+// 动态对齐时间刻度与日历头部
+function alignTimeColumn() {
+  const dayHeader = document.querySelector('.day-header');
+  const timeCol = document.querySelector('.time-col');
+  
+  if (dayHeader && timeCol) {
+    // 获取.day-header的实际高度（包括padding、border等）
+    const headerHeight = dayHeader.offsetHeight;
+    // 将时间刻度的顶部对齐到日历头部的底部
+    timeCol.style.marginTop = `${headerHeight}px`;
+  }
+}
+
+// 监听窗口大小变化，重新渲染日历并重新对齐
 window.addEventListener('resize', () => {
   renderCalendar();
+  // 延迟执行对齐，确保DOM更新完成
+  setTimeout(alignTimeColumn, 10);
+});
+
+// 页面加载完成后执行初始对齐
+window.addEventListener('load', () => {
+  alignTimeColumn();
 });
