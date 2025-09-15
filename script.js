@@ -57,8 +57,10 @@ const END_MIN = 23 * 60; // 23:00
 
 // 动态计算PIXEL_PER_MIN，根据屏幕尺寸适配
 function getPixelPerMin() {
-    if (window.innerWidth <= 768) {
-        return 40 / 60; // 手机端：40px/小时 = 0.667px/分钟
+    if (window.innerWidth <= 480) {
+        return 35 / 60; // 超小屏：35px/小时 ≈ 0.583px/分钟
+    } else if (window.innerWidth <= 768) {
+        return 40 / 60; // 手机端：40px/小时 ≈ 0.667px/分钟
     }
     return 0.8; // 桌面端：48px/小时 = 0.8px/分钟
 }

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>时间对齐修复验证</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .test-info {
+            background: #f0f9ff;
+            border: 2px solid #0ea5e9;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .alignment-indicator {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: rgba(239, 68, 68, 0.8);
+            z-index: 100;
+            pointer-events: none;
+        }
+        
+        .measurement-overlay {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 12px;
+            z-index: 1000;
+            max-width: 300px;
+        }
+        
+        .status-good { color: #10b981; }
+        .status-bad { color: #ef4444; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="test-info">
+            <h1>🎯 时间对齐修复验证</h1>
+            <p><strong>修复内容:</strong> 为.time-col添加了margin-top，使左侧时间刻度与右侧日历内容对齐</p>
+            <ul>
+                <li>桌面端 (>768px): margin-top: 32px</li>
+                <li>中屏 (481-768px): margin-top: 26px</li>
+                <li>小屏 (≤480px): margin-top: 20px</li>
+            </ul>
+        </div>
+        
+        <div class="calendar-section">
+            <div class="calendar-header">📅 本周课程安排</div>
+            <div class="calendar-grid">
+                <div class="time-col" id="timeCol">
+                    <!-- 时间刻度将由JavaScript生成 -->
+                </div>
+                
+                <div class="day-col">
+                    <div class="day-header">周一 12/23</div>
+                    <div class="day-body" style="position: relative;">
+                        <!-- 8:00-9:00 课程 -->
+                        <div class="event course" style="top: 48px; height: 48px;">
+                            <span class="title">高等数学</span>
+                            <div class="meta">8:00 - 9:00</div>
+                        </div>
+                        
+                        <!-- 10:00-12:00 课程 -->
+                        <div class="event course" style="top: 144px; height: 96px;">
+                            <span class="title">计算机网络</span>
+                            <div class="meta">10:00 - 12:00</div>
+                        </div>
+                        
+                        <!-- 14:00-15:00 专注任务 -->
+                        <div class="event focus" style="top: 336px; height: 48px;">
+                            <span class="title">项目开发</span>
+                            <div class="meta">14:00 - 15:00</div>
+                        </div>
+                        
+                        <!-- 对齐指示线 -->
+                        <div class="alignment-indicator" style="top: 48px;" title="8:00 对齐线"></div>
+                        <div class="alignment-indicator" style="top: 144px;" title="10:00 对齐线"></div>
+                        <div class="alignment-indicator" style="top: 336px;" title="14:00 对齐线"></div>
+                    </div>
+                </div>
+                
+                <div class="day-col">
+                    <div class="day-header">周二 12/24</div>
+                    <div class="day-body" style="position: relative;">
+                        <!-- 9:00-11:00 课程 -->
+                        <div class="event course" style="top: 96px; height: 96px;">
+                            <span class="title">数据结构</span>
+                            <div class="meta">9:00 - 11:00</div>
+                        </div>
+                        
+                        <!-- 对齐指示线 -->
+                        <div class="alignment-indicator" style="top: 96px;" title="9:00 对齐线"></div>
+                    </div>
+                </div>
+                
+                <div class="day-col">
+                    <div class="day-header">周三 12/25</div>
+                    <div class="day-body" style="position: relative;">
+                        <!-- 13:00-15:00 专注任务 -->
+                        <div class="event focus" style="top: 288px; height: 96px;">
+                            <span class="title">算法练习</span>
+                            <div class="meta">13:00 - 15:00</div>
+                        </div>
+                        
+                        <!-- 对齐指示线 -->
+                        <div class="alignment-indicator" style="top: 288px;" title="13:00 对齐线"></div>
+                    </div>
+                </div>
+                
+                <div class="day-col">
+                    <div class="day-header">周四 12/26</div>
+                    <div class="day-body"></div>
+                </div>
+                
+                <div class="day-col">
+                    <div class="day-header">周五 12/27</div>
+                    <div class="day-body"></div>
+                </div>
+                
+                <div class="day-col">
+                    <div class="day-header">周六 12/28</div>
+                    <div class="day-body"></div>
+                </div>
+                
+                <div class="day-col">
+                    <div class="day-header">周日 12/29</div>
+                    <div class="day-body"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="measurement-overlay" id="measurementOverlay"></div>
+    
+    <script src="script.js"></script>
+    <script>
+        // 生成时间刻度
+        function renderTimeCol() {
+            const timeCol = document.getElementById('timeCol');
+            timeCol.innerHTML = '';
+            for (let h = 7; h <= 23; h++) {
+                const slot = document.createElement('div');
+                slot.className = 'time-slot';
+                slot.textContent = `${h}:00`;
+                timeCol.appendChild(slot);
+            }
+        }
+        
+        function measureAlignment() {
+            const timeSlots = document.querySelectorAll('.time-slot');
+            const events = document.querySelectorAll('.event');
+            const indicators = document.querySelectorAll('.alignment-indicator');
+            
+            let alignmentResults = [];
+            
+            // 检查关键时间点的对齐
+            const checkPoints = [
+                { hour: 8, slotIndex: 1, eventIndex: 0, name: '8:00 高等数学' },
+                { hour: 10, slotIndex: 3, eventIndex: 1, name: '10:00 计算机网络' },
+                { hour: 14, slotIndex: 7, eventIndex: 2, name: '14:00 项目开发' },
+                { hour: 9, slotIndex: 2, eventIndex: 3, name: '9:00 数据结构' },
+                { hour: 13, slotIndex: 6, eventIndex: 4, name: '13:00 算法练习' }
+            ];
+            
+            checkPoints.forEach(point => {
+                if (timeSlots[point.slotIndex] && events[point.eventIndex]) {
+                    const slotRect = timeSlots[point.slotIndex].getBoundingClientRect();
+                    const eventRect = events[point.eventIndex].getBoundingClientRect();
+                    
+                    const offset = Math.abs(slotRect.top - eventRect.top);
+                    const isAligned = offset < 3; // 允许3px误差
+                    
+                    alignmentResults.push({
+                        name: point.name,
+                        offset: offset.toFixed(1),
+                        aligned: isAligned
+                    });
+                }
+            });
+            
+            // 显示测量结果
+            const overlay = document.getElementById('measurementOverlay');
+            const screenWidth = window.innerWidth;
+            const breakpoint = screenWidth <= 480 ? '小屏' : 
+                             screenWidth <= 768 ? '中屏' : '桌面';
+            
+            const alignedCount = alignmentResults.filter(r => r.aligned).length;
+            const totalCount = alignmentResults.length;
+            
+            overlay.innerHTML = `
+                <strong>对齐验证结果</strong><br>
+                屏幕: ${screenWidth}px (${breakpoint})<br>
+                对齐率: ${alignedCount}/${totalCount}<br>
+                <br>
+                ${alignmentResults.map(r => 
+                    `<span class="${r.aligned ? 'status-good' : 'status-bad'}">
+                        ${r.aligned ? '✅' : '❌'} ${r.name}<br>
+                        偏移: ${r.offset}px
+                    </span>`
+                ).join('<br>')}
+                <br>
+                <small>调整窗口大小测试不同断点</small>
+            `;
+        }
+        
+        // 页面加载后执行
+        window.addEventListener('load', () => {
+            renderTimeCol();
+            setTimeout(measureAlignment, 200);
+        });
+        
+        // 窗口大小改变时重新测量
+        window.addEventListener('resize', () => {
+            setTimeout(measureAlignment, 200);
+        });
+        
+        // 定期更新测量结果
+        setInterval(measureAlignment, 2000);
+    </script>
+</body>
+</html>

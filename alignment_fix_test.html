@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>时间对齐修复测试</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>时间对齐问题诊断</h1>
+        
+        <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h2>问题分析</h2>
+            <p>时间刻度(.time-slot)在左侧列，事件(.event)在右侧.day-body中。</p>
+            <p>左侧时间刻度没有考虑右侧日历头部(.day-header)的高度偏移。</p>
+        </div>
+        
+        <div class="calendar-section">
+            <div class="calendar-grid">
+                <div class="time-col" id="timeCol">
+                    <!-- 时间刻度将由JavaScript生成 -->
+                </div>
+                
+                <div class="day-col">
+                    <div class="day-header" id="testHeader">周一 12/23</div>
+                    <div class="day-body" id="testBody">
+                        <!-- 8:00-9:00 测试事件 -->
+                        <div class="event course" style="top: 48px; height: 48px;">
+                            <span class="title">8:00-9:00 测试课程</span>
+                            <div class="meta">8:00 - 9:00</div>
+                        </div>
+                        
+                        <!-- 10:00-11:00 测试事件 -->
+                        <div class="event focus" style="top: 144px; height: 48px;">
+                            <span class="title">10:00-11:00 专注任务</span>
+                            <div class="meta">10:00 - 11:00</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="day-col">
+                    <div class="day-header">周二 12/24</div>
+                    <div class="day-body"></div>
+                </div>
+                
+                <div class="day-col">
+                    <div class="day-header">周三 12/25</div>
+                    <div class="day-body"></div>
+                </div>
+                
+                <div class="day-col">
+                    <div class="day-header">周四 12/26</div>
+                    <div class="day-body"></div>
+                </div>
+                
+                <div class="day-col">
+                    <div class="day-header">周五 12/27</div>
+                    <div class="day-body"></div>
+                </div>
+                
+                <div class="day-col">
+                    <div class="day-header">周六 12/28</div>
+                    <div class="day-body"></div>
+                </div>
+                
+                <div class="day-col">
+                    <div class="day-header">周日 12/29</div>
+                    <div class="day-body"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="measurements" style="background: #fef3c7; padding: 15px; border-radius: 8px; margin: 20px 0; font-family: monospace;"></div>
+        
+        <div id="solution" style="background: #dcfce7; padding: 15px; border-radius: 8px; margin: 20px 0;"></div>
+    </div>
+    
+    <script src="script.js"></script>
+    <script>
+        // 生成时间刻度
+        function renderTimeCol() {
+            const timeCol = document.getElementById('timeCol');
+            timeCol.innerHTML = '';
+            for (let h = 7; h <= 23; h++) {
+                const slot = document.createElement('div');
+                slot.className = 'time-slot';
+                slot.textContent = `${h}:00`;
+                timeCol.appendChild(slot);
+            }
+        }
+        
+        function measureAlignment() {
+            const header = document.getElementById('testHeader');
+            const body = document.getElementById('testBody');
+            const timeSlots = document.querySelectorAll('.time-slot');
+            
+            const headerRect = header.getBoundingClientRect();
+            const bodyRect = body.getBoundingClientRect();
+            
+            // 获取8:00和10:00时间槽的位置
+            const slot8 = timeSlots[1]; // 7:00是索引0，8:00是索引1
+            const slot10 = timeSlots[3]; // 10:00是索引3
+            
+            const slot8Rect = slot8.getBoundingClientRect();
+            const slot10Rect = slot10.getBoundingClientRect();
+            
+            // 获取事件的位置
+            const events = document.querySelectorAll('.event');
+            const event8 = events[0]; // 8:00事件
+            const event10 = events[1]; // 10:00事件
+            
+            const event8Rect = event8.getBoundingClientRect();
+            const event10Rect = event10.getBoundingClientRect();
+            
+            const measurements = document.getElementById('measurements');
+            
+            // 计算偏移
+            const headerHeight = headerRect.height;
+            const offset8 = Math.abs(slot8Rect.top - event8Rect.top);
+            const offset10 = Math.abs(slot10Rect.top - event10Rect.top);
+            
+            measurements.innerHTML = `
+                <strong>测量结果:</strong><br>
+                日历头部高度: ${headerHeight.toFixed(2)}px<br>
+                <br>
+                8:00 时间槽顶部: ${slot8Rect.top.toFixed(2)}px<br>
+                8:00 事件顶部: ${event8Rect.top.toFixed(2)}px<br>
+                8:00 垂直偏移: ${offset8.toFixed(2)}px<br>
+                <br>
+                10:00 时间槽顶部: ${slot10Rect.top.toFixed(2)}px<br>
+                10:00 事件顶部: ${event10Rect.top.toFixed(2)}px<br>
+                10:00 垂直偏移: ${offset10.toFixed(2)}px<br>
+                <br>
+                预期偏移量: ${headerHeight.toFixed(2)}px (日历头部高度)
+            `;
+            
+            const solution = document.getElementById('solution');
+            
+            if (Math.abs(offset8 - headerHeight) < 2 && Math.abs(offset10 - headerHeight) < 2) {
+                solution.innerHTML = `
+                    <h3>✅ 诊断确认</h3>
+                    <p>偏移量约等于日历头部高度，确认问题是由于左侧时间刻度没有考虑右侧日历头部的高度。</p>
+                    <h4>解决方案:</h4>
+                    <p>需要给左侧时间刻度添加顶部边距，使其与右侧日历内容对齐。</p>
+                    <code>修改CSS: .time-col { margin-top: ${headerHeight.toFixed(0)}px; }</code>
+                `;
+            } else {
+                solution.innerHTML = `
+                    <h3>🔍 需要进一步分析</h3>
+                    <p>偏移量与日历头部高度不完全匹配，可能还有其他因素影响对齐。</p>
+                `;
+            }
+        }
+        
+        // 页面加载后执行
+        window.addEventListener('load', () => {
+            renderTimeCol();
+            setTimeout(measureAlignment, 100); // 稍微延迟确保渲染完成
+        });
+        
+        // 窗口大小改变时重新测量
+        window.addEventListener('resize', () => {
+            setTimeout(measureAlignment, 100);
+        });
+    </script>
+</body>
+</html>

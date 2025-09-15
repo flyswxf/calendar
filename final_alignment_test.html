@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>最终时间对齐测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 2px solid #ddd;
+        }
+        .test-section.active {
+            border-color: #3b82f6;
+            background: #f0f9ff;
+        }
+        .time-grid {
+            position: relative;
+            border: 1px solid #ddd;
+            background: #fafafa;
+            margin: 10px 0;
+            width: 100%;
+            max-width: 400px;
+        }
+        .time-slot {
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            padding-left: 10px;
+            font-size: 12px;
+            color: #666;
+            position: relative;
+        }
+        .event-test {
+            position: absolute;
+            background: rgba(59, 130, 246, 0.9);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            left: 60px;
+            width: calc(100% - 80px);
+            border: 1px solid #1d4ed8;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .ruler {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: red;
+            z-index: 20;
+            opacity: 0.7;
+        }
+        .ruler::before {
+            content: attr(data-time);
+            position: absolute;
+            right: 5px;
+            top: -12px;
+            font-size: 9px;
+            color: red;
+            background: white;
+            padding: 0 2px;
+            font-weight: bold;
+        }
+        .info {
+            background: #e0f2fe;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-size: 12px;
+        }
+        .results {
+            background: #f3e8ff;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .success {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .error {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        .controls {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .controls button {
+            margin: 5px;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background: #3b82f6;
+            color: white;
+        }
+        .controls button:hover {
+            background: #2563eb;
+        }
+        .controls button.active {
+            background: #1d4ed8;
+        }
+    </style>
+</head>
+<body>
+    <h1>最终时间对齐测试 - 所有断点验证</h1>
+    
+    <div class="controls">
+        <h3>选择测试模式:</h3>
+        <button onclick="testBreakpoint(1200, '桌面端')" class="active">桌面端 (>768px)</button>
+        <button onclick="testBreakpoint(600, '手机端')">手机端 (481-768px)</button>
+        <button onclick="testBreakpoint(400, '超小屏')">超小屏 (≤480px)</button>
+        <button onclick="testAll()">测试所有断点</button>
+    </div>
+    
+    <div id="testContainer"></div>
+    
+    <div class="results" id="overallResults"></div>
+    
+    <script>
+        const BASE_START_MIN = 7 * 60; // 7:00 = 420分钟
+        const END_MIN = 12 * 60; // 12:00 = 720分钟
+        
+        function pad(n) { return n < 10 ? '0' + n : '' + n; }
+        function fmtHM(minutesOfDay) { 
+            const h = Math.floor(minutesOfDay / 60); 
+            const m = minutesOfDay % 60; 
+            return `${pad(h)}:${pad(m)}`; 
+        }
+        
+        // 模拟getPixelPerMin函数
+        function getPixelPerMin(width) {
+            if (width <= 480) {
+                return 35 / 60; // 超小屏：35px/小时 ≈ 0.583px/分钟
+            } else if (width <= 768) {
+                return 40 / 60; // 手机端：40px/小时 ≈ 0.667px/分钟
+            }
+            return 0.8; // 桌面端：48px/小时 = 0.8px/分钟
+        }
+        
+        function getSlotHeight(width) {
+            if (width <= 480) return 35;
+            if (width <= 768) return 40;
+            return 48;
+        }
+        
+        function createTest(width, label) {
+            const pixelPerMin = getPixelPerMin(width);
+            const slotHeight = getSlotHeight(width);
+            
+            const section = document.createElement('div');
+            section.className = 'test-section';
+            section.innerHTML = `
+                <h2>${label} 测试 (宽度: ${width}px)</h2>
+                <div class="info">
+                    时间槽高度: ${slotHeight}px<br>
+                    PIXEL_PER_MIN: ${pixelPerMin.toFixed(3)}<br>
+                    每小时像素: ${(pixelPerMin * 60).toFixed(1)}px
+                </div>
+                <div class="time-grid" id="grid-${width}"></div>
+                <div class="results" id="results-${width}"></div>
+            `;
+            
+            return section;
+        }
+        
+        function runTest(width, label) {
+            const pixelPerMin = getPixelPerMin(width);
+            const slotHeight = getSlotHeight(width);
+            const container = document.getElementById(`grid-${width}`);
+            const resultsContainer = document.getElementById(`results-${width}`);
+            
+            if (!container) return null;
+            
+            container.innerHTML = '';
+            
+            const results = [];
+            
+            // 创建时间槽和标尺
+            let cumulativeHeight = 0;
+            for (let min = BASE_START_MIN; min < END_MIN; min += 60) {
+                const slot = document.createElement('div');
+                slot.className = 'time-slot';
+                slot.textContent = fmtHM(min);
+                slot.style.height = slotHeight + 'px';
+                container.appendChild(slot);
+                
+                // 添加时间标尺
+                const ruler = document.createElement('div');
+                ruler.className = 'ruler';
+                ruler.style.top = cumulativeHeight + 'px';
+                ruler.setAttribute('data-time', fmtHM(min));
+                container.appendChild(ruler);
+                
+                cumulativeHeight += slotHeight;
+            }
+            
+            container.style.height = cumulativeHeight + 'px';
+            
+            // 测试事件
+            const testEvents = [
+                { time: '8:00', min: 8 * 60 },
+                { time: '8:30', min: 8.5 * 60 },
+                { time: '9:00', min: 9 * 60 },
+                { time: '10:15', min: 10.25 * 60 },
+                { time: '11:45', min: 11.75 * 60 }
+            ];
+            
+            testEvents.forEach((event, index) => {
+                const eventEl = document.createElement('div');
+                eventEl.className = 'event-test';
+                
+                const calculatedTop = (event.min - BASE_START_MIN) * pixelPerMin;
+                const slotIndex = (event.min - BASE_START_MIN) / 60;
+                const expectedTop = slotIndex * slotHeight;
+                const difference = Math.abs(calculatedTop - expectedTop);
+                const isAligned = difference < 0.5; // 允许0.5px的误差
+                
+                eventEl.style.top = calculatedTop + 'px';
+                eventEl.style.height = '18px';
+                eventEl.style.background = isAligned ? '#22c55e' : '#ef4444';
+                eventEl.innerHTML = `
+                    <span>${event.time}</span>
+                    <span>${calculatedTop.toFixed(1)}px</span>
+                `;
+                
+                container.appendChild(eventEl);
+                
+                results.push({
+                    time: event.time,
+                    calculated: calculatedTop,
+                    expected: expectedTop,
+                    difference: difference,
+                    aligned: isAligned
+                });
+            });
+            
+            // 显示结果
+            const alignedCount = results.filter(r => r.aligned).length;
+            const totalCount = results.length;
+            const successRate = (alignedCount / totalCount * 100).toFixed(1);
+            
+            const resultClass = alignedCount === totalCount ? 'success' : 'error';
+            resultsContainer.className = `results ${resultClass}`;
+            resultsContainer.innerHTML = `
+                <h4>测试结果</h4>
+                <strong>对齐成功率: ${successRate}% (${alignedCount}/${totalCount})</strong><br><br>
+                ${results.map(r => `
+                    ${r.time}: ${r.aligned ? '✅' : '❌'} 
+                    计算=${r.calculated.toFixed(1)}px, 
+                    期望=${r.expected.toFixed(1)}px, 
+                    差异=${r.difference.toFixed(1)}px
+                `).join('<br>')}
+            `;
+            
+            return { label, width, alignedCount, totalCount, successRate: parseFloat(successRate) };
+        }
+        
+        function testBreakpoint(width, label) {
+            // 清除之前的测试
+            document.getElementById('testContainer').innerHTML = '';
+            
+            // 更新按钮状态
+            document.querySelectorAll('.controls button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // 创建并运行测试
+            const testSection = createTest(width, label);
+            testSection.classList.add('active');
+            document.getElementById('testContainer').appendChild(testSection);
+            
+            setTimeout(() => {
+                const result = runTest(width, label);
+                updateOverallResults([result]);
+            }, 100);
+        }
+        
+        function testAll() {
+            // 清除之前的测试
+            document.getElementById('testContainer').innerHTML = '';
+            
+            // 更新按钮状态
+            document.querySelectorAll('.controls button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            const tests = [
+                { width: 1200, label: '桌面端' },
+                { width: 600, label: '手机端' },
+                { width: 400, label: '超小屏' }
+            ];
+            
+            const results = [];
+            
+            tests.forEach((test, index) => {
+                const testSection = createTest(test.width, test.label);
+                document.getElementById('testContainer').appendChild(testSection);
+                
+                setTimeout(() => {
+                    const result = runTest(test.width, test.label);
+                    results.push(result);
+                    
+                    if (results.length === tests.length) {
+                        updateOverallResults(results);
+                    }
+                }, 100 * (index + 1));
+            });
+        }
+        
+        function updateOverallResults(results) {
+            const container = document.getElementById('overallResults');
+            const totalAligned = results.reduce((sum, r) => sum + r.alignedCount, 0);
+            const totalTests = results.reduce((sum, r) => sum + r.totalCount, 0);
+            const overallRate = (totalAligned / totalTests * 100).toFixed(1);
+            
+            const allPerfect = results.every(r => r.successRate === 100);
+            container.className = `results ${allPerfect ? 'success' : 'error'}`;
+            
+            container.innerHTML = `
+                <h3>总体测试结果</h3>
+                <strong>整体对齐成功率: ${overallRate}% (${totalAligned}/${totalTests})</strong><br><br>
+                ${results.map(r => `
+                    <div style="margin: 5px 0;">
+                        ${r.label}: ${r.successRate}% 
+                        ${r.successRate === 100 ? '✅ 完美对齐' : '❌ 需要调整'}
+                    </div>
+                `).join('')}
+                <br>
+                <div style="font-size: 11px; color: #666;">
+                    测试标准: 计算位置与期望位置差异小于0.5px视为对齐成功
+                </div>
+            `;
+        }
+        
+        // 默认测试桌面端
+        window.onload = () => {
+            testBreakpoint(1200, '桌面端');
+        };
+    </script>
+</body>
+</html>

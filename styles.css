@@ -66,6 +66,7 @@ h1 {
 .time-col {
     border-right: 1px dashed #e2e8f0;
     padding-right: 6px;
+    margin-top: calc(1em + 17px); /* 动态对齐: font-size + padding(8px*2) + border(1px) */
 }
 
 .time-slot {
@@ -110,8 +111,8 @@ h1 {
 
 .day-body {
     position: relative;
-    height: 48px * 16; /* 16小时可视范围（7:00-23:00）*/
-    min-height: 768px; /* 48*16 fallback */
+    height: 768px; /* 16小时可视范围（7:00-23:00）: 48px * 16 = 768px */
+    min-height: 768px;
     background-image: linear-gradient(#f8fafc 1px, rgba(255,255,255,0) 1px);
     background-size: 100% 48px;
 }
@@ -370,7 +371,7 @@ h1 {
     }
     
     .day-body {
-        height: 40px * 16;
+        height: 640px;
         min-height: 640px;
         background-size: 100% 40px;
     }
@@ -379,6 +380,10 @@ h1 {
         padding: 6px 2px;
         font-size: 11px;
         font-weight: 500;
+    }
+    
+    .time-col {
+        margin-top: calc(1em + 13px); /* 中屏动态对齐: font-size(11px) + padding(6px*2) + border(1px) */
     }
     
     .event {
@@ -494,7 +499,7 @@ h1 {
     }
     
     .day-body {
-        height: 35px * 16;
+        height: 560px; /* 35px * 16 = 560px */
         min-height: 560px;
         background-size: 100% 35px;
     }
@@ -502,6 +507,10 @@ h1 {
     .day-header {
         padding: 4px 1px;
         font-size: 10px;
+    }
+    
+    .time-col {
+        margin-top: calc(1em + 9px); /* 小屏动态对齐: font-size(10px) + padding(4px*2) + border(1px) */
     }
     
     .event {

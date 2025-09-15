@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日历头部偏移测试</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+        }
+        
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: 60px repeat(7, 1fr);
+            gap: 1px;
+            background: #f1f5f9;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        .time-slot {
+            background: #fff;
+            padding: 4px 8px;
+            font-size: 11px;
+            color: #64748b;
+            text-align: center;
+            border-right: 1px solid #f1f5f9;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .day-col {
+            background: #fafafa;
+            border: 1px solid #f1f5f9;
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .day-header {
+            text-align: center;
+            padding: 8px 6px;
+            background: #fff;
+            border-bottom: 1px solid #f1f5f9;
+            font-weight: 600;
+            color: #334155;
+            height: auto; /* 让我们测量实际高度 */
+        }
+        
+        .day-body {
+            position: relative;
+            height: 768px;
+            min-height: 768px;
+            background-image: linear-gradient(#f8fafc 1px, rgba(255,255,255,0) 1px);
+            background-size: 100% 48px;
+        }
+        
+        .test-event {
+            position: absolute;
+            left: 6px;
+            right: 6px;
+            background: #3b82f6;
+            color: white;
+            border-radius: 8px;
+            padding: 8px;
+            font-size: 12px;
+            z-index: 10;
+        }
+        
+        .measurement {
+            background: #fef3c7;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 6px;
+            font-family: monospace;
+        }
+        
+        .highlight {
+            background: #fee2e2;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        
+        @media (max-width: 768px) {
+            .time-slot {
+                height: 40px;
+            }
+            .day-body {
+                height: 640px;
+                min-height: 640px;
+                background-size: 100% 40px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .time-slot {
+                height: 35px;
+            }
+            .day-body {
+                height: 560px;
+                min-height: 560px;
+                background-size: 100% 35px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>日历头部偏移问题测试</h1>
+        
+        <div class="test-section">
+            <h2>问题分析</h2>
+            <p>用户反馈：事件位置没有对齐时间刻度，怀疑是因为日历头部（周一到周日）占用了额外高度，导致事件向下偏移。</p>
+        </div>
+        
+        <div class="test-section">
+            <h2>实际日历结构测试</h2>
+            <div class="calendar-grid">
+                <div class="time-slot"></div>
+                <div class="day-col">
+                    <div class="day-header" id="header1">周一</div>
+                    <div class="day-body" id="body1">
+                        <!-- 8:00 AM 测试事件 -->
+                        <div class="test-event" id="event1" style="top: 48px; height: 48px;">
+                            8:00-9:00 测试课程
+                        </div>
+                    </div>
+                </div>
+                <div class="day-col">
+                    <div class="day-header">周二</div>
+                    <div class="day-body"></div>
+                </div>
+                <div class="day-col">
+                    <div class="day-header">周三</div>
+                    <div class="day-body"></div>
+                </div>
+                <div class="day-col">
+                    <div class="day-header">周四</div>
+                    <div class="day-body"></div>
+                </div>
+                <div class="day-col">
+                    <div class="day-header">周五</div>
+                    <div class="day-body"></div>
+                </div>
+                <div class="day-col">
+                    <div class="day-header">周六</div>
+                    <div class="day-body"></div>
+                </div>
+                <div class="day-col">
+                    <div class="day-header">周日</div>
+                    <div class="day-body"></div>
+                </div>
+                
+                <!-- 时间刻度 -->
+                <div class="time-slot">7:00</div>
+                <div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+                
+                <div class="time-slot">8:00</div>
+                <div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+                
+                <div class="time-slot">9:00</div>
+                <div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>测量结果</h2>
+            <div id="measurements"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>解决方案</h2>
+            <div id="solution"></div>
+        </div>
+    </div>
+    
+    <script>
+        function measureElements() {
+            const header = document.getElementById('header1');
+            const body = document.getElementById('body1');
+            const event = document.getElementById('event1');
+            
+            const headerRect = header.getBoundingClientRect();
+            const bodyRect = body.getBoundingClientRect();
+            const eventRect = event.getBoundingClientRect();
+            
+            const measurements = document.getElementById('measurements');
+            
+            // 计算当前屏幕的时间槽高度
+            const timeSlotHeight = window.innerWidth <= 480 ? 35 : 
+                                 window.innerWidth <= 768 ? 40 : 48;
+            
+            const pixelPerMin = timeSlotHeight / 60;
+            
+            // 8:00 AM = 480分钟，BASE_START_MIN = 420分钟
+            const expectedTop = (480 - 420) * pixelPerMin; // 应该是 60 * pixelPerMin
+            
+            measurements.innerHTML = `
+                <div class="measurement">
+                    <strong>日历头部高度:</strong> ${headerRect.height.toFixed(2)}px<br>
+                    <strong>事件容器顶部位置:</strong> ${bodyRect.top}px<br>
+                    <strong>事件实际顶部位置:</strong> ${eventRect.top}px<br>
+                    <strong>事件相对于容器的top:</strong> ${event.style.top}<br>
+                    <br>
+                    <strong>当前屏幕宽度:</strong> ${window.innerWidth}px<br>
+                    <strong>时间槽高度:</strong> ${timeSlotHeight}px<br>
+                    <strong>像素每分钟:</strong> ${pixelPerMin.toFixed(3)}<br>
+                    <br>
+                    <strong>8:00 AM 期望位置:</strong> ${expectedTop}px (相对于day-body)<br>
+                    <strong>8:00 AM 实际位置:</strong> ${event.style.top}<br>
+                    <strong class="${expectedTop == parseInt(event.style.top) ? '' : 'highlight'}">位置匹配:</strong> ${expectedTop == parseInt(event.style.top) ? '✅ 正确' : '❌ 不匹配'}
+                </div>
+            `;
+            
+            // 分析解决方案
+            const solution = document.getElementById('solution');
+            if (expectedTop == parseInt(event.style.top)) {
+                solution.innerHTML = `
+                    <div class="measurement" style="background: #dcfce7;">
+                        ✅ <strong>事件位置计算正确！</strong><br>
+                        事件的top值是相对于.day-body容器计算的，这是正确的。<br>
+                        .day-body容器已经在.day-header下方，所以不需要额外的偏移。
+                    </div>
+                `;
+            } else {
+                solution.innerHTML = `
+                    <div class="measurement" style="background: #fee2e2;">
+                        ❌ <strong>发现位置偏移问题！</strong><br>
+                        需要检查CSS布局或JavaScript计算逻辑。<br>
+                        <br>
+                        可能的解决方案：<br>
+                        1. 检查.day-body的position和top属性<br>
+                        2. 确认事件定位的参考容器<br>
+                        3. 验证时间刻度背景图的对齐
+                    </div>
+                `;
+            }
+        }
+        
+        // 页面加载后测量
+        window.addEventListener('load', measureElements);
+        
+        // 窗口大小改变时重新测量
+        window.addEventListener('resize', measureElements);
+        
+        // 添加实时调试信息
+        setInterval(() => {
+            const debugInfo = document.getElementById('debug-info');
+            if (!debugInfo) {
+                const div = document.createElement('div');
+                div.id = 'debug-info';
+                div.style.cssText = 'position: fixed; top: 10px; right: 10px; background: rgba(0,0,0,0.8); color: white; padding: 10px; border-radius: 6px; font-family: monospace; font-size: 12px; z-index: 1000;';
+                document.body.appendChild(div);
+            }
+            
+            const timeSlotHeight = window.innerWidth <= 480 ? 35 : 
+                                 window.innerWidth <= 768 ? 40 : 48;
+            
+            document.getElementById('debug-info').innerHTML = `
+                屏幕: ${window.innerWidth}x${window.innerHeight}<br>
+                时间槽: ${timeSlotHeight}px<br>
+                像素/分钟: ${(timeSlotHeight/60).toFixed(3)}
+            `;
+        }, 1000);
+    </script>
+</body>
+</html>
