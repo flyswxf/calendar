@@ -286,7 +286,7 @@ function renderTasks() {
   taskList.innerHTML = '';
   tasks.forEach((task, index) => {
     const li = document.createElement('li');
-    li.className = `task-item ${task.completed ? 'completed' : ''}`;
+    li.className = `task-item ${task.completed ? 'completed' : ''} ${task.isLegacy ? 'legacy' : ''}`;
 
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
@@ -296,7 +296,8 @@ function renderTasks() {
 
     const taskText = document.createElement('span');
     taskText.className = 'task-text';
-    taskText.textContent = task.text;
+    // 为遗留任务添加标注
+    taskText.textContent = task.isLegacy ? `[遗留] ${task.text}` : task.text;
 
     const focusBtn = document.createElement('button');
     focusBtn.className = 'focus-btn';
@@ -321,7 +322,7 @@ function renderTasks() {
 function addTask() {
   const text = taskInput.value.trim();
   if (text) {
-    tasks.push({ text, completed: false, createdAt: Date.now() });
+    tasks.push({ text, completed: false, createdAt: Date.now(), isLegacy: false });
     taskInput.value = '';
     renderTasks();
   }
@@ -715,3 +716,56 @@ function openEventDetail(detail){
 
 // 点击遮罩关闭
 eventDetailModal?.addEventListener('click', (e) => { if (e.target === eventDetailModal) closeModal(eventDetailModal); });
+
+// ========== 每日任务自动清理功能 ==========
+function cleanupCompletedTasks() {
+  const completedTasks = tasks.filter(task => task.completed);
+  const incompleteTasks = tasks.filter(task => !task.completed);
+  
+  // 将未完成的任务标记为遗留
+  incompleteTasks.forEach(task => {
+    if (!task.isLegacy) {
+      task.isLegacy = true;
+    }
+  });
+  
+  // 只保留未完成的任务
+  tasks = incompleteTasks;
+  saveTasks();
+  renderTasks();
+  
+  console.log(`每日清理完成：删除了 ${completedTasks.length} 个已完成任务，${incompleteTasks.length} 个未完成任务标记为遗留`);
+}
+
+function scheduleNextCleanup() {
+  const now = new Date();
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(0, 0, 0, 0); // 设置为明天的00:00:00
+  
+  const msUntilMidnight = tomorrow.getTime() - now.getTime();
+  
+  setTimeout(() => {
+    cleanupCompletedTasks();
+    // 清理完成后，安排下一次清理
+    scheduleNextCleanup();
+  }, msUntilMidnight);
+  
+  console.log(`下次任务清理时间：${tomorrow.toLocaleString()}`);
+}
+
+// 检查是否需要立即执行清理（页面加载时检查）
+function checkInitialCleanup() {
+  const lastCleanupDate = localStorage.getItem('lastTaskCleanup');
+  const today = new Date().toDateString();
+  
+  if (lastCleanupDate !== today) {
+    // 如果今天还没有清理过，执行清理
+    cleanupCompletedTasks();
+    localStorage.setItem('lastTaskCleanup', today);
+  }
+}
+
+// 页面加载时执行初始检查和安排定时清理
+checkInitialCleanup();
+scheduleNextCleanup();
