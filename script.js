@@ -17,7 +17,7 @@ const goTodayBtn = document.getElementById('goToday');
 
 // 课程相关
 const addCourseBtn = document.getElementById('addCourseBtn');
-const importScheduleBtn = document.getElementById('importScheduleBtn');
+
 const courseModal = document.getElementById('courseModal');
 const courseTitleInput = document.getElementById('courseTitle');
 const courseDaySelect = document.getElementById('courseDay');
@@ -26,8 +26,7 @@ const courseEndInput = document.getElementById('courseEnd');
 const courseLocationInput = document.getElementById('courseLocation');
 const saveCourseBtn = document.getElementById('saveCourseBtn');
 
-// PDF 预览
-const pdfModal = document.getElementById('pdfModal');
+
 
 // 计时器
 const timerOverlay = document.getElementById('timerOverlay');
@@ -55,7 +54,14 @@ function saveFocusSessions() { localStorage.setItem('focusSessions', JSON.string
 // ========== 工具函数 ==========
 const BASE_START_MIN = 7 * 60; // 7:00
 const END_MIN = 23 * 60; // 23:00
-const PIXEL_PER_MIN = 0.8; // 与 CSS 注释一致
+
+// 动态计算PIXEL_PER_MIN，根据屏幕尺寸适配
+function getPixelPerMin() {
+    if (window.innerWidth <= 768) {
+        return 40 / 60; // 手机端：40px/小时 = 0.667px/分钟
+    }
+    return 0.8; // 桌面端：48px/小时 = 0.8px/分钟
+}
 // 学期开始日期：第1周从 2025-09-15 开始（周一）
 const SEMESTER_START = new Date(2025, 8, 15);
 // 禁用旧版(V1)一次性导入
@@ -98,8 +104,9 @@ function weekMatchesCourse(weekNo, weeks){
 function createEventEl({ title, startMin, endMin, type, location, detail }) {
   const el = document.createElement('div');
   el.className = `event ${type}`;
-  const top = Math.max(0, (startMin - BASE_START_MIN) * PIXEL_PER_MIN);
-  const height = Math.max(18, (endMin - startMin) * PIXEL_PER_MIN);
+  const pixelPerMin = getPixelPerMin();
+  const top = Math.max(0, (startMin - BASE_START_MIN) * pixelPerMin);
+  const height = Math.max(18, (endMin - startMin) * pixelPerMin);
   el.style.top = `${top}px`;
   el.style.height = `${height}px`;
 
@@ -118,6 +125,19 @@ function createEventEl({ title, startMin, endMin, type, location, detail }) {
   if (detail) {
     el.style.cursor = 'pointer';
     el.addEventListener('click', () => openEventDetail(detail));
+  } else if (type === 'focus') {
+    // 为专注任务添加默认详情
+    el.addEventListener('click', () => {
+      openEventDetail({
+        title: title,
+        start: fmtHM(startMin),
+        end: fmtHM(endMin),
+        location: location || '',
+        duration: Math.round((endMin - startMin)),
+        type: '专注任务'
+      });
+    });
+    el.style.cursor = 'pointer';
   }
 
   return el;
@@ -165,7 +185,7 @@ function renderNowLine(weekStart) {
   if (minutes < BASE_START_MIN || minutes > END_MIN) return;
   const line = document.createElement('div');
   line.className = 'now-line';
-  line.style.top = `${(minutes - BASE_START_MIN) * PIXEL_PER_MIN}px`;
+  line.style.top = `${(minutes - BASE_START_MIN) * getPixelPerMin()}px`;
   body.appendChild(line);
 }
 
@@ -199,6 +219,13 @@ function renderFocusSessions(weekStart) {
   const weekEnd = addDays(weekStart, 6);
   const weekStartKey = toDateKey(weekStart);
   const weekEndKey = toDateKey(weekEnd);
+  
+  // 按天分组专注任务，用于重叠检测
+  const sessionsByDay = {};
+  for (let i = 0; i <= 6; i++) {
+    sessionsByDay[i] = [];
+  }
+  
   focusSessions.forEach(s => {
     const start = new Date(s.start);
     const end = new Date(s.end);
@@ -207,15 +234,77 @@ function renderFocusSessions(weekStart) {
     const inRange = d >= weekStart && d <= weekEnd;
     if (!inRange) return;
     const day = d.getDay();
-    const body = document.getElementById(`dayBody-${day}`);
     const startMin = start.getHours()*60 + start.getMinutes();
     const endMin = end.getHours()*60 + end.getMinutes();
-    const el = createEventEl({
-      title: s.title || '专注',
-      startMin, endMin,
-      type: 'focus'
+    
+    sessionsByDay[day].push({
+      session: s,
+      startMin,
+      endMin,
+      start,
+      end
     });
-    body.appendChild(el);
+  });
+  
+  // 为每天的任务检测重叠并布局
+  Object.keys(sessionsByDay).forEach(day => {
+    const sessions = sessionsByDay[day];
+    if (sessions.length === 0) return;
+    
+    const body = document.getElementById(`dayBody-${day}`);
+    
+    // 检测重叠并分配列
+    const columns = [];
+    sessions.forEach(sessionData => {
+      let columnIndex = 0;
+      // 找到第一个不重叠的列
+      while (columnIndex < columns.length) {
+        const hasOverlap = columns[columnIndex].some(existing => 
+          !(sessionData.endMin <= existing.startMin || sessionData.startMin >= existing.endMin)
+        );
+        if (!hasOverlap) break;
+        columnIndex++;
+      }
+      
+      // 如果需要新列
+      if (columnIndex >= columns.length) {
+        columns.push([]);
+      }
+      columns[columnIndex].push(sessionData);
+    });
+    
+    // 渲染每列的任务
+    columns.forEach((column, colIndex) => {
+      column.forEach(sessionData => {
+        const { session: s, startMin, endMin, start, end } = sessionData;
+        const el = createEventEl({
+          title: s.taskTitle || '专注任务',
+          startMin,
+          endMin,
+          type: 'focus',
+          location: '',
+          detail: {
+            title: s.taskTitle || '专注任务',
+            start: fmtHM(startMin),
+            end: fmtHM(endMin),
+            duration: Math.round((end - start) / 60000),
+            completed: s.completed
+          }
+        });
+        
+        // 调整宽度和位置以避免重叠
+        const totalColumns = columns.length;
+        if (totalColumns > 1) {
+          const width = Math.floor(95 / totalColumns); // 95%宽度平分
+          const leftOffset = colIndex * width;
+          el.style.width = `${width}%`;
+          el.style.left = `${2 + leftOffset}%`;
+          el.style.right = 'auto';
+        }
+        
+        body.appendChild(el);
+      });
+    });
   });
 }
 
@@ -251,7 +340,7 @@ addCourseBtn?.addEventListener('click', () => {
   openModal(courseModal);
 });
 
-importScheduleBtn?.addEventListener('click', () => openModal(pdfModal));
+
 
 Array.from(document.querySelectorAll('.close-modal')).forEach(btn => {
   btn.addEventListener('click', (e) => {
@@ -264,7 +353,7 @@ Array.from(document.querySelectorAll('.close-modal')).forEach(btn => {
 });
 
 courseModal?.addEventListener('click', (e) => { if (e.target === courseModal) closeModal(courseModal); });
-pdfModal?.addEventListener('click', (e) => { if (e.target === pdfModal) closeModal(pdfModal); });
+
 
 enumCheck:
 saveCourseBtn?.addEventListener('click', () => {
@@ -769,3 +858,8 @@ function checkInitialCleanup() {
 // 页面加载时执行初始检查和安排定时清理
 checkInitialCleanup();
 scheduleNextCleanup();
+
+// 监听窗口大小变化，重新渲染日历以确保时间对齐
+window.addEventListener('resize', () => {
+  renderCalendar();
+});

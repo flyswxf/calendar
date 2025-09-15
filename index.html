@@ -18,7 +18,6 @@
             </div>
             <div class="course-actions">
                 <button id="addCourseBtn">添加课程</button>
-                <button id="importScheduleBtn">导入课表PDF（预览）</button>
             </div>
         </div>
 
@@ -112,19 +111,7 @@
         </div>
     </div>
 
-    <!-- 课表PDF预览弹窗（参考使用） -->
-    <div class="modal" id="pdfModal" aria-hidden="true">
-        <div class="modal-content modal-wide">
-            <div class="modal-header">
-                <h3>课表PDF预览（用于参考录入）</h3>
-                <button class="close-modal" data-close="pdfModal">×</button>
-            </div>
-            <div class="modal-body">
-                <embed src="我的课表.pdf" type="application/pdf" class="pdf-embed" />
-                <p class="hint">提示：当前不进行自动解析，请参考PDF快速添加课程。</p>
-            </div>
-        </div>
-    </div>
+
 
     <!-- 事件详情弹窗 -->
     <div class="modal" id="eventDetailModal" aria-hidden="true">
