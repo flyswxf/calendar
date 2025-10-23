@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <title>模块单元测试</title>
+  <style>
+    body { font-family: system-ui, Arial; padding: 20px; }
+    .pass { color: #2d7; }
+    .fail { color: #d33; }
+    pre { background:#f6f8fa; padding:12px; border-radius:6px; }
+  </style>
+</head>
+<body>
+  <h1>模块单元测试</h1>
+  <div id="results"></div>
+  <script type="module">
+    import './utils.test.js';
+    import './storage.test.js';
+    import './timer.test.js';
+  </script>
+</body>
+</html>

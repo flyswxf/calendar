@@ -1,0 +1,75 @@
+/* Todo Styles Module
+   Purpose: Styles for the todo list component.
+   Scope: .todo-section, inputs, list items, action buttons. */
+.todo-section h2 { margin-bottom: 10px; }
+
+.todo-input {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+#taskInput {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+#addTask {
+    padding: 10px 16px;
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#addTask:hover { background-color: #1d4ed8; }
+
+.task-list { list-style: none; }
+
+.task-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: #f8fafc;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.task-item.completed {
+    background-color: #ecfdf5;
+    text-decoration: line-through;
+    color: #64748b;
+}
+
+.task-item.legacy {
+    background-color: #fef3c7;
+    border-left: 3px solid #f59e0b;
+}
+
+.task-item.legacy .task-text {
+    color: #92400e;
+    font-weight: 500;
+}
+
+.task-checkbox { margin-right: 10px; cursor: pointer; }
+.task-text { flex: 1; }
+
+.delete-btn, .focus-btn {
+    padding: 6px 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-left: 8px;
+}
+
+.delete-btn { background-color: #ef4444; color: #fff; }
+.delete-btn:hover { background-color: #dc2626; }
+
+.focus-btn { background-color: #10b981; color: #fff; }
+.focus-btn:hover { background-color: #059669; }

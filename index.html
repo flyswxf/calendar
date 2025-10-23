@@ -4,9 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>学习日历与待办</title>
-    <link rel="stylesheet" href="styles.css">
+    <!-- Modular CSS: order matters for cascade -->
+    <link rel="stylesheet" href="src/styles/base.css">
+    <link rel="stylesheet" href="src/styles/layout.css">
+    <link rel="stylesheet" href="src/styles/calendar.css">
+    <link rel="stylesheet" href="src/styles/todo.css">
+    <link rel="stylesheet" href="src/styles/modals.css">
+    <link rel="stylesheet" href="src/styles/timer.css">
+    <link rel="stylesheet" href="src/styles/responsive.css">
 </head>
 <body>
+    <nav style="padding:8px 12px; border-bottom:1px solid #eee; margin-bottom:12px;">
+      <a href="/">首页</a>
+      <a href="/test.html" style="margin-left:12px;">测试页</a>
+    </nav>
     <div class="container">
         <h1>学习日历与待办</h1>
 
@@ -156,6 +167,6 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script type="module" src="src/main.js"></script>
 </body>
 </html>

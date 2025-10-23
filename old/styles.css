@@ -66,6 +66,7 @@ h1 {
 .time-col {
     border-right: 1px dashed #e2e8f0;
     padding-right: 6px;
+    position: relative;
     /* margin-top将通过JavaScript动态设置以对齐.day-header底部 */
 }
 
@@ -86,6 +87,14 @@ h1 {
     background: #f1f5f9;
 }
 
+/* 23:00 底部标签，不占用额外分隔线高度 */
+.time-end {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    font-size: 12px;
+    color: #94a3b8;
+}
 .day-col {
     background: #fafafa;
     border: 1px solid #f1f5f9;
@@ -239,12 +248,20 @@ h1 {
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.35);
-    display: none;
+    display: flex; /* 改为始终占位，使用可见性+透明度控制动画 */
     align-items: center;
     justify-content: center;
     z-index: 50;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.24s ease; /* ≤300ms */
 }
-.modal[aria-hidden="false"] { display: flex; }
+.modal[aria-hidden="false"] {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
 
 .modal-content {
     width: 420px;
@@ -252,7 +269,19 @@ h1 {
     border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.15);
     overflow: hidden;
+    transform: translateY(-6px);
+    transition: transform 0.24s ease; /* ≤300ms */
 }
+.modal[aria-hidden="false"] .modal-content { transform: translateY(0); }
+
+/* 保持移动端宽度适配 */
+@media (max-width: 768px) {
+    .modal-content {
+        width: 95vw;
+        margin: 10px;
+    }
+}
+
 .modal-wide { width: 80vw; max-width: 1000px; }
 
 .modal-header {
@@ -369,7 +398,7 @@ h1 {
         height: 40px;
         font-size: 10px;
     }
-    
+    .time-end { font-size: 10px; }
     .day-body {
         height: 640px;
         min-height: 640px;
@@ -497,7 +526,7 @@ h1 {
         height: 35px;
         font-size: 9px;
     }
-    
+    .time-end { font-size: 9px; }
     .day-body {
         height: 560px; /* 35px * 16 = 560px */
         min-height: 560px;
