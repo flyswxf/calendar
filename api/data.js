@@ -3,8 +3,9 @@ export const config = { runtime: 'edge' };
 export default async function handler(req) {
   const { searchParams } = new URL(req.url);
   const userId = searchParams.get('userId');
-  const base = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  const baseRaw = process.env.KV_REST_API_URL || '';
+  const token = process.env.KV_REST_API_TOKEN || process.env.KV_REST_API_READ_ONLY_TOKEN;
+  const base = baseRaw.replace(/^[\s"'`]+|[\s"'`]+$/g, '');
   if (!userId) {
     return new Response(JSON.stringify({ error: 'userId required' }), { status: 400, headers: { 'content-type': 'application/json' } });
   }
@@ -24,6 +25,9 @@ export default async function handler(req) {
     return new Response(JSON.stringify({ tasks, courses, focusSessions }), { status: 200, headers: { 'content-type': 'application/json' } });
   }
   if (req.method === 'PUT') {
+    if (process.env.KV_REST_API_READ_ONLY_TOKEN && !process.env.UPSTASH_REDIS_REST_TOKEN && !process.env.KV_REST_API_TOKEN) {
+      return new Response(JSON.stringify({ error: 'read-only token' }), { status: 403, headers: { 'content-type': 'application/json' } });
+    }
     const body = await req.json();
     async function set(key, value) {
       return fetch(`${base}/set/${encodeURIComponent(key)}/${encodeURIComponent(value)}`, { method: 'POST', headers: { authorization: auth } });
