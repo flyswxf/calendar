@@ -3,170 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>学习日历与待办</title>
-    <!-- Modular CSS: order matters for cascade -->
-    <link rel="stylesheet" href="src/styles/base.css">
-    <link rel="stylesheet" href="src/styles/layout.css">
-    <link rel="stylesheet" href="src/styles/calendar.css">
-    <link rel="stylesheet" href="src/styles/todo.css">
-    <link rel="stylesheet" href="src/styles/modals.css">
-    <link rel="stylesheet" href="src/styles/timer.css">
-    <link rel="stylesheet" href="src/styles/responsive.css">
+    <title>My Personal Space</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f5f5f7;
+            color: #1d1d1f;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            text-align: center;
+            max-width: 800px;
+            padding: 2rem;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        p {
+            font-size: 1.2rem;
+            color: #86868b;
+            margin-bottom: 3rem;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 18px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .card-desc {
+            color: #86868b;
+            font-size: 0.9rem;
+        }
+    </style>
 </head>
 <body>
-    <nav style="padding:8px 12px; border-bottom:1px solid #eee; margin-bottom:12px;">
-      <a href="/">首页</a>
-      <a href="/test.html" style="margin-left:12px;">测试页</a>
-    </nav>
     <div class="container">
-        <h1>学习日历与待办</h1>
-
-        <div class="top-actions">
-            <div class="calendar-actions">
-                <button id="prevWeek">上一周</button>
-                <button id="goToday">今天</button>
-                <button id="nextWeek">下一周</button>
-            </div>
-            <div class="course-actions">
-                <button id="addCourseBtn">添加课程</button>
-            </div>
-        </div>
-
-        <div id="calendarSection" class="calendar-section">
-            <div class="calendar-header" id="calendarWeekLabel">本周</div>
-            <div class="calendar-grid">
-                <div class="time-col" id="timeCol"></div>
-                <div class="day-col" data-day="1">
-                    <div class="day-header" id="dayHeader-1">周一</div>
-                    <div class="day-body" id="dayBody-1"></div>
-                </div>
-                <div class="day-col" data-day="2">
-                    <div class="day-header" id="dayHeader-2">周二</div>
-                    <div class="day-body" id="dayBody-2"></div>
-                </div>
-                <div class="day-col" data-day="3">
-                    <div class="day-header" id="dayHeader-3">周三</div>
-                    <div class="day-body" id="dayBody-3"></div>
-                </div>
-                <div class="day-col" data-day="4">
-                    <div class="day-header" id="dayHeader-4">周四</div>
-                    <div class="day-body" id="dayBody-4"></div>
-                </div>
-                <div class="day-col" data-day="5">
-                    <div class="day-header" id="dayHeader-5">周五</div>
-                    <div class="day-body" id="dayBody-5"></div>
-                </div>
-                <div class="day-col" data-day="6">
-                    <div class="day-header" id="dayHeader-6">周六</div>
-                    <div class="day-body" id="dayBody-6"></div>
-                </div>
-                <div class="day-col" data-day="0">
-                    <div class="day-header" id="dayHeader-0">周日</div>
-                    <div class="day-body" id="dayBody-0"></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="split">
-            <div class="todo-section">
-                <h2>待办事项</h2>
-                <div class="todo-input">
-                    <input type="text" id="taskInput" placeholder="请输入新的待办事项...">
-                    <button id="addTask">添加</button>
-                </div>
-                <ul id="taskList" class="task-list"></ul>
-            </div>
+        <h1>Welcome to My Space</h1>
+        <p>探索我的个人项目与创意实验</p>
+        
+        <div class="grid">
+            <a href="apps/calendar/index.html" class="card">
+                <div class="card-icon">📅</div>
+                <div class="card-title">学习日历 & 待办</div>
+                <div class="card-desc">高效管理时间、课程与任务的生产力工具。</div>
+            </a>
+            
+            <a href="apps/pixel-fit/index.html" class="card">
+                <div class="card-icon">👕</div>
+                <div class="card-title">Pixel Fit</div>
+                <div class="card-desc">像素风格虚拟穿搭预览 (Coming Soon)。</div>
+            </a>
         </div>
     </div>
-
-    <!-- 添加课程弹窗 -->
-    <div class="modal" id="courseModal" aria-hidden="true">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>添加课程</h3>
-                <button class="close-modal" data-close="courseModal">×</button>
-            </div>
-            <div class="modal-body">
-                <label>
-                    课程名称
-                    <input type="text" id="courseTitle" placeholder="例如：高等数学">
-                </label>
-                <label>
-                    上课日
-                    <select id="courseDay">
-                        <option value="1">周一</option>
-                        <option value="2">周二</option>
-                        <option value="3">周三</option>
-                        <option value="4">周四</option>
-                        <option value="5">周五</option>
-                        <option value="6">周六</option>
-                        <option value="0">周日</option>
-                    </select>
-                </label>
-                <label>
-                    开始时间
-                    <input type="time" id="courseStart" value="08:00">
-                </label>
-                <label>
-                    结束时间
-                    <input type="time" id="courseEnd" value="09:40">
-                </label>
-                <label>
-                    上课地点（可选）
-                    <input type="text" id="courseLocation" placeholder="教学楼/教室">
-                </label>
-                <div class="modal-actions">
-                    <button id="saveCourseBtn">保存</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-
-    <!-- 事件详情弹窗 -->
-    <div class="modal" id="eventDetailModal" aria-hidden="true">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="detailTitle">课程详情</h3>
-                <button class="close-modal" data-close="eventDetailModal">×</button>
-            </div>
-            <div class="modal-body">
-                <p>时间：<span id="detailTime"></span></p>
-                <p>地点：<span id="detailLocation"></span></p>
-                <p>周次：<span id="detailWeeks"></span></p>
-            </div>
-        </div>
-    </div>
-
-    <!-- 专注计时器界面 -->
-    <div class="timer-overlay" id="timerOverlay" aria-hidden="true">
-        <div class="timer-panel">
-            <div class="timer-header">
-                <span id="timerTaskTitle">专注</span>
-                <button class="close-modal" id="exitTimer">×</button>
-            </div>
-            <div class="timer-body">
-                <div class="timer-mode">
-                    <label><input type="radio" name="timerMode" value="countdown" checked> 倒计时</label>
-                    <label><input type="radio" name="timerMode" value="stopwatch"> 正计时</label>
-                </div>
-                <div class="countdown-setup" id="countdownSetup" title="滚动鼠标滚轮调节分钟">
-                    <span class="time-number" id="setupMinutes" tabindex="0">60</span>
-                    <span class="time-suffix">分钟</span>
-                </div>
-                <div class="running-time" id="runningTime">00:00:00</div>
-                <div class="timer-actions">
-                    <button id="startTimer">开始</button>
-                    <button id="pauseTimer" disabled>暂停</button>
-                    <button id="resetTimer" disabled>重置</button>
-                    <button id="finishTimer" disabled>完成</button>
-                    <button id="stopTimer">终止</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script type="module" src="src/main.js"></script>
 </body>
 </html>
