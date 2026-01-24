@@ -3,56 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pixel Fit - 像素穿搭</title>
-    <style>
-        body {
-            font-family: 'Courier New', Courier, monospace;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #222;
-            color: #eee;
-        }
-        .container {
-            text-align: center;
-            border: 4px solid #eee;
-            padding: 2rem;
-            image-rendering: pixelated;
-        }
-        h1 { 
-            font-size: 3rem;
-            margin-bottom: 0.5rem;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-        }
-        p {
-            font-size: 1.2rem;
-            color: #aaa;
-        }
-        .back-link {
-            margin-top: 2rem;
-            display: inline-block;
-            color: #4da6ff;
-            text-decoration: none;
-            border: 1px solid #4da6ff;
-            padding: 0.5rem 1rem;
-            transition: all 0.2s;
-        }
-        .back-link:hover {
-            background: #4da6ff;
-            color: #222;
-        }
-    </style>
+    <title>Pixel Fit - 虚拟试衣间</title>
+    <link rel="stylesheet" href="src/styles/main.css">
 </head>
 <body>
-    <div class="container">
+    <header>
         <h1>Pixel Fit</h1>
-        <p>虚拟穿搭功能正在开发中...</p>
-        <p>AI 驱动的像素风格化换装体验</p>
-        <a href="../../index.html" class="back-link">← 返回主页</a>
-    </div>
+        <a href="../../index.html" class="back-link">← 退出</a>
+    </header>
+
+    <main>
+        <!-- 左侧：画布区域 -->
+        <section class="fitting-room">
+            <div class="canvas-container">
+                <!-- 图层顺序：身体 -> 下装 -> 上装 -> 配饰 -->
+                <div id="layer-body" class="layer"></div>
+                <div id="layer-bottom" class="layer"></div>
+                <div id="layer-top" class="layer"></div>
+                <div id="layer-accessory" class="layer"></div>
+            </div>
+        </section>
+
+        <!-- 右侧：控制面板 -->
+        <section class="control-panel">
+            <div class="panel-tabs">
+                <div class="tab active" data-target="wardrobe-panel">衣柜</div>
+                <div class="tab" data-target="upload-panel">上传</div>
+            </div>
+
+            <div class="panel-content">
+                <!-- 衣柜面板 -->
+                <div id="wardrobe-panel" class="panel-section">
+                    <div id="wardrobe-grid" class="wardrobe-grid">
+                        <!-- JS 动态生成 -->
+                    </div>
+                </div>
+
+                <!-- 上传面板 -->
+                <div id="upload-panel" class="panel-section" style="display: none;">
+                    <div class="upload-area">
+                        <p>点击或拖拽上传图片</p>
+                        <small>(功能开发中...)</small>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="src/scripts/app.js"></script>
 </body>
 </html>
