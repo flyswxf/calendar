@@ -5,7 +5,8 @@ export class MapManager {
     constructor(containerId) {
         this.containerId = containerId;
         this.map = null;
-        this.markers = [];
+        this.placeMarkers = new Map(); // 存储已保存地点的标记: id -> Marker
+        this.tempMarker = null; // 存储临时的标记（搜索结果或点击新建）
     }
 
     /**
@@ -47,6 +48,56 @@ export class MapManager {
     }
 
     /**
+     * 添加或更新地点标记
+     * @param {string} id 
+     * @param {number} lat 
+     * @param {number} lng 
+     * @param {string} popupContent 
+     * @param {Function} onClick 点击回调
+     */
+    addOrUpdatePlaceMarker(id, lat, lng, popupContent, onClick) {
+        if (!this.map) return;
+
+        let marker = this.placeMarkers.get(id);
+
+        if (marker) {
+            // 更新现有标记
+            marker.setLatLng([lat, lng]);
+            if (popupContent) {
+                marker.setPopupContent(popupContent);
+            }
+            // 更新点击事件: 先移除旧的，再添加新的
+            marker.off('click');
+            if (onClick) {
+                marker.on('click', onClick);
+            }
+        } else {
+            // 创建新标记
+            marker = L.marker([lat, lng]).addTo(this.map);
+            if (popupContent) {
+                marker.bindPopup(popupContent);
+            }
+            if (onClick) {
+                marker.on('click', onClick);
+            }
+            this.placeMarkers.set(id, marker);
+        }
+        return marker;
+    }
+
+    /**
+     * 移除地点标记
+     * @param {string} id 
+     */
+    removePlaceMarker(id) {
+        const marker = this.placeMarkers.get(id);
+        if (marker) {
+            marker.remove();
+            this.placeMarkers.delete(id);
+        }
+    }
+
+    /**
      * 添加临时标记 (用于搜索结果或点击选点)
      * @param {number} lat 
      * @param {number} lng 
@@ -55,23 +106,31 @@ export class MapManager {
     addTempMarker(lat, lng, popupContent) {
         if (!this.map) return;
 
-        // 清除之前的临时标记 (简单起见，这里先清除所有标记，后续需区分持久化标记和临时标记)
-        this.clearMarkers();
+        this.clearTempMarker();
 
-        const marker = L.marker([lat, lng]).addTo(this.map);
-        if (popupContent) {
-            marker.bindPopup(popupContent).openPopup();
+        this.tempMarker = L.marker([lat, lng], {
+            icon: new L.Icon.Default({ className: 'temp-marker' }) // 可以自定义样式区分
+        }).addTo(this.map);
+
+        // 临时标记显示红色滤镜效果（可选，通过 CSS 类实现）
+        if (this.tempMarker._icon) {
+            this.tempMarker._icon.style.filter = 'hue-rotate(150deg)';
         }
-        this.markers.push(marker);
-        return marker;
+
+        if (popupContent) {
+            this.tempMarker.bindPopup(popupContent).openPopup();
+        }
+        return this.tempMarker;
     }
 
     /**
-     * 清除所有标记
+     * 清除临时标记
      */
-    clearMarkers() {
-        this.markers.forEach(marker => marker.remove());
-        this.markers = [];
+    clearTempMarker() {
+        if (this.tempMarker) {
+            this.tempMarker.remove();
+            this.tempMarker = null;
+        }
     }
 
     /**

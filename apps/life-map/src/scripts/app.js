@@ -2,6 +2,8 @@ import { MapManager } from './modules/map.js';
 import { SearchService } from './modules/search.js';
 import { UIManager } from './modules/ui.js';
 import { StorageService } from './modules/storage.js';
+import { CelebrationManager } from './modules/celebration.js';
+import { EntryManager } from './modules/entry.js';
 import { debounce } from './utils/debounce.js';
 
 class App {
@@ -9,6 +11,8 @@ class App {
         this.mapManager = new MapManager('map');
         this.searchService = new SearchService();
         this.storageService = new StorageService();
+        this.celebrationManager = new CelebrationManager();
+        this.entryManager = null; // Will be initialized after dependencies
         this.uiManager = null;
     }
 
@@ -21,6 +25,10 @@ class App {
 
             // 初始化地图
             this.mapManager.init();
+
+            // 初始化入口管理器
+            this.entryManager = new EntryManager(this.storageService, this.mapManager);
+            this.entryManager.init();
 
             // 加载已保存的地点
             await this.loadSavedPlaces();
@@ -70,15 +78,15 @@ class App {
      * @param {Object} place 
      */
     addPlaceMarker(place) {
-        const marker = L.marker([place.lat, place.lng]).addTo(this.mapManager.map);
-        
-        // 绑定点击事件：打开编辑器查看详情
-        marker.on('click', () => {
-            this.uiManager.openEditor(place);
-        });
-
-        // 绑定简单的 Popup
-        marker.bindPopup(`<b>${place.title}</b>`);
+        this.mapManager.addOrUpdatePlaceMarker(
+            place.id,
+            place.lat,
+            place.lng,
+            `<b>${place.title}</b>`,
+            () => {
+                this.uiManager.openEditor(place);
+            }
+        );
     }
 
     /**
@@ -132,15 +140,14 @@ class App {
             // 关闭编辑器
             this.uiManager.closeEditor();
             
-            // 刷新地图标记 (简单起见，刷新页面或重新加载所有标记，这里优化为添加单个标记)
-            // 如果是新添加的，添加标记；如果是更新，可能需要刷新
-            // 简单处理：重新加载所有标记（先清除旧的？）
-            // 为了平滑体验，如果是新 ID，直接添加 Marker；如果是旧 ID，更新 Marker (需要维护 Marker Map)
+            // 更新地图上的标记 (新增或修改)
+            this.addPlaceMarker(savedPlace);
             
-            // 简单方案：刷新页面或重新加载所有标记
-            // 实际方案：addPlaceMarker 会重复添加，所以最好是 clearMarkers 再 loadSavedPlaces，或者更精细的控制
-            // 这里我们先做一个简单的 reload 动作
-            location.reload(); 
+            // 清除临时选点标记
+            this.mapManager.clearTempMarker();
+            
+            // 触发庆祝效果
+            this.celebrationManager.celebrate();
             
         } catch (error) {
             console.error('Failed to save place:', error);
@@ -158,7 +165,10 @@ class App {
             console.log('Place deleted:', id);
             
             this.uiManager.closeEditor();
-            location.reload();
+            
+            // 移除地图上的标记
+            this.mapManager.removePlaceMarker(id);
+            
         } catch (error) {
             console.error('Failed to delete place:', error);
             alert('删除失败，请重试');

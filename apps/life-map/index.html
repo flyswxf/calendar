@@ -12,9 +12,75 @@
      
     <!-- Custom CSS -->
     <link rel="stylesheet" href="./src/styles/main.css">
+    <link rel="stylesheet" href="./src/styles/celebration.css">
+    <link rel="stylesheet" href="./src/styles/entry.css">
 </head>
 <body>
     <div id="app">
+        <!-- Entry System Layers -->
+        
+        <!-- 1. Landing Page -->
+        <div id="landing-page">
+            <div class="landing-content">
+                <h1>Life Map</h1>
+                <p>记录生活的每一步 · Your World, Your Memories</p>
+                <button id="btn-start" class="btn-start">开始探索</button>
+            </div>
+        </div>
+
+        <!-- 2. Dashboard -->
+        <div id="dashboard" class="hidden">
+            <div class="dashboard-container">
+                <div class="dashboard-header">
+                    <h2>欢迎回来</h2>
+                    <p>你的足迹遍布世界</p>
+                </div>
+                
+                <div class="dashboard-stats">
+                    <div class="stat-item">
+                        <span id="stat-count" class="stat-value">0</span>
+                        <span class="stat-label">已探索地点</span>
+                    </div>
+                    <!-- Future: Add more stats like 'Cities', 'Countries', etc. -->
+                </div>
+
+                <div class="recent-section">
+                    <h3>最近记录</h3>
+                    <div id="recent-list" class="recent-list">
+                        <!-- Recent items will be injected here -->
+                        <div class="recent-item" style="text-align: center; color: #9ca3af; cursor: default;">
+                            暂无记录
+                        </div>
+                    </div>
+                </div>
+
+                <button id="btn-enter-map" class="btn-enter-map">进入地图</button>
+            </div>
+        </div>
+
+        <!-- 3. Detail View Modal -->
+        <div id="detail-view-modal">
+            <div class="detail-card">
+                <button class="detail-close-btn">&times;</button>
+                <div class="detail-content-wrapper">
+                    <div class="detail-image-section">
+                        <img id="detail-image" src="" alt="Location Photo">
+                    </div>
+                    <div class="detail-info-section">
+                        <h2 id="detail-title" class="detail-title">Title</h2>
+                        <div id="detail-date" class="detail-date">Date</div>
+                        <div id="detail-body" class="detail-body">Content</div>
+                        
+                        <div class="detail-actions">
+                            <button id="btn-fly-to" class="btn-fly-to">
+                                <span>📍</span> 回到这里
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div id="map"></div>
         
         <!-- 侧边栏/UI层 -->
@@ -63,12 +129,12 @@
         </div>
     </div>
 
+    <!-- Scripts -->
     <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-     crossorigin=""></script>
-
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <!-- App JS -->
-    <script type="module" src="./src/scripts/app.js"></script>
+    <script type="module" src="src/scripts/app.js"></script>
 </body>
 </html>

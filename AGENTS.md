@@ -23,6 +23,18 @@ Usage notes:
 <available_skills>
 
 <skill>
+<name>algorithmic-art</name>
+<description>Creating algorithmic art using p5.js with seeded randomness and interactive parameter exploration. Use this when users request creating art using code, generative art, algorithmic art, flow fields, or particle systems. Create original algorithmic art rather than copying existing artists' work to avoid copyright violations.</description>
+<location>global</location>
+</skill>
+
+<skill>
+<name>canvas-design</name>
+<description>Create beautiful visual art in .png and .pdf documents using design philosophy. You should use this skill when the user asks to create a poster, piece of art, design, or other static piece. Create original visual designs, never copying existing artists' work to avoid copyright violations.</description>
+<location>global</location>
+</skill>
+
+<skill>
 <name>doc-coauthoring</name>
 <description>Guide users through a structured workflow for co-authoring documentation. Use when user wants to write documentation, proposals, technical specs, decision docs, or similar structured content. This workflow helps users efficiently transfer context, refine content through iteration, and verify the doc works for readers. Trigger when user mentions writing docs, creating proposals, drafting specs, or similar documentation tasks.</description>
 <location>global</location>
