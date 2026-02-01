@@ -26,8 +26,8 @@ class App {
             // 初始化地图
             this.mapManager.init();
 
-            // 绑定返回按钮
-            this.bindBackButton();
+            // 绑定侧边栏导航
+            this.bindSidebarNav();
 
             // 初始化 UI 管理器
             this.uiManager = new UIManager({
@@ -45,6 +45,7 @@ class App {
             );
 
             // 处理 URL 参数 (flyTo, routeId)
+            // 必须在 routeManager 初始化之后调用
             await this.handleUrlParams();
 
             // 加载已保存的地点
@@ -88,14 +89,65 @@ class App {
     }
 
     /**
-     * 绑定返回仪表盘按钮
+     * 绑定侧边栏导航逻辑
      */
-    bindBackButton() {
-        const btn = document.getElementById('btn-back-dashboard');
-        if (btn) {
-            btn.addEventListener('click', () => {
-                window.location.href = 'dashboard.html';
+    bindSidebarNav() {
+        const navItems = document.querySelectorAll('.nav-item');
+        const panels = document.querySelectorAll('.sidebar-panel');
+
+        navItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                const targetId = item.id;
+
+                // Handle Home
+                if (targetId === 'nav-home') {
+                    window.location.href = 'dashboard.html';
+                    return;
+                }
+
+                // Handle Toggle: If clicking active item, close it
+                if (item.classList.contains('active')) {
+                    item.classList.remove('active');
+                    panels.forEach(panel => panel.classList.remove('active'));
+                    return;
+                }
+
+                // Handle Tab Switching
+                // 1. Remove active from all nav items
+                navItems.forEach(nav => nav.classList.remove('active'));
+                // 2. Add active to clicked item
+                item.classList.add('active');
+
+                // 3. Hide all panels
+                panels.forEach(panel => panel.classList.remove('active'));
+
+                // 4. Show target panel
+                if (targetId === 'nav-search') {
+                    document.getElementById('panel-search').classList.add('active');
+                } else if (targetId === 'nav-route') {
+                    document.getElementById('panel-route').classList.add('active');
+                }
             });
+        });
+
+        // ESC key to close sidebar panels
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                navItems.forEach(nav => nav.classList.remove('active'));
+                panels.forEach(panel => panel.classList.remove('active'));
+            }
+        });
+    }
+
+    /**
+     * 切换到指定的侧边栏面板
+     * @param {string} panelName 'search' | 'route'
+     */
+    activateSidebarPanel(panelName) {
+        const navId = `nav-${panelName}`;
+        const navItem = document.getElementById(navId);
+        if (navItem) {
+            navItem.click();
         }
     }
 
@@ -108,7 +160,12 @@ class App {
         // 处理 routeId
         const routeId = params.get('routeId');
         if (routeId) {
+            // 激活路线面板
+            this.activateSidebarPanel('route');
             await this.routeManager.loadRoute(routeId);
+        } else {
+            // 默认激活搜索面板
+            this.activateSidebarPanel('search');
         }
 
         // 处理 flyTo

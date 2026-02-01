@@ -14,7 +14,8 @@ export class RouteManager {
         this.isDirty = false;
         
         // DOM 元素
-        this.editorEl = document.getElementById('route-editor');
+        // 兼容新旧布局，尝试获取 panel-route 或 route-editor
+        this.editorEl = document.getElementById('panel-route') || document.getElementById('route-editor');
         this.nameInput = document.getElementById('route-name');
         this.pointsListEl = document.getElementById('route-points-list');
         this.deleteBtn = document.getElementById('delete-route-btn');
@@ -153,11 +154,21 @@ export class RouteManager {
      * 显示编辑器
      */
     showEditor() {
+        if (!this.editorEl) return;
         this.editorEl.classList.add('active');
-        // 如果有其他 UI 需要调整，可以在这里处理
+        
+        // 确保对应的 Tab 高亮 (如果使用了新布局)
+        const navItem = document.getElementById('nav-route');
+        if (navItem) {
+            // 触发点击以处理所有联动逻辑
+            if (!navItem.classList.contains('active')) {
+                navItem.click();
+            }
+        }
     }
 
     hideEditor() {
+        if (!this.editorEl) return;
         this.editorEl.classList.remove('active');
     }
 

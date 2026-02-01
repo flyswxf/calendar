@@ -13,6 +13,7 @@
     <!-- Fonts & Common CSS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="./src/styles/common.css">
     
     <!-- Custom CSS -->
@@ -21,21 +22,73 @@
 </head>
 <body>
     <div id="app">
-        <button id="btn-back-dashboard">
-            &lt; 返回仪表盘
-        </button>
+        <!-- 侧边栏导航 (Icons) -->
+        <nav id="sidebar-nav">
+            <div class="nav-item" id="nav-home" title="返回仪表盘">
+                <i class="fa-solid fa-arrow-left"></i>
+            </div>
+            <div class="nav-divider"></div>
+            <div class="nav-item active" id="nav-search" title="搜索">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+            <div class="nav-item" id="nav-route" title="路线规划">
+                <i class="fa-solid fa-route"></i>
+            </div>
+            <!-- Future: List View -->
+            <!-- <div class="nav-item" id="nav-list" title="地点列表">
+                <i class="fa-solid fa-list-ul"></i>
+            </div> -->
+        </nav>
 
-        <div id="map"></div>
-        
-        <!-- 侧边栏/UI层 -->
-        <div id="ui-layer">
-            <!-- 搜索框 -->
-            <div class="search-container">
-                <input type="text" id="search-input" placeholder="搜索地点...">
+        <!-- 侧边栏面板容器 -->
+        <div id="sidebar-panel-container">
+            <!-- 面板: 搜索 -->
+            <div id="panel-search" class="sidebar-panel active">
+                <div class="panel-header">
+                    <h2>探索</h2>
+                </div>
+                <div class="panel-content">
+                    <div class="search-container">
+                        <input type="text" id="search-input" placeholder="搜索地点...">
+                    </div>
+                    <!-- 搜索结果列表会自动挂载到 search-container 下面，或者我们需要调整 search.js -->
+                </div>
+            </div>
+
+            <!-- 面板: 路线规划 -->
+            <div id="panel-route" class="sidebar-panel">
+                <!-- 原 route-editor 的内容移到这里 -->
+                <div class="editor-header">
+                    <h2>路线规划</h2>
+                </div>
+                <div class="editor-form">
+                    <div class="form-group">
+                        <label for="route-name">路线名称</label>
+                        <input type="text" id="route-name" placeholder="给你的旅程起个名字">
+                    </div>
+                    
+                    <div class="route-points-container">
+                        <div class="timeline-line"></div>
+                        <div id="route-points-list" class="route-points-list">
+                            <!-- Points injected by JS -->
+                            <div class="empty-route-hint">点击地图上的地点添加到路线</div>
+                        </div>
+                    </div>
+                    
+                    <div class="route-actions">
+                        <button id="delete-route-btn" class="btn-text-danger">删除路线</button>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- 卡片编辑器 (侧边栏) -->
+        <div id="map"></div>
+        
+        <!-- 移除旧的 UI Layer 和独立按钮 -->
+        <!-- <div id="ui-layer">...</div> -->
+        <!-- <button id="btn-back-dashboard">...</button> -->
+
+        <!-- 卡片编辑器 (侧边栏) - 保持在右侧 -->
         <div id="card-editor" class="card-editor">
             <div class="editor-header">
                 <h2>地点记忆</h2>
@@ -69,32 +122,6 @@
 
                 <button id="save-btn" class="save-btn">保存记忆</button>
                 <button id="delete-btn" class="delete-btn" style="display: none;">删除</button>
-            </div>
-        </div>
-
-        <!-- 路线编辑器 (左侧侧边栏) -->
-        <div id="route-editor" class="route-editor">
-            <div class="editor-header">
-                <h2>路线规划</h2>
-                <!-- No close button for now, as it's the main mode when active -->
-            </div>
-            <div class="editor-form">
-                <div class="form-group">
-                    <label for="route-name">路线名称</label>
-                    <input type="text" id="route-name" placeholder="给你的旅程起个名字">
-                </div>
-                
-                <div class="route-points-container">
-                    <div class="timeline-line"></div>
-                    <div id="route-points-list" class="route-points-list">
-                        <!-- Points injected by JS -->
-                        <div class="empty-route-hint">点击地图上的地点添加到路线</div>
-                    </div>
-                </div>
-                
-                <div class="route-actions">
-                    <button id="delete-route-btn" class="btn-text-danger">删除路线</button>
-                </div>
             </div>
         </div>
     </div>

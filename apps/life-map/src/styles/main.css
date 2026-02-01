@@ -42,84 +42,293 @@ body, html {
     pointer-events: none; /* 让点击穿透到地图，除了 UI 元素本身 */
 }
 
-/* 返回仪表盘按钮 */
-#btn-back-dashboard {
+/* 侧边栏导航 (Icons) */
+#sidebar-nav {
     position: absolute;
-    top: 20px;
-    right: 20px; /* 右上角，避免与左上角搜索框重合 */
+    top: 0;
+    left: 0;
+    width: 60px;
+    height: 100%;
+    background-color: #ffffff;
+    border-right: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 20px;
     z-index: 2000;
-    
-    /* 玻璃拟态风格 */
-    background: rgba(15, 23, 42, 0.6);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    
-    /* 边框与文字 */
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: var(--text-primary); /* 使用 common.css 定义的颜色 */
-    
-    /* 尺寸与排版 */
-    padding: 10px 20px;
-    border-radius: 9999px; /* Pill shape */
-    font-family: var(--font-mono);
-    font-size: 0.85rem;
-    font-weight: 500;
-    letter-spacing: 0.5px;
-    
-    /* 交互 */
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+}
+
+.nav-item {
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
-    gap: 8px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-}
-
-#btn-back-dashboard:hover {
-    background: var(--accent-gold);
-    color: var(--bg-dark);
-    border-color: var(--accent-gold);
-    transform: translateY(-2px);
-    box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.3), 0 4px 6px -2px rgba(245, 158, 11, 0.1);
-}
-
-#btn-back-dashboard:active {
-    transform: translateY(0);
-}
-
-.search-container {
-    pointer-events: auto; /* 恢复交互 */
-    background: white;
-    padding: 10px;
+    justify-content: center;
     border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    cursor: pointer;
+    color: #64748b;
+    font-size: 18px;
+    margin-bottom: 12px;
+    transition: all 0.2s;
+}
+
+.nav-item:hover {
+    background-color: #f1f5f9;
+    color: var(--primary-color);
+}
+
+.nav-item.active {
+    background-color: #eff6ff;
+    color: var(--primary-color);
+}
+
+.nav-divider {
+    width: 30px;
+    height: 1px;
+    background-color: #e5e7eb;
+    margin: 8px 0 20px 0;
+}
+
+/* 侧边栏面板容器 */
+#sidebar-panel-container {
+    position: absolute;
+    top: 0;
+    left: 60px; /* 紧贴 Nav */
+    width: 320px;
+    height: 100%;
+    z-index: 1001;
+    pointer-events: none; /* 默认不遮挡地图交互 */
+}
+
+.sidebar-panel {
+    position: absolute;
+    top: 0;
+    left: -320px; /* 默认隐藏 */
+    width: 100%;
+    height: 100%;
+    background: white;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+    transition: left 0.3s ease;
+    padding: 20px;
     display: flex;
-    flex-direction: column; /* 改为列布局以容纳下拉结果 */
+    flex-direction: column;
+    pointer-events: auto; /* 面板内部可交互 */
+}
+
+.sidebar-panel.active {
+    left: 0;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.panel-header h2 {
+    font-size: 18px;
+    color: var(--text-color);
+}
+
+.panel-content {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* 修改 Search Container 适配面板 */
+.search-container {
+    pointer-events: auto;
+    background: white;
+    padding: 0; /* 移除 padding，由 panel 提供 */
+    border-radius: 0;
+    box-shadow: none;
+    display: flex;
+    flex-direction: column;
     gap: 8px;
     position: relative;
+    width: 100%;
 }
 
 #search-input {
-    padding: 8px 12px;
+    width: 100%; /* 全宽 */
+    padding: 10px 12px;
     border: 1px solid #ddd;
-    border-radius: 4px;
-    width: 250px;
+    border-radius: 6px;
     font-size: 14px;
+}
+
+/* 路线面板样式适配 */
+/* 复用之前的 .route-points-container 等样式，不需要大改，只需要确保层级正确 */
+
+/* 移除旧的 #btn-back-dashboard 样式，如果还存在的话 */
+#btn-back-dashboard {
+    display: none;
+}
+
+/* 移除旧的 route-editor 样式，因为已经迁移到 sidebar-panel */
+.route-editor {
+    display: none; 
+}
+
+.route-points-container {
+    position: relative;
+    margin-top: 20px;
+    flex: 1;
+    overflow-y: auto;
+    padding-left: 10px;
+}
+
+/* 连接线 */
+.timeline-line {
+    position: absolute;
+    top: 10px;
+    bottom: 10px;
+    left: 24px; /* 圆圈中心位置 */
+    width: 2px;
+    background-color: #e5e7eb;
+    z-index: 0;
+}
+
+.route-points-list {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-height: 100px;
+}
+
+.route-point-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: white;
+    padding: 8px;
+    border-radius: 8px;
+    cursor: grab;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+
+.route-point-item:hover {
+    background-color: #f9fafb;
+    border-color: #e5e7eb;
+}
+
+.route-point-item.dragging {
+    opacity: 0.5;
+    background: #f3f4f6;
+    border: 1px dashed #9ca3af;
+}
+
+.point-marker {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: white;
+    border: 2px solid var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--primary-color);
+    flex-shrink: 0;
+    z-index: 2; /* 盖住线 */
+}
+
+.point-info {
+    flex: 1;
+    overflow: hidden;
+}
+
+.point-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0f172a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.point-address {
+    font-size: 12px;
+    color: #4b5563;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.point-actions {
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.route-point-item:hover .point-actions {
+    opacity: 1;
+}
+
+.btn-remove-point {
+    border: none;
+    background: none;
+    color: #ef4444;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+.btn-remove-point:hover {
+    background-color: #fee2e2;
+}
+
+.empty-route-hint {
+    text-align: center;
+    color: #9ca3af;
+    padding: 20px;
+    font-size: 14px;
+    border: 2px dashed #e5e7eb;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+.route-actions {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-text-danger {
+    background: none;
+    border: none;
+    color: #ef4444;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 8px 12px;
+}
+
+.btn-text-danger:hover {
+    text-decoration: underline;
 }
 
 /* 搜索结果列表 */
 .search-results {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
     background: white;
     border-radius: 4px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     margin-top: 4px;
     max-height: 300px;
     overflow-y: auto;
-    display: none;
+    display: none; /* JS控制显示 */
 }
 
 .search-results ul {
@@ -140,7 +349,7 @@ body, html {
     border-bottom: none;
 }
 
-/* 卡片编辑器侧边栏 */
+/* 卡片编辑器侧边栏 (右侧) */
 .card-editor {
     position: absolute;
     top: 0;
@@ -197,7 +406,8 @@ body, html {
 
 .form-group label {
     font-size: 14px;
-    color: #666;
+    color: #374151; /* Darker gray for better contrast */
+    font-weight: 500;
 }
 
 .form-group input,
@@ -286,168 +496,5 @@ body, html {
 
 .delete-btn:hover {
     background-color: #dc2626;
-}
-
-/* 路线编辑器侧边栏 (左侧) */
-.route-editor {
-    position: absolute;
-    top: 0;
-    left: -400px; /* 默认隐藏 */
-    width: 320px;
-    height: 100%;
-    background: white;
-    box-shadow: 2px 0 8px rgba(0,0,0,0.1);
-    z-index: 1001;
-    transition: left 0.3s ease;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-}
-
-.route-editor.active {
-    left: 0;
-}
-
-.route-points-container {
-    position: relative;
-    margin-top: 20px;
-    flex: 1;
-    overflow-y: auto;
-    padding-left: 10px;
-}
-
-/* 连接线 */
-.timeline-line {
-    position: absolute;
-    top: 10px;
-    bottom: 10px;
-    left: 24px; /* 圆圈中心位置 */
-    width: 2px;
-    background-color: #e5e7eb;
-    z-index: 0;
-}
-
-.route-points-list {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    min-height: 100px;
-}
-
-.route-point-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: white;
-    padding: 8px;
-    border-radius: 8px;
-    cursor: grab;
-    transition: all 0.2s;
-    border: 1px solid transparent;
-}
-
-.route-point-item:hover {
-    background-color: #f9fafb;
-    border-color: #e5e7eb;
-}
-
-.route-point-item.dragging {
-    opacity: 0.5;
-    background: #f3f4f6;
-    border: 1px dashed #9ca3af;
-}
-
-.point-marker {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background-color: white;
-    border: 2px solid var(--primary-color);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: bold;
-    color: var(--primary-color);
-    flex-shrink: 0;
-    z-index: 2; /* 盖住线 */
-}
-
-.point-info {
-    flex: 1;
-    overflow: hidden;
-}
-
-.point-title {
-    font-size: 14px;
-    font-weight: 500;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.point-address {
-    font-size: 12px;
-    color: #6b7280;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.point-actions {
-    opacity: 0;
-    transition: opacity 0.2s;
-}
-
-.route-point-item:hover .point-actions {
-    opacity: 1;
-}
-
-.btn-remove-point {
-    border: none;
-    background: none;
-    color: #ef4444;
-    cursor: pointer;
-    font-size: 16px;
-    padding: 4px;
-    border-radius: 4px;
-}
-
-.btn-remove-point:hover {
-    background-color: #fee2e2;
-}
-
-.empty-route-hint {
-    text-align: center;
-    color: #9ca3af;
-    padding: 20px;
-    font-size: 14px;
-    border: 2px dashed #e5e7eb;
-    border-radius: 8px;
-    margin-top: 10px;
-}
-
-.route-actions {
-    margin-top: 20px;
-    padding-top: 20px;
-    border-top: 1px solid #eee;
-    display: flex;
-    justify-content: flex-end;
-}
-
-.btn-text-danger {
-    background: none;
-    border: none;
-    color: #ef4444;
-    font-size: 14px;
-    cursor: pointer;
-    padding: 8px 12px;
-}
-
-.btn-text-danger:hover {
-    text-decoration: underline;
 }
 
