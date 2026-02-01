@@ -3,7 +3,7 @@ import { SearchService } from './modules/search.js';
 import { UIManager } from './modules/ui.js';
 import { StorageService } from './modules/storage.js';
 import { CelebrationManager } from './modules/celebration.js';
-import { EntryManager } from './modules/entry.js';
+import { RouteManager } from './modules/route.js';
 import { debounce } from './utils/debounce.js';
 
 class App {
@@ -12,8 +12,8 @@ class App {
         this.searchService = new SearchService();
         this.storageService = new StorageService();
         this.celebrationManager = new CelebrationManager();
-        this.entryManager = null; // Will be initialized after dependencies
         this.uiManager = null;
+        this.routeManager = null;
     }
 
     async init() {
@@ -26,12 +26,8 @@ class App {
             // 初始化地图
             this.mapManager.init();
 
-            // 初始化入口管理器
-            this.entryManager = new EntryManager(this.storageService, this.mapManager);
-            this.entryManager.init();
-
-            // 加载已保存的地点
-            await this.loadSavedPlaces();
+            // 绑定返回按钮
+            this.bindBackButton();
 
             // 初始化 UI 管理器
             this.uiManager = new UIManager({
@@ -41,9 +37,22 @@ class App {
                 onDelete: this.handleDeletePlace.bind(this)
             });
 
-            // 监听地图点击
-            this.mapManager.onMapClick(async (latlng) => {
-                // 点击地图空白处，尝试获取地址并打开编辑器
+            // 初始化路线管理器
+            this.routeManager = new RouteManager(
+                this.mapManager,
+                this.storageService,
+                this.uiManager
+            );
+
+            // 处理 URL 参数 (flyTo, routeId)
+            await this.handleUrlParams();
+
+            // 加载已保存的地点
+            await this.loadSavedPlaces();
+
+            // 监听地图双击 (新建地点)
+            this.mapManager.onMapDoubleClick(async (latlng) => {
+                // 双击地图，尝试获取地址并打开编辑器
                 const addressData = await this.searchService.reverseGeocode(latlng.lat, latlng.lng);
                 const title = addressData && addressData.display_name ? addressData.display_name.split(',')[0] : '未知地点';
                 
@@ -57,9 +66,61 @@ class App {
                 this.mapManager.addTempMarker(latlng.lat, latlng.lng);
             });
 
+            // 监听地图单击 (关闭编辑器)
+            this.mapManager.onMapClick(() => {
+                // 单击地图任意位置，关闭编辑器
+                this.uiManager.closeEditor();
+                // 可选：清除临时标记，如果不希望保留的话
+                // this.mapManager.clearTempMarker(); 
+            });
+
+            // 监听 ESC 键关闭编辑器
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    this.uiManager.closeEditor();
+                }
+            });
+
             console.log('App initialized successfully');
         } catch (error) {
             console.error('App initialization failed:', error);
+        }
+    }
+
+    /**
+     * 绑定返回仪表盘按钮
+     */
+    bindBackButton() {
+        const btn = document.getElementById('btn-back-dashboard');
+        if (btn) {
+            btn.addEventListener('click', () => {
+                window.location.href = 'dashboard.html';
+            });
+        }
+    }
+
+    /**
+     * 处理 URL 参数
+     */
+    async handleUrlParams() {
+        const params = new URLSearchParams(window.location.search);
+        
+        // 处理 routeId
+        const routeId = params.get('routeId');
+        if (routeId) {
+            await this.routeManager.loadRoute(routeId);
+        }
+
+        // 处理 flyTo
+        const flyTo = params.get('flyTo'); // format: lat,lng
+        if (flyTo) {
+            const [lat, lng] = flyTo.split(',').map(Number);
+            if (!isNaN(lat) && !isNaN(lng)) {
+                // 稍微延迟一下以确保地图加载完成
+                setTimeout(() => {
+                    this.mapManager.flyTo(lat, lng, 16);
+                }, 500);
+            }
         }
     }
 
@@ -148,6 +209,11 @@ class App {
             
             // 触发庆祝效果
             this.celebrationManager.celebrate();
+
+            // 如果正在编辑路线，自动添加到路线
+            if (this.routeManager && this.routeManager.currentRoute) {
+                this.routeManager.addPlace(savedPlace);
+            }
             
         } catch (error) {
             console.error('Failed to save place:', error);
@@ -164,11 +230,14 @@ class App {
             await this.storageService.deletePlace(id);
             console.log('Place deleted:', id);
             
+            // 关闭编辑器
             this.uiManager.closeEditor();
             
             // 移除地图上的标记
             this.mapManager.removePlaceMarker(id);
             
+            // 提示
+            alert('地点已删除');
         } catch (error) {
             console.error('Failed to delete place:', error);
             alert('删除失败，请重试');
@@ -176,8 +245,8 @@ class App {
     }
 }
 
-// 启动应用
+// 初始化应用
+const app = new App();
 document.addEventListener('DOMContentLoaded', () => {
-    const app = new App();
     app.init();
 });

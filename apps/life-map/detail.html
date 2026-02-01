@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Life Map - Detail</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="./src/styles/common.css">
+    <link rel="stylesheet" href="./src/styles/detail.css">
+</head>
+<body>
+    <div class="detail-container fade-in">
+        <header class="detail-header">
+            <button id="btn-back" class="btn-text">← 返回仪表盘</button>
+            <div class="header-actions">
+                <button id="btn-fly-to" class="btn-secondary">
+                    📍 回到这里
+                </button>
+                <button id="btn-save" class="btn-primary" disabled>
+                    保存修改
+                </button>
+            </div>
+        </header>
+
+        <main class="diary-paper">
+            <div class="diary-meta mono">
+                <span id="diary-date">2023-10-01</span> | <span id="diary-coords">39.90, 116.40</span>
+            </div>
+            
+            <input type="text" id="diary-title" class="diary-title-input" placeholder="无标题" autocomplete="off">
+            
+            <textarea id="diary-content" class="diary-content-input" placeholder="记录下此刻的心情..."></textarea>
+        </main>
+    </div>
+
+    <script type="module" src="./src/scripts/detail.js"></script>
+</body>
+</html>

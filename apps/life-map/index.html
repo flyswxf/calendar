@@ -3,138 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Life Map - 你的生活地图</title>
+    <title>Life Map - Welcome</title>
     
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-     crossorigin=""/>
-     
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="./src/styles/main.css">
-    <link rel="stylesheet" href="./src/styles/celebration.css">
-    <link rel="stylesheet" href="./src/styles/entry.css">
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="./src/styles/common.css">
+    <link rel="stylesheet" href="./src/styles/landing.css">
 </head>
 <body>
-    <div id="app">
-        <!-- Entry System Layers -->
+    
+    <canvas id="landing-canvas"></canvas>
+
+    <div class="landing-container fade-in">
+        <div class="logo-area">
+            <!-- Optional SVG Logo could go here -->
+        </div>
+
+        <h1 class="main-title">生活地图</h1>
+        <p class="subtitle mono">DIGITALIZE YOUR FOOTPRINTS // 记录生活的每一步</p>
+
+        <div class="enter-btn-wrapper">
+            <button id="enter-btn" class="btn-primary">
+                初始化系统
+            </button>
+        </div>
         
-        <!-- 1. Landing Page -->
-        <div id="landing-page">
-            <div class="landing-content">
-                <h1>Life Map</h1>
-                <p>记录生活的每一步 · Your World, Your Memories</p>
-                <button id="btn-start" class="btn-start">开始探索</button>
-            </div>
+        <div class="coordinate-decoration mono">
+            纬度: 39.9042<br>经度: 116.4074
         </div>
-
-        <!-- 2. Dashboard -->
-        <div id="dashboard" class="hidden">
-            <div class="dashboard-container">
-                <div class="dashboard-header">
-                    <h2>欢迎回来</h2>
-                    <p>你的足迹遍布世界</p>
-                </div>
-                
-                <div class="dashboard-stats">
-                    <div class="stat-item">
-                        <span id="stat-count" class="stat-value">0</span>
-                        <span class="stat-label">已探索地点</span>
-                    </div>
-                    <!-- Future: Add more stats like 'Cities', 'Countries', etc. -->
-                </div>
-
-                <div class="recent-section">
-                    <h3>最近记录</h3>
-                    <div id="recent-list" class="recent-list">
-                        <!-- Recent items will be injected here -->
-                        <div class="recent-item" style="text-align: center; color: #9ca3af; cursor: default;">
-                            暂无记录
-                        </div>
-                    </div>
-                </div>
-
-                <button id="btn-enter-map" class="btn-enter-map">进入地图</button>
-            </div>
-        </div>
-
-        <!-- 3. Detail View Modal -->
-        <div id="detail-view-modal">
-            <div class="detail-card">
-                <button class="detail-close-btn">&times;</button>
-                <div class="detail-content-wrapper">
-                    <div class="detail-image-section">
-                        <img id="detail-image" src="" alt="Location Photo">
-                    </div>
-                    <div class="detail-info-section">
-                        <h2 id="detail-title" class="detail-title">Title</h2>
-                        <div id="detail-date" class="detail-date">Date</div>
-                        <div id="detail-body" class="detail-body">Content</div>
-                        
-                        <div class="detail-actions">
-                            <button id="btn-fly-to" class="btn-fly-to">
-                                <span>📍</span> 回到这里
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="map"></div>
         
-        <!-- 侧边栏/UI层 -->
-        <div id="ui-layer">
-            <!-- 搜索框 -->
-            <div class="search-container">
-                <input type="text" id="search-input" placeholder="搜索地点...">
-            </div>
-        </div>
-
-        <!-- 卡片编辑器 (侧边栏) -->
-        <div id="card-editor" class="card-editor">
-            <div class="editor-header">
-                <h2>地点记忆</h2>
-                <button class="close-btn">&times;</button>
-            </div>
-            <div class="editor-form">
-                <input type="hidden" id="place-id">
-                <input type="hidden" id="place-lat">
-                <input type="hidden" id="place-lng">
-
-                <div class="form-group">
-                    <label for="place-title">标题</label>
-                    <input type="text" id="place-title" placeholder="地点名称">
-                </div>
-
-                <div class="form-group">
-                    <label for="place-date">日期</label>
-                    <input type="date" id="place-date">
-                </div>
-
-                <div class="form-group">
-                    <label for="place-content">故事</label>
-                    <textarea id="place-content" placeholder="记录下这里发生的事..."></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>照片</label>
-                    <input type="file" id="place-images" accept="image/*" multiple>
-                    <div id="image-preview-container" class="image-preview-container"></div>
-                </div>
-
-                <button id="save-btn" class="save-btn">保存记忆</button>
-                <button id="delete-btn" class="delete-btn" style="display: none;">删除</button>
-            </div>
+        <div class="version-decoration mono">
+            系统版本 1.0.0
         </div>
     </div>
 
-    <!-- Scripts -->
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    <!-- Canvas Confetti -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
-    <!-- App JS -->
-    <script type="module" src="src/scripts/app.js"></script>
+    <script src="./src/scripts/landing.js"></script>
 </body>
 </html>

@@ -1,0 +1,146 @@
+:root {
+    --paper-bg: #fdfbf7;
+    --paper-line: #e5e5e5;
+    --text-primary: #2c3e50;
+    --text-secondary: #7f8c8d;
+}
+
+body {
+    background-color: var(--bg-dark); /* Keep outer background dark consistent with app */
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.detail-container {
+    width: 100%;
+    max-width: 800px;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* Header */
+.detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-text {
+    background: none;
+    border: none;
+    color: var(--accent-gold); /* Changed to accent color */
+    cursor: pointer;
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    opacity: 0.9;
+    transition: all 0.3s;
+    font-weight: 500;
+}
+
+.btn-text:hover {
+    opacity: 1;
+    transform: translateX(-2px);
+    text-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+}
+
+.btn-secondary {
+    background: transparent;
+    border: 1px solid var(--accent-blue);
+    color: var(--accent-blue);
+    padding: 10px 24px;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 2px;
+}
+
+.btn-secondary:hover {
+    background: rgba(59, 130, 246, 0.1);
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+    transform: translateY(-1px);
+}
+
+/* Diary Paper Style */
+.diary-paper {
+    background-color: var(--paper-bg);
+    padding: 3rem 4rem;
+    border-radius: 4px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    min-height: 60vh;
+    position: relative;
+    color: var(--text-primary);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Meta Info */
+.diary-meta {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    border-bottom: 1px solid var(--paper-line);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Inputs */
+.diary-title-input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    outline: none;
+    padding: 0.5rem 0;
+}
+
+.diary-title-input::placeholder {
+    color: #bdc3c7;
+}
+
+.diary-content-input {
+    width: 100%;
+    flex-grow: 1;
+    border: none;
+    background: transparent;
+    font-family: var(--font-serif); /* Use serif for body text */
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    outline: none;
+    resize: none;
+    background-image: linear-gradient(transparent 95%, var(--paper-line) 95%);
+    background-size: 100% 1.8em; /* Match line-height */
+    background-attachment: local; /* Scrolls with content */
+}
+
+.diary-content-input::placeholder {
+    color: #bdc3c7;
+    font-style: italic;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .detail-container {
+        padding: 1rem;
+    }
+    
+    .diary-paper {
+        padding: 2rem 1.5rem;
+    }
+
+    .diary-title-input {
+        font-size: 1.8rem;
+    }
+}

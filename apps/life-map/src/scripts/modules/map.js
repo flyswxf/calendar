@@ -19,7 +19,8 @@ export class MapManager {
 
         // 初始化地图，禁用默认缩放控件，以便自定义位置
         this.map = L.map(this.containerId, {
-            zoomControl: false
+            zoomControl: false,
+            doubleClickZoom: false // 禁用双击放大
         }).setView(initialCoords, zoomLevel);
 
         // 将缩放控件添加到右下角
@@ -134,7 +135,18 @@ export class MapManager {
     }
 
     /**
-     * 监听地图点击事件
+     * 监听地图双击事件
+     * @param {Function} callback (latlng) => {}
+     */
+    onMapDoubleClick(callback) {
+        if (!this.map) return;
+        this.map.on('dblclick', (e) => {
+            callback(e.latlng);
+        });
+    }
+
+    /**
+     * 监听地图单击事件 (用于关闭编辑器)
      * @param {Function} callback (latlng) => {}
      */
     onMapClick(callback) {
