@@ -1,0 +1,60 @@
+/* Modals Styles Module
+   Purpose: Generic modal overlay and modal content styling.
+   Scope: .modal overlay, .modal-content, header/body/actions, and helpers. */
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    display: flex; /* 始终占位，使用可见性+透明度控制动画 */
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.24s ease; /* ≤300ms */
+}
+.modal[aria-hidden="false"] {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.modal-content {
+    width: 420px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    overflow: hidden;
+    transform: translateY(-6px);
+    transition: transform 0.24s ease; /* ≤300ms */
+}
+.modal[aria-hidden="false"] .modal-content { transform: translateY(0); }
+
+.modal-wide { width: 80vw; max-width: 1000px; }
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.modal-body { padding: 16px; }
+.modal-body label { display: block; font-size: 14px; color: #334155; margin-bottom: 10px; }
+.modal-body input, .modal-body select {
+    width: 100%;
+    margin-top: 6px;
+    padding: 8px 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+}
+
+.modal-actions { text-align: right; margin-top: 8px; }
+.modal-actions button { padding: 8px 14px; border-radius: 8px; border: none; background: #2563eb; color: #fff; }
+
+.close-modal { background: transparent; border: none; font-size: 20px; cursor: pointer; color: #64748b; }
+.close-modal:hover { color: #0f172a; }
+
+.hint { font-size: 12px; color: #64748b; margin-top: 8px; }

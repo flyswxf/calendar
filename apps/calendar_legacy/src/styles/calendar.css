@@ -1,0 +1,112 @@
+/* Calendar Styles Module
+   Purpose: Weekly calendar grid, time column, day columns, events, and current-time line.
+   Scope: .calendar-grid and related elements. Follows BEM-like grouping: 
+   - Block: calendar-grid, day-col, event
+   - Elements: day-header, day-body, time-col, time-slot
+   - Modifiers: .today, .course, .focus */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: 80px repeat(7, 1fr);
+    gap: 8px;
+}
+
+.time-col {
+    border-right: 1px dashed #e2e8f0;
+    padding-right: 6px;
+    position: relative;
+    /* margin-top将通过JavaScript动态设置以对齐.day-header底部 */
+}
+
+.time-slot {
+    height: 48px; /* 1小时 = 48px -> 1分钟 = 0.8px */
+    font-size: 12px;
+    color: #94a3b8;
+    position: relative;
+}
+
+.time-slot::after {
+    content: "";
+    position: absolute;
+    right: -6px;
+    left: 0;
+    bottom: 0;
+    height: 1px;
+    background: #f1f5f9;
+}
+
+/* 23:00 底部标签，不占用额外分隔线高度 */
+.time-end {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+.day-col {
+    background: #fafafa;
+    border: 1px solid #f1f5f9;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.day-header {
+    text-align: center;
+    padding: 8px 6px;
+    background: #fff;
+    border-bottom: 1px solid #f1f5f9;
+    font-weight: 600;
+    color: #334155;
+}
+
+.day-col.today .day-header {
+    background: #e6f4ff;
+    color: #1d4ed8;
+}
+
+.day-body {
+    position: relative;
+    height: 768px; /* 16小时可视范围（7:00-23:00）: 48px * 16 = 768px */
+    min-height: 768px;
+    background-image: linear-gradient(#f8fafc 1px, rgba(255,255,255,0) 1px);
+    background-size: 100% 48px;
+}
+
+.event {
+    position: absolute;
+    left: 6px;
+    right: 6px;
+    border-radius: 8px;
+    padding: 8px;
+    font-size: 12px;
+    line-height: 1.2;
+    overflow: hidden;
+}
+
+.event .title { font-weight: 700; display: block; margin-bottom: 4px; }
+.event .meta { color: #475569; font-size: 11px; }
+
+.event.course {
+    background: #eef6ff;
+    border: 1px solid #bfdbfe;
+    color: #1e40af;
+}
+
+.day-col.today .event.course { box-shadow: 0 0 0 2px rgba(29,78,216,0.15) inset; }
+
+.event.focus {
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    color: #065f46;
+}
+
+.now-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #ef4444;
+    box-shadow: 0 0 0 1px rgba(239,68,68,0.25);
+}

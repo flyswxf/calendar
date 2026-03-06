@@ -494,7 +494,110 @@ body, html {
     transition: background-color 0.2s;
 }
 
-.delete-btn:hover {
-    background-color: #dc2626;
+/* Custom Map Tooltip - Artistic Design */
+.custom-map-tooltip {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+.custom-map-tooltip::before {
+    display: none !important;
+}
+
+.custom-tooltip-content {
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    border-radius: 12px;
+    box-shadow: 
+        0 4px 6px -1px rgba(0, 0, 0, 0.05),
+        0 10px 15px -3px rgba(0, 0, 0, 0.05),
+        0 0 0 1px rgba(0, 0, 0, 0.02); /* 微妙的边框 */
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 160px; /* 固定宽度以保证排版 */
+    transform: translateY(-10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: tooltip-float-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+    position: relative;
+    overflow: hidden;
+}
+
+/* 移除底部小箭头，改用更现代的悬浮感 */
+.custom-tooltip-content::after {
+    display: none;
+}
+
+.tooltip-image {
+    width: 100%;
+    height: 100px;
+    position: relative;
+    background-color: #f8fafc;
+    /* 图片边缘渐变虚化 - 顶部和底部 */
+    mask-image: linear-gradient(to bottom, 
+        transparent 0%, 
+        black 15%, 
+        black 85%, 
+        transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(to bottom, 
+        transparent 0%, 
+        black 15%, 
+        black 85%, 
+        transparent 100%
+    );
+}
+
+.tooltip-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transform: scale(1.05); /* 轻微放大以配合虚化 */
+    filter: saturate(1.1); /* 增加一点饱和度 */
+}
+
+.tooltip-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: #334155;
+    text-align: center;
+    line-height: 1.5;
+    padding: 8px 12px 12px 12px;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: 0.02em;
+    /* 如果没有图片，增加顶部内边距 */
+    margin-top: -10px; /* 让文字稍微向上侵入图片的虚化区域 */
+    position: relative;
+    z-index: 2;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.8); /* 确保在虚化背景上清晰 */
+}
+
+/* 如果没有图片时的特殊处理 (JS 动态类或 CSS 选择器) */
+.custom-tooltip-content:not(:has(.tooltip-image)) {
+    padding: 10px 16px;
+}
+
+.custom-tooltip-content:not(:has(.tooltip-image)) .tooltip-title {
+    margin-top: 0;
+    padding: 0;
+}
+
+@keyframes tooltip-float-in {
+    from {
+        opacity: 0;
+        transform: translateY(5px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(-10px) scale(1);
+    }
 }
 

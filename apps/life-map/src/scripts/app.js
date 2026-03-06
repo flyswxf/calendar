@@ -197,10 +197,7 @@ class App {
      */
     addPlaceMarker(place) {
         this.mapManager.addOrUpdatePlaceMarker(
-            place.id,
-            place.lat,
-            place.lng,
-            `<b>${place.title}</b>`,
+            place,
             () => {
                 this.uiManager.openEditor(place);
             }

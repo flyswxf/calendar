@@ -50,24 +50,22 @@ export class MapManager {
 
     /**
      * 添加或更新地点标记
-     * @param {string} id 
-     * @param {number} lat 
-     * @param {number} lng 
-     * @param {string} popupContent 
+     * @param {Object} placeData 包含 id, lat, lng, title, image 等信息的对象
      * @param {Function} onClick 点击回调
      */
-    addOrUpdatePlaceMarker(id, lat, lng, popupContent, onClick) {
+    addOrUpdatePlaceMarker(placeData, onClick) {
         if (!this.map) return;
 
+        const { id, lat, lng, title, images } = placeData;
         let marker = this.placeMarkers.get(id);
 
         if (marker) {
             // 更新现有标记
             marker.setLatLng([lat, lng]);
-            if (popupContent) {
-                marker.setPopupContent(popupContent);
-            }
-            // 更新点击事件: 先移除旧的，再添加新的
+            // 更新 Tooltip 内容
+            this.bindTooltip(marker, title, images);
+            
+            // 更新点击事件
             marker.off('click');
             if (onClick) {
                 marker.on('click', onClick);
@@ -75,15 +73,61 @@ export class MapManager {
         } else {
             // 创建新标记
             marker = L.marker([lat, lng]).addTo(this.map);
-            if (popupContent) {
-                marker.bindPopup(popupContent);
-            }
+            
+            // 绑定 Tooltip
+            this.bindTooltip(marker, title, images);
+
             if (onClick) {
                 marker.on('click', onClick);
             }
             this.placeMarkers.set(id, marker);
         }
         return marker;
+    }
+
+    /**
+     * 绑定自定义 Tooltip
+     * @param {L.Marker} marker 
+     * @param {string} title 
+     * @param {Array} images 
+     */
+    bindTooltip(marker, title, images) {
+        let content = `<div class="custom-tooltip-content">`;
+        
+        // 如果有图片，显示第一张缩略图
+        if (images && images.length > 0) {
+            // 这里假设 images 存储的是 Blob 或者 URL
+            // 如果是 Blob，需要确保有对应的 URL (通常在加载时处理)
+            // 简单起见，这里假设它是一个有效的图片源
+            // 注意：如果是 Blob 对象，需要 createObjectURL，但为了性能，
+            // 最好是在数据层处理好缩略图 URL。
+            // 暂时逻辑：尝试直接使用 (如果是 URL 字符串) 或者创建临时 URL
+            
+            let imgSrc = '';
+            const firstImg = images[0];
+            if (firstImg instanceof Blob || firstImg instanceof File) {
+                 imgSrc = URL.createObjectURL(firstImg);
+            } else {
+                imgSrc = firstImg;
+            }
+
+            content += `
+                <div class="tooltip-image">
+                    <img src="${imgSrc}" alt="${title}">
+                </div>
+            `;
+        }
+        
+        content += `<div class="tooltip-title">${title || '未命名地点'}</div>`;
+        content += `</div>`;
+
+        marker.bindTooltip(content, {
+            permanent: false,
+            direction: 'top',
+            className: 'custom-map-tooltip',
+            offset: [0, -30],
+            opacity: 1
+        });
     }
 
     /**
