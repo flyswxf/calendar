@@ -1,0 +1,5 @@
+{
+  "installCommand": "npm --prefix apps/calendar ci",
+  "buildCommand": "npm --prefix apps/calendar run build && mkdir -p out/apps/calendar && cp index.html out/index.html && cp -r apps/calendar/dist/* out/apps/calendar/",
+  "outputDirectory": "out"
+}
