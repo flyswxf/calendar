@@ -3,6 +3,7 @@ import { WeekView } from './components/Calendar/WeekView';
 import { TaskList } from './components/Tasks/TaskList';
 import { CourseModal } from './components/Modals/CourseModal';
 import { CourseImporter } from './components/Calendar/CourseImporter';
+import { CourseReminderPanel } from './components/Calendar/CourseReminderPanel';
 import { addDays } from './utils/time';
 
 function App() {
@@ -38,6 +39,8 @@ function App() {
             <CourseImporter />
           </div>
         </div>
+
+        <CourseReminderPanel />
 
         <WeekView viewDate={viewDate} />
 

@@ -77,3 +77,194 @@
     color: #0f172a;
     transform: translateX(-4px);
 }
+
+.course-reminder-panel {
+    margin-bottom: 16px;
+    padding: 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #fbfdff 0%, #ffffff 100%);
+}
+
+.course-reminder-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.course-reminder-header-right {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.course-reminder-title h3 {
+    font-size: 17px;
+    color: #0f172a;
+    margin: 0;
+}
+
+.course-reminder-title p {
+    margin-top: 4px;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.course-reminder-permission {
+    display: inline-flex;
+    align-items: center;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid #dbeafe;
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+.course-reminder-permission.pending {
+    border-color: #e2e8f0;
+    background: #f8fafc;
+    color: #475569;
+}
+
+.course-reminder-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(320px, 1fr));
+    gap: 12px;
+}
+
+.course-reminder-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #fff;
+    padding: 12px;
+}
+
+.course-reminder-card-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.course-reminder-controls {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.course-reminder-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #334155;
+    font-size: 13px;
+}
+
+.course-reminder-switch input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    accent-color: #2563eb;
+    cursor: pointer;
+}
+
+.course-reminder-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #334155;
+    font-size: 13px;
+}
+
+.course-reminder-input {
+    width: 74px;
+    height: 32px;
+    border: 1px solid #dbe3ee;
+    border-radius: 8px;
+    padding: 0 10px;
+    color: #334155;
+    outline: none;
+    background: #fff;
+    transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.course-reminder-input:focus {
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.14);
+}
+
+.course-reminder-actions {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.course-reminder-btn {
+    height: 34px;
+    padding: 0 12px;
+    border-radius: 8px;
+    border: 1px solid rgb(59, 130, 246);
+    background: rgb(59, 130, 246);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .2s ease;
+}
+
+.course-reminder-btn:hover {
+    background: rgb(37, 99, 235);
+    border-color: rgb(37, 99, 235);
+}
+
+.course-reminder-btn.primary {
+    border-color: rgb(59, 130, 246);
+    background: rgb(59, 130, 246);
+}
+
+.course-reminder-btn.primary:hover {
+    background: rgb(37, 99, 235);
+    border-color: rgb(37, 99, 235);
+}
+
+.course-reminder-toggle {
+    height: 30px;
+    font-size: 12px;
+    padding: 0 10px;
+}
+
+.course-reminder-foot {
+    margin-top: 12px;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 10px;
+    color: #475569;
+    font-size: 13px;
+    display: grid;
+    gap: 6px;
+}
+
+.course-reminder-last {
+    color: #0f766e;
+}
+
+@media (max-width: 980px) {
+    .course-reminder-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .course-reminder-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .course-reminder-header-right {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
