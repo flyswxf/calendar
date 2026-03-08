@@ -9,9 +9,11 @@ interface EventBlockProps {
   type: 'course' | 'focus';
   detail?: any;
   onClick?: () => void;
+  location?: string;
+  teacher?: string;
 }
 
-export const EventBlock: React.FC<EventBlockProps> = ({ title, startMin, endMin, type, onClick }) => {
+export const EventBlock: React.FC<EventBlockProps> = ({ title, startMin, endMin, type, onClick, location, teacher }) => {
   const pixelPerMin = usePixelPerMin();
   
   const top = Math.max(0, (startMin - BASE_START_MIN) * pixelPerMin);
@@ -20,11 +22,13 @@ export const EventBlock: React.FC<EventBlockProps> = ({ title, startMin, endMin,
   return (
     <div 
       className={`event ${type}`} 
-      style={{ top, height, position: 'absolute', width: '90%', left: '5%' }}
+      style={{ top, height, minHeight: height, position: 'absolute', width: '90%', left: '5%' }}
       onClick={onClick}
     >
       <span className="title">{title}</span>
       <div className="meta">{fmtHM(startMin)} - {fmtHM(endMin)}</div>
+      {location && <div className="meta" style={{ fontSize: '10px' }}>📍 {location}</div>}
+      {teacher && <div className="meta" style={{ fontSize: '10px' }}>👤 {teacher}</div>}
     </div>
   );
 };

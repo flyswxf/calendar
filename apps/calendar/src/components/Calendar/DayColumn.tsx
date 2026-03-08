@@ -53,6 +53,8 @@ export const DayColumn: React.FC<DayColumnProps> = ({
             startMin={parseHM(course.start)}
             endMin={parseHM(course.end)}
             type="course"
+            location={course.location}
+            teacher={course.teacher}
             onClick={() => onCourseClick?.(course)}
           />
         ))}

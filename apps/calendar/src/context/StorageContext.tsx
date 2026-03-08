@@ -1,38 +1,15 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-
-export interface Task {
-  id: string;
-  text: string;
-  completed: boolean;
-  createdAt: number;
-  isLegacy?: boolean;
-}
-
-export interface Course {
-  id: string;
-  title: string;
-  day: number;
-  start: string;
-  end: string;
-  location: string;
-}
-
-export interface FocusSession {
-  id: string;
-  title: string;
-  start: string;
-  end: string;
-  mode: 'countdown' | 'stopwatch';
-  completed: boolean;
-}
+import { Task, Course, FocusSession } from '../types/index';
 
 interface StorageContextType {
   tasks: Task[];
   courses: Course[];
   focusSessions: FocusSession[];
+  semesterStartDate: string | null;
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
   setCourses: React.Dispatch<React.SetStateAction<Course[]>>;
   setFocusSessions: React.Dispatch<React.SetStateAction<FocusSession[]>>;
+  setSemesterStartDate: (date: string | null) => void;
   syncUserId: string | null;
   setSyncUserId: (id: string) => void;
   loading: boolean;
@@ -50,6 +27,7 @@ export const StorageProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [tasks, setTasksState] = useState<Task[]>([]);
   const [courses, setCoursesState] = useState<Course[]>([]);
   const [focusSessions, setFocusSessionsState] = useState<FocusSession[]>([]);
+  const [semesterStartDate, setSemesterStartDateState] = useState<string | null>(null);
   const [syncUserId, setSyncUserIdState] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -59,11 +37,13 @@ export const StorageProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const localTasks = JSON.parse(localStorage.getItem('tasks') || '[]');
       const localCourses = JSON.parse(localStorage.getItem('courses') || '[]');
       const localFocusSessions = JSON.parse(localStorage.getItem('focusSessions') || '[]');
+      const localSemesterStart = localStorage.getItem('semesterStartDate');
       const localSyncUserId = localStorage.getItem('syncUserId');
 
       setTasksState(localTasks);
       setCoursesState(localCourses);
       setFocusSessionsState(localFocusSessions);
+      setSemesterStartDateState(localSemesterStart);
       setSyncUserIdState(localSyncUserId);
     } catch (e) {
       console.error('Failed to load from localStorage', e);
@@ -141,14 +121,28 @@ export const StorageProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setSyncUserIdState(id);
   }, []);
 
-  return (
-    <StorageContext.Provider value={{
-      tasks, courses, focusSessions,
-      setTasks, setCourses, setFocusSessions,
-      syncUserId, setSyncUserId,
-      loading
-    }}>
-      {children}
-    </StorageContext.Provider>
-  );
+  const setSemesterStartDate = useCallback((date: string | null) => {
+    setSemesterStartDateState(date);
+    if (date) {
+      localStorage.setItem('semesterStartDate', date);
+    } else {
+      localStorage.removeItem('semesterStartDate');
+    }
+  }, []);
+
+  const value = {
+    tasks,
+    courses,
+    focusSessions,
+    semesterStartDate,
+    setTasks,
+    setCourses,
+    setFocusSessions,
+    setSemesterStartDate,
+    syncUserId,
+    setSyncUserId,
+    loading
+  };
+
+  return <StorageContext.Provider value={value}>{children}</StorageContext.Provider>;
 };

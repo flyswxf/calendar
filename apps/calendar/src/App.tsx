@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { WeekView } from './components/Calendar/WeekView';
 import { TaskList } from './components/Tasks/TaskList';
 import { CourseModal } from './components/Modals/CourseModal';
+import { CourseImporter } from './components/Calendar/CourseImporter';
 import { addDays } from './utils/time';
 
 function App() {
@@ -32,8 +33,9 @@ function App() {
             <button id="goToday" onClick={goToday}>今天</button>
             <button id="nextWeek" onClick={nextWeek}>下一周</button>
           </div>
-          <div className="course-actions">
+          <div className="course-actions" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
             <button id="addCourseBtn" onClick={() => setIsCourseModalOpen(true)}>添加课程</button>
+            <CourseImporter />
           </div>
         </div>
 
