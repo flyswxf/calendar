@@ -253,6 +253,141 @@
     color: #0f766e;
 }
 
+.deadline-capture-panel {
+    margin-bottom: 16px;
+    padding: 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #fffdf8 0%, #ffffff 100%);
+}
+
+.deadline-capture-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.deadline-capture-title h3 {
+    font-size: 17px;
+    color: #0f172a;
+    margin: 0;
+}
+
+.deadline-capture-title p {
+    margin-top: 4px;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.deadline-count-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 10px;
+    height: 28px;
+    border-radius: 999px;
+    border: 1px solid #fdba74;
+    color: #9a3412;
+    background: #fff7ed;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.deadline-mode-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.deadline-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #334155;
+}
+
+.deadline-select,
+.deadline-input {
+    height: 34px;
+    border: 1px solid #dbe3ee;
+    border-radius: 8px;
+    padding: 0 10px;
+    color: #334155;
+    background: #fff;
+}
+
+.deadline-upload-btn,
+.deadline-action-btn,
+.deadline-save-btn {
+    height: 34px;
+    padding: 0 12px;
+    border-radius: 8px;
+    border: 1px solid rgb(59, 130, 246);
+    background: rgb(59, 130, 246);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.deadline-upload-btn:hover,
+.deadline-action-btn:hover,
+.deadline-save-btn:hover {
+    background: rgb(37, 99, 235);
+    border-color: rgb(37, 99, 235);
+}
+
+.deadline-action-btn:disabled,
+.deadline-save-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.deadline-textarea {
+    margin-top: 10px;
+    width: 100%;
+    min-height: 88px;
+    border: 1px solid #dbe3ee;
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 13px;
+    color: #334155;
+    resize: vertical;
+}
+
+.deadline-form-grid {
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(240px, 1fr));
+    gap: 10px;
+}
+
+.deadline-field {
+    display: grid;
+    gap: 6px;
+    font-size: 13px;
+    color: #334155;
+}
+
+.deadline-footer {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.deadline-message {
+    font-size: 13px;
+    color: #0f766e;
+}
+
 @media (max-width: 980px) {
     .course-reminder-grid {
         grid-template-columns: 1fr;
@@ -266,5 +401,13 @@
     .course-reminder-header-right {
         width: 100%;
         justify-content: space-between;
+    }
+
+    .deadline-capture-header {
+        flex-direction: column;
+    }
+
+    .deadline-form-grid {
+        grid-template-columns: 1fr;
     }
 }

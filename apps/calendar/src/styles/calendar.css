@@ -111,6 +111,12 @@
     color: #065f46;
 }
 
+.event.deadline {
+    background: #fff7ed;
+    border: 1px solid #fdba74;
+    color: #9a3412;
+}
+
 .now-line {
     position: absolute;
     left: 0;

@@ -9,7 +9,7 @@ interface WeekViewProps {
 }
 
 export const WeekView: React.FC<WeekViewProps> = ({ viewDate }) => {
-  const { courses, focusSessions, semesterStartDate, setSemesterStartDate } = useStorage();
+  const { courses, focusSessions, deadlineEvents, semesterStartDate, setSemesterStartDate } = useStorage();
 
   const weekStart = getWeekStart(viewDate);
   
@@ -96,8 +96,10 @@ export const WeekView: React.FC<WeekViewProps> = ({ viewDate }) => {
             dayIndex={date.getDay()}
             courses={filteredCourses}
             focusSessions={focusSessions}
+            deadlineEvents={deadlineEvents}
             onCourseClick={c => alert(`课程: ${c.title}\n地点: ${c.location}\n教师: ${c.teacher || '无'}\n周次: ${c.weeks?.join(',') || '全'}`)}
             onSessionClick={s => alert(`专注: ${s.title}`)}
+            onDeadlineClick={(event) => alert(`截止: ${event.title}\n时间: ${new Date(event.dueAt).toLocaleString()}\n课程: ${event.courseName || '未填写'}\n来源: ${event.source}\n说明: ${event.description || '无'}`)}
           />
         ))}
       </div>

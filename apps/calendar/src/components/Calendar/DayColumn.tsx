@@ -1,5 +1,5 @@
 import React from 'react';
-import { Course, FocusSession } from '../../types';
+import { Course, DeadlineEvent, FocusSession } from '../../types';
 import { EventBlock } from './EventBlock';
 import { parseHM, toDateKey } from '../../utils/time';
 
@@ -8,8 +8,10 @@ interface DayColumnProps {
   dayIndex: number; // 0-6 (Sun-Sat)
   courses: Course[];
   focusSessions: FocusSession[];
+  deadlineEvents: DeadlineEvent[];
   onCourseClick?: (course: Course) => void;
   onSessionClick?: (session: FocusSession) => void;
+  onDeadlineClick?: (event: DeadlineEvent) => void;
 }
 
 export const DayColumn: React.FC<DayColumnProps> = ({ 
@@ -17,8 +19,10 @@ export const DayColumn: React.FC<DayColumnProps> = ({
   dayIndex, 
   courses, 
   focusSessions,
+  deadlineEvents,
   onCourseClick,
-  onSessionClick
+  onSessionClick,
+  onDeadlineClick
 }) => {
   // Filter courses for this day of week
   const dayCourses = courses.filter(c => {
@@ -36,6 +40,11 @@ export const DayColumn: React.FC<DayColumnProps> = ({
   const daySessions = focusSessions.filter(s => {
     const sessionDate = new Date(s.start);
     return toDateKey(sessionDate) === dateKey;
+  });
+
+  const dayDeadlines = deadlineEvents.filter((event) => {
+    const dueDate = new Date(event.dueAt);
+    return toDateKey(dueDate) === dateKey;
   });
 
   return (
@@ -71,6 +80,22 @@ export const DayColumn: React.FC<DayColumnProps> = ({
               endMin={endMin}
               type="focus"
               onClick={() => onSessionClick?.(session)}
+            />
+          );
+        })}
+        {dayDeadlines.map((event) => {
+          const due = new Date(event.dueAt);
+          const startMin = due.getHours() * 60 + due.getMinutes();
+          const endMin = Math.min(startMin + 30, 23 * 60);
+          return (
+            <EventBlock
+              key={event.id}
+              title={event.title}
+              startMin={startMin}
+              endMin={Math.max(endMin, startMin + 1)}
+              type="deadline"
+              location={event.courseName}
+              onClick={() => onDeadlineClick?.(event)}
             />
           );
         })}

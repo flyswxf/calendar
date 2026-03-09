@@ -6,7 +6,7 @@ interface EventBlockProps {
   title: string;
   startMin: number; // minutes from midnight
   endMin: number;
-  type: 'course' | 'focus';
+  type: 'course' | 'focus' | 'deadline';
   detail?: unknown;
   onClick?: () => void;
   location?: string;

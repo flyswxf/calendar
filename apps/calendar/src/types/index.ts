@@ -25,3 +25,17 @@ export interface FocusSession {
   mode: 'countdown' | 'stopwatch';
   completed: boolean;
 }
+
+export type DeadlineSource = 'manual' | 'photo_ocr' | 'chaoxing_text';
+
+export interface DeadlineEvent {
+  id: string;
+  title: string;
+  dueAt: string;
+  courseName?: string;
+  description?: string;
+  source: DeadlineSource;
+  confidence: number;
+  createdAt: number;
+  completed?: boolean;
+}

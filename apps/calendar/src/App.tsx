@@ -4,6 +4,7 @@ import { TaskList } from './components/Tasks/TaskList';
 import { CourseModal } from './components/Modals/CourseModal';
 import { CourseImporter } from './components/Calendar/CourseImporter';
 import { CourseReminderPanel } from './components/Calendar/CourseReminderPanel';
+import { DeadlineCapturePanel } from './components/Deadline/DeadlineCapturePanel';
 import { addDays } from './utils/time';
 
 function App() {
@@ -41,6 +42,7 @@ function App() {
         </div>
 
         <CourseReminderPanel />
+        <DeadlineCapturePanel />
 
         <WeekView viewDate={viewDate} />
 
