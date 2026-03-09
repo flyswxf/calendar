@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useStorage } from '../../context/StorageContext';
+import { useStorage } from '../../context/useStorage';
 import { addDays, getWeekStart, pad, parseHM, toDateKey } from '../../utils/time';
 
 const PREF_KEY = 'courseReminderPrefs';

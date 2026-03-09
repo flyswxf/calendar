@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useStorage } from '../../context/StorageContext';
+import { useStorage } from '../../context/useStorage';
 import { useTimer } from '../../context/TimerContext';
 import clsx from 'clsx';
 

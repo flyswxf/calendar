@@ -1,27 +1,10 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Task, Course, FocusSession } from '../types/index';
+import { StorageContext } from './StorageContextObject';
 
-interface StorageContextType {
-  tasks: Task[];
-  courses: Course[];
-  focusSessions: FocusSession[];
-  semesterStartDate: string | null;
-  setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
-  setCourses: React.Dispatch<React.SetStateAction<Course[]>>;
-  setFocusSessions: React.Dispatch<React.SetStateAction<FocusSession[]>>;
-  setSemesterStartDate: (date: string | null) => void;
-  syncUserId: string | null;
-  setSyncUserId: (id: string) => void;
-  loading: boolean;
+function resolveNextState<T>(action: React.SetStateAction<T>, prev: T): T {
+  return typeof action === 'function' ? (action as (prevState: T) => T)(prev) : action;
 }
-
-const StorageContext = createContext<StorageContextType | null>(null);
-
-export const useStorage = () => {
-  const context = useContext(StorageContext);
-  if (!context) throw new Error('useStorage must be used within a StorageProvider');
-  return context;
-};
 
 export const StorageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [tasks, setTasksState] = useState<Task[]>([]);
@@ -77,7 +60,7 @@ export const StorageProvider: React.FC<{ children: React.ReactNode }> = ({ child
   // Note: To avoid infinite loops or excessive writes, we might want to debounce this
   // But for now, we follow the original logic which saved on every update.
   
-  const saveToRemote = async (data: { tasks: Task[], courses: Course[], focusSessions: FocusSession[] }) => {
+  const saveToRemote = useCallback(async (data: { tasks: Task[], courses: Course[], focusSessions: FocusSession[] }) => {
     if (!syncUserId) return;
     try {
       await fetch(`/api/data?userId=${encodeURIComponent(syncUserId)}`, {
@@ -88,34 +71,34 @@ export const StorageProvider: React.FC<{ children: React.ReactNode }> = ({ child
     } catch (e) {
       console.error('Failed to save to remote', e);
     }
-  };
+  }, [syncUserId]);
 
   const setTasks = useCallback((action: React.SetStateAction<Task[]>) => {
     setTasksState(prev => {
-      const newTasks = typeof action === 'function' ? (action as any)(prev) : action;
+      const newTasks = resolveNextState(action, prev);
       localStorage.setItem('tasks', JSON.stringify(newTasks));
       saveToRemote({ tasks: newTasks, courses, focusSessions });
       return newTasks;
     });
-  }, [courses, focusSessions, syncUserId]);
+  }, [courses, focusSessions, saveToRemote]);
 
   const setCourses = useCallback((action: React.SetStateAction<Course[]>) => {
     setCoursesState(prev => {
-      const newCourses = typeof action === 'function' ? (action as any)(prev) : action;
+      const newCourses = resolveNextState(action, prev);
       localStorage.setItem('courses', JSON.stringify(newCourses));
       saveToRemote({ tasks, courses: newCourses, focusSessions });
       return newCourses;
     });
-  }, [tasks, focusSessions, syncUserId]);
+  }, [tasks, focusSessions, saveToRemote]);
 
   const setFocusSessions = useCallback((action: React.SetStateAction<FocusSession[]>) => {
     setFocusSessionsState(prev => {
-      const newSessions = typeof action === 'function' ? (action as any)(prev) : action;
+      const newSessions = resolveNextState(action, prev);
       localStorage.setItem('focusSessions', JSON.stringify(newSessions));
       saveToRemote({ tasks, courses, focusSessions: newSessions });
       return newSessions;
     });
-  }, [tasks, courses, syncUserId]);
+  }, [tasks, courses, saveToRemote]);
 
   const setSyncUserId = useCallback((id: string) => {
     setSyncUserIdState(id);

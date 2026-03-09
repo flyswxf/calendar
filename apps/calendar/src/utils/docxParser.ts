@@ -97,7 +97,7 @@ function cleanCourseInfo(text: string): string {
     .replace(/\d{1,2}\s*[:：]{1,2}\s*\d{2}/g, '')
     // 去掉残留的连字符或冒号（如果是单独存在的）
     .replace(/^\s*[-~–—:：]+\s*/, '')
-    .replace(/[()（）\[\]【】〔〕]/g, ' ') // 去掉括号，支持多种括号
+    .replace(/[()（）[\]【】〔〕]/g, ' ') // 去掉括号，支持多种括号
     .trim();
 }
 
@@ -224,7 +224,7 @@ export async function parseDocxCourseTable(arrayBuffer: ArrayBuffer): Promise<Co
         if (sectionRange) {
           // 找到了时间锚点！
           // 1. 解析周次（通常在同一行或附近）
-          let weeks = parseWeeks(line);
+          const weeks = parseWeeks(line);
           // 如果当前行没找到周次，尝试在上一行或下一行找？通常周次和节次在一起
           // 这里的 parseWeeks 已经比较鲁棒，能处理 "1-17周"
 
@@ -252,7 +252,7 @@ export async function parseDocxCourseTable(arrayBuffer: ArrayBuffer): Promise<Co
           let teacher = '';
           
           // 尝试从当前行提取剩余信息
-          let remainingText = cleanCourseInfo(line);
+          const remainingText = cleanCourseInfo(line);
             
           // 如果当前行剩余文本太短，可能地点和教师在下一行
           let extraInfoLine = '';
