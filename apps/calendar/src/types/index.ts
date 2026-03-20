@@ -39,3 +39,21 @@ export interface DeadlineEvent {
   createdAt: number;
   completed?: boolean;
 }
+
+export type DailyActionSource = 'manual' | 'auto_calendar' | 'timer' | 'fuzzy';
+
+export type DailyActionConfidence = 'exact' | 'adjusted' | 'fuzzy';
+
+export interface DailyActionEvent {
+  id: string;
+  name: string;
+  source: DailyActionSource;
+  confidence: DailyActionConfidence;
+  startAt: string;
+  endAt: string | null;
+  durationMin: number;
+  dateKey: string;
+  createdAt: number;
+  updatedAt: number;
+  autoCourseKey?: string;
+}

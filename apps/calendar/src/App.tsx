@@ -6,23 +6,25 @@ import { CourseModal } from './components/Modals/CourseModal';
 import { CourseImporter } from './components/Calendar/CourseImporter';
 import { CourseReminderPanel } from './components/Calendar/CourseReminderPanel';
 import { DeadlineCapturePanel } from './components/Deadline/DeadlineCapturePanel';
-import ArrowLeftIcon from './components/icon/ArrowLeftIcon';
-import CalendarIcon from './components/icon/CalendarIcon';
-import ClockIcon from './components/icon/ClockIcon';
-import CheckSquareIcon from './components/icon/CheckSquareIcon';
+import { DailyActionPanel } from './components/DailyAction/DailyActionPanel';
+import ArrowLeftIcon from './components/Icon/ArrowLeftIcon';
+import ActionIcon from './components/Icon/ActionIcon';
+import CalendarIcon from './components/Icon/CalendarIcon';
+import ClockIcon from './components/Icon/ClockIcon';
+import CheckSquareIcon from './components/Icon/CheckSquareIcon';
 import { addDays } from './utils/time';
 
 function App() {
   const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
   const [viewDate, setViewDate] = useState(new Date());
-  const [activeSidebarPanel, setActiveSidebarPanel] = useState<'reminder' | 'deadline' | 'tasks' | null>(null);
+  const [activeSidebarPanel, setActiveSidebarPanel] = useState<'reminder' | 'deadline' | 'tasks' | 'actions' | null>(null);
   const [panelWidth, setPanelWidth] = useState(360);
   const panelContainerRef = useRef<HTMLDivElement | null>(null);
 
   const prevWeek = () => setViewDate(d => addDays(d, -7));
   const nextWeek = () => setViewDate(d => addDays(d, 7));
   const goToday = () => setViewDate(new Date());
-  const togglePanel = (panel: 'reminder' | 'deadline' | 'tasks') => {
+  const togglePanel = (panel: 'reminder' | 'deadline' | 'tasks' | 'actions') => {
     setActiveSidebarPanel(prev => (prev === panel ? null : panel));
   };
 
@@ -103,6 +105,14 @@ function App() {
             >
               <CheckSquareIcon />
             </button>
+            <button
+              className={`sidebar-nav-item ${activeSidebarPanel === 'actions' ? 'active' : ''}`}
+              onClick={() => togglePanel('actions')}
+              data-tooltip="行动记录"
+              aria-label="行动记录"
+            >
+              <ActionIcon />
+            </button>
           </nav>
           <div className={`sidebar-panel-container ${activeSidebarPanel ? 'open' : ''}`} ref={panelContainerRef} style={panelWidthStyle}>
             <section className={`sidebar-panel ${activeSidebarPanel === 'reminder' ? 'active' : ''}`}>
@@ -120,6 +130,11 @@ function App() {
                 <div className="split">
                   <TaskList />
                 </div>
+              </div>
+            </section>
+            <section className={`sidebar-panel ${activeSidebarPanel === 'actions' ? 'active' : ''}`}>
+              <div className="sidebar-panel-body">
+                <DailyActionPanel />
               </div>
             </section>
           </div>
