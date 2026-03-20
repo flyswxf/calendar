@@ -139,7 +139,7 @@ async function callOpenRouter(file: File, apiKey: string, model: string): Promis
 
 export async function extractDeadlineFromImageByModel(file: File, config: VisionRequestConfig): Promise<VisionDeadlineDraft> {
   if (!config.apiKey.trim()) throw new Error('请先填写模型 API Key');
-  const model = config.model?.trim() || (config.provider === 'google' ? 'gemini-2.5-flash' : 'qwen/qwen2.5-vl-72b-instruct:free');
+  const model = config.model?.trim() || (config.provider === 'google' ? 'gemini-2.5-flash' : 'openrouter/free');
   const raw = config.provider === 'google'
     ? await callGoogle(file, config.apiKey.trim(), model)
     : await callOpenRouter(file, config.apiKey.trim(), model);

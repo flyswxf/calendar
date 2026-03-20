@@ -6,6 +6,7 @@ import { TimerProvider } from './context/TimerProvider'
 
 import './styles/base.css'
 import './styles/layout.css'
+import './styles/course-reminder.css'
 import './styles/calendar.css'
 import './styles/todo.css'
 import './styles/modals.css'

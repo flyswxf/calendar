@@ -47,10 +47,6 @@ export const DeadlineCapturePanel: React.FC = () => {
     if (typeof import.meta !== 'undefined' && import.meta.env?.VITE_GOOGLE_API_KEY) return import.meta.env.VITE_GOOGLE_API_KEY as string;
     return '';
   });
-  const [visionModel, setVisionModel] = useState(() => {
-    if (localStorage.getItem('deadlineVisionModel')) return localStorage.getItem('deadlineVisionModel') || '';
-    return 'gemini-2.5-flash';
-  });
   const [title, setTitle] = useState('');
   const [courseName, setCourseName] = useState('');
   const [dueAt, setDueAt] = useState('');
@@ -71,9 +67,6 @@ export const DeadlineCapturePanel: React.FC = () => {
     localStorage.setItem('deadlineVisionApiKey', visionApiKey);
   }, [visionApiKey]);
 
-  useEffect(() => {
-    localStorage.setItem('deadlineVisionModel', visionModel);
-  }, [visionModel]);
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -131,8 +124,7 @@ export const DeadlineCapturePanel: React.FC = () => {
     try {
       const draft = await extractDeadlineFromImageByModel(file, {
         provider: visionProvider,
-        apiKey: visionApiKey,
-        model: visionModel
+        apiKey: visionApiKey
       });
       const dueText = draft.dueAt ? toLocalInputValue(draft.dueAt) : '';
       setTitle(draft.title);
@@ -143,7 +135,7 @@ export const DeadlineCapturePanel: React.FC = () => {
       setRawText(draft.rawText || '');
       setMessage('模型识别完成，请检查字段后保存。');
     } catch (error) {
-      setMessage('模型识别失败，请检查 API Key、模型名称或网络。');
+      setMessage('模型识别失败，请检查 API Key 或网络。');
       console.error(error);
     } finally {
       setIsOcrLoading(false);
@@ -275,12 +267,7 @@ export const DeadlineCapturePanel: React.FC = () => {
           <select
             className="deadline-select"
             value={visionProvider}
-            onChange={(e) => {
-              const provider = e.target.value as VisionProvider;
-              setVisionProvider(provider);
-              if (provider === 'google' && !visionModel) setVisionModel('gemini-2.5-flash');
-              if (provider === 'openrouter' && !visionModel) setVisionModel('qwen/qwen2.5-vl-72b-instruct:free');
-            }}
+            onChange={(e) => setVisionProvider(e.target.value as VisionProvider)}
           >
             <option value="google">Google Gemini</option>
             <option value="openrouter">OpenRouter 免费模型</option>
@@ -294,15 +281,6 @@ export const DeadlineCapturePanel: React.FC = () => {
             value={visionApiKey}
             onChange={(e) => setVisionApiKey(e.target.value)}
             placeholder={visionProvider === 'google' ? '填入 Google API Key' : '填入 OpenRouter API Key'}
-          />
-        </label>
-        <label className="deadline-field">
-          模型名
-          <input
-            className="deadline-input"
-            value={visionModel}
-            onChange={(e) => setVisionModel(e.target.value)}
-            placeholder={visionProvider === 'google' ? 'gemini-2.5-flash' : 'qwen/qwen2.5-vl-72b-instruct:free'}
           />
         </label>
       </div>
@@ -326,18 +304,6 @@ export const DeadlineCapturePanel: React.FC = () => {
         <label className="deadline-field">
           截止时间
           <input type="datetime-local" value={dueAt} onChange={(e) => setDueAt(e.target.value)} className="deadline-input" />
-        </label>
-        <label className="deadline-field">
-          识别置信度
-          <input
-            type="number"
-            min={0}
-            max={1}
-            step={0.01}
-            value={confidence}
-            onChange={(e) => setConfidence(Math.max(0, Math.min(1, Number(e.target.value) || 0)))}
-            className="deadline-input"
-          />
         </label>
       </div>
 
