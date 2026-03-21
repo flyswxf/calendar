@@ -4,7 +4,10 @@ import type { DailyActionEvent } from '../../types';
 import { getWeekNumber, getWeekStart, parseHM, toDateKey } from '../../utils/time';
 import {
   ACTIVE_SESSION_KEY,
+  assessBReadiness,
+  buildBPreparedCandidates,
   buildNameStats,
+  buildNameStatsV2,
   Candidate,
   clamp,
   clampEventRange,
@@ -37,6 +40,7 @@ export function useDailyActionPanel() {
   const [adjustEndMinute, setAdjustEndMinute] = useState(Math.floor(now.getMinutes() / 5) * 5);
   const [editDraft, setEditDraft] = useState<EditDraft | null>(null);
   const todayKey = toDateKey(now);
+  const fuzzyStrategyMode: 'legacy' | 'b_prepared' = localStorage.getItem('dailyActionFuzzyStrategy') === 'b_prepared' ? 'b_prepared' : 'legacy';
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(new Date()), 30 * 1000);
@@ -119,8 +123,10 @@ export function useDailyActionPanel() {
   }, [dailyActionEvents]);
 
   const nameStats = useMemo(() => buildNameStats(dailyActionEvents), [dailyActionEvents]);
+  const nameStatsV2 = useMemo(() => buildNameStatsV2(dailyActionEvents, now, 7), [dailyActionEvents, now]);
+  const bReadiness = useMemo(() => assessBReadiness(dailyActionEvents, now), [dailyActionEvents, now]);
 
-  const fuzzyCandidates = useMemo(() => {
+  const legacyCandidates = useMemo(() => {
     const history = fuzzyName ? nameStats.get(fuzzyName) : null;
     const isEarlyClassDay = now.getDay() === 3 || now.getDay() === 4;
     const dinnerEndMinutes = todayEvents
@@ -171,6 +177,36 @@ export function useDailyActionPanel() {
       }
     ] satisfies Candidate[];
   }, [fuzzyDurationWord, fuzzyName, fuzzySlot, nameStats, now, todayEvents]);
+
+  const bPreparedCandidates = useMemo(() => {
+    const isEarlyClassDay = now.getDay() === 3 || now.getDay() === 4;
+    const dinnerEndMinutes = todayEvents
+      .filter((event) => event.endAt && (event.name.includes('晚饭') || event.name.includes('吃饭')))
+      .map((event) => {
+        const d = new Date(event.endAt as string);
+        return d.getHours() * 60 + d.getMinutes();
+      });
+    const dinnerAnchor = dinnerEndMinutes.length > 0 ? Math.max(...dinnerEndMinutes) + 10 : roughSlotDefaults.吃完晚饭后;
+    return buildBPreparedCandidates({
+      fuzzyName,
+      fuzzySlot,
+      fuzzyDurationWord,
+      isEarlyClassDay,
+      dinnerAnchorMin: dinnerAnchor,
+      baseSlotMin: roughSlotDefaults[fuzzySlot],
+      baseDurationMin: roughDurationDefaults[fuzzyDurationWord],
+      fallbackAvgStats: nameStats,
+      advancedStats: nameStatsV2,
+      minSamplesForStrictStats: 5
+    });
+  }, [fuzzyDurationWord, fuzzyName, fuzzySlot, nameStats, nameStatsV2, now, todayEvents]);
+
+  const fuzzyCandidates = useMemo(() => {
+    if (fuzzyStrategyMode === 'b_prepared' && bReadiness.ready) {
+      return bPreparedCandidates;
+    }
+    return legacyCandidates;
+  }, [bPreparedCandidates, bReadiness.ready, fuzzyStrategyMode, legacyCandidates]);
 
   useEffect(() => {
     setSelectedCandidateKey('candidate-main');
@@ -336,6 +372,9 @@ export function useDailyActionPanel() {
     todayEvents,
     nameSuggestions,
     fuzzyCandidates,
+    bPreparedCandidates,
+    bReadiness,
+    fuzzyStrategyMode,
     summaryItems,
     pieGradient,
     manualName,
