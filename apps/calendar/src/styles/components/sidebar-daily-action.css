@@ -1,0 +1,200 @@
+.daily-action-panel {
+  width: min(640px, 86vw);
+  display: grid;
+  gap: 12px;
+}
+
+.daily-action-header h3 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.daily-action-header p {
+  margin: 6px 0 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.daily-action-card {
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.daily-action-card h4 {
+  margin: 0;
+  font-size: 15px;
+  color: #0f172a;
+}
+
+.daily-action-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.daily-action-input,
+.daily-action-select {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 14px;
+  color: #0f172a;
+  background: #fff;
+}
+
+.daily-action-input {
+  min-width: 220px;
+  flex: 1;
+}
+
+.daily-action-btn {
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.daily-action-btn.primary {
+  background: #2563eb;
+  color: #fff;
+}
+
+.daily-action-btn.primary:disabled {
+  background: #93c5fd;
+  cursor: not-allowed;
+}
+
+.daily-action-btn.danger {
+  background: #ef4444;
+  color: #fff;
+}
+
+.daily-action-running {
+  display: grid;
+  gap: 8px;
+  padding: 8px;
+  border: 1px dashed #bfdbfe;
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #1e3a8a;
+}
+
+.daily-action-candidate-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.daily-action-candidate {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #0f172a;
+  display: grid;
+  gap: 6px;
+  padding: 8px;
+  cursor: pointer;
+  text-align: left;
+  font-size: 12px;
+}
+
+.daily-action-candidate.active {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.daily-action-chart-wrap {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.daily-action-pie {
+  width: 120px;
+  height: 120px;
+  border-radius: 999px;
+  border: 1px solid #e2e8f0;
+}
+
+.daily-action-legend {
+  display: grid;
+  gap: 8px;
+}
+
+.daily-action-legend-item {
+  display: grid;
+  grid-template-columns: 10px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  font-size: 13px;
+}
+
+.daily-action-legend-item i {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.daily-action-event-list {
+  display: grid;
+  gap: 8px;
+}
+
+.daily-action-event-item {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.daily-action-edit-grid {
+  display: grid;
+  gap: 8px;
+  min-width: 320px;
+}
+
+.daily-action-event-item strong {
+  font-size: 14px;
+}
+
+.daily-action-event-item p {
+  margin: 4px 0 0;
+  color: #475569;
+  font-size: 12px;
+}
+
+.daily-action-muted {
+  color: #64748b;
+  font-size: 13px;
+}
+
+@media (max-width: 900px) {
+  .daily-action-panel {
+    width: min(92vw, 640px);
+  }
+
+  .daily-action-candidate-list {
+    grid-template-columns: 1fr;
+  }
+
+  .daily-action-chart-wrap {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .daily-action-legend {
+    width: 100%;
+  }
+}

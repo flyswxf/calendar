@@ -1,0 +1,153 @@
+/* 侧边栏作业截止组件样式：负责 deadline 面板的标题、表单录入、操作按钮、状态消息与移动端适配。 */
+.deadline-capture-panel {
+    margin-bottom: 24px;
+    padding: 24px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #fffdf8 0%, #ffffff 100%);
+    width: max-content;
+    max-width: 560px;
+}
+
+.deadline-capture-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.deadline-capture-title h3 {
+    font-size: 18px;
+    color: #0f172a;
+    margin: 0;
+}
+
+.deadline-capture-title p {
+    margin-top: 6px;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.deadline-count-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 12px;
+    height: 32px;
+    border-radius: 999px;
+    border: 1px solid #fdba74;
+    color: #9a3412;
+    background: #fff7ed;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.deadline-mode-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.deadline-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: #334155;
+}
+
+.deadline-select,
+.deadline-input {
+    height: 40px;
+    border: 1px solid #dbe3ee;
+    border-radius: 8px;
+    padding: 0 12px;
+    color: #334155;
+    background: #fff;
+    font-size: 14px;
+}
+
+.deadline-upload-btn,
+.deadline-action-btn,
+.deadline-save-btn {
+    height: 40px;
+    padding: 0 16px;
+    border-radius: 8px;
+    border: 1px solid rgb(59, 130, 246);
+    background: rgb(59, 130, 246);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.deadline-upload-btn:hover,
+.deadline-action-btn:hover,
+.deadline-save-btn:hover {
+    background: rgb(37, 99, 235);
+    border-color: rgb(37, 99, 235);
+}
+
+.deadline-action-btn:disabled,
+.deadline-save-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.deadline-textarea {
+    margin-top: 16px;
+    width: min(520px, 100%);
+    min-height: 120px;
+    border: 1px solid #dbe3ee;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 14px;
+    color: #334155;
+    resize: vertical;
+}
+
+.deadline-form-grid {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(240px, 1fr));
+    gap: 20px;
+}
+
+.deadline-field {
+    display: grid;
+    gap: 8px;
+    font-size: 14px;
+    color: #334155;
+}
+
+.deadline-footer {
+    margin-top: 24px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+}
+
+.deadline-message {
+    font-size: 14px;
+    color: #0f766e;
+}
+
+@media (max-width: 980px) {
+    .deadline-capture-header {
+        flex-direction: column;
+    }
+
+    .deadline-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .deadline-textarea {
+        width: 100%;
+    }
+}

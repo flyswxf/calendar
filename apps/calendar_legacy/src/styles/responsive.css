@@ -55,6 +55,10 @@
         font-weight: 500;
     }
     
+    .time-col {
+        /* margin-top将通过JavaScript动态设置 */
+    }
+    
     .event {
         left: 2px;
         right: 2px;
@@ -81,6 +85,37 @@
     .split {
         grid-template-columns: 1fr;
         gap: 15px;
+    }
+    
+    .todo-section h2 {
+        font-size: 16px;
+        margin-bottom: 8px;
+    }
+    
+    .todo-input {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    #taskInput {
+        padding: 8px;
+        font-size: 14px;
+    }
+    
+    #addTask {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+    
+    .task-item {
+        padding: 8px;
+        font-size: 14px;
+    }
+    
+    .delete-btn, .focus-btn {
+        padding: 4px 8px;
+        font-size: 12px;
+        margin-left: 4px;
     }
     
     .modal-content {
@@ -145,6 +180,10 @@
     .day-header {
         padding: 4px 1px;
         font-size: 10px;
+    }
+    
+    .time-col {
+        /* margin-top将通过JavaScript动态设置 */
     }
     
     .event {

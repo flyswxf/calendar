@@ -1,0 +1,158 @@
+.dashboard-layout {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    min-height: 100vh;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 60px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 20px;
+}
+
+.dashboard-title h1 {
+    font-size: 2.5rem;
+    margin: 0;
+}
+
+.dashboard-title p {
+    color: var(--text-secondary);
+    margin: 5px 0 0 0;
+}
+
+.user-status {
+    text-align: right;
+    font-size: 0.9rem;
+    color: var(--accent-gold);
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    margin-bottom: 60px;
+}
+
+.stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    padding: 30px;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 2px;
+    height: 100%;
+    background: var(--accent-gold);
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.stat-value {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin: 10px 0;
+    color: var(--text-primary);
+}
+
+/* Recent Log */
+.recent-section {
+    margin-bottom: 40px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.section-header h2 {
+    font-size: 1.8rem;
+    margin: 0;
+}
+
+.btn-sm {
+    background: transparent;
+    border: 1px solid var(--accent-gold);
+    color: var(--accent-gold);
+    padding: 6px 16px;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    border-radius: 2px;
+}
+
+.btn-sm:hover {
+    background: var(--accent-gold);
+    color: var(--bg-dark);
+}
+
+.log-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+}
+
+.log-item {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 20px;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.log-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--accent-blue);
+    transform: translateX(10px);
+}
+
+.log-date {
+    width: 120px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.log-title {
+    flex-grow: 1;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.log-coords {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    margin-right: 20px;
+}
+
+.log-arrow {
+    color: var(--accent-gold);
+}
+
+/* Actions */
+.dashboard-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 60px;
+}

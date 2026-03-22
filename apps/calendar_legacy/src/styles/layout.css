@@ -1,0 +1,49 @@
+/* Layout Styles Module
+   Purpose: Page-level layout containers and top actions.
+   Scope: Container, header sections, and general split layout. */
+.container {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 18px rgba(0, 0, 0, 0.08);
+}
+
+.top-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.top-actions button {
+    padding: 8px 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #fff;
+    color: #334155;
+    cursor: pointer;
+    transition: all .2s ease;
+}
+
+.top-actions button:hover {
+    background: #f1f5f9;
+}
+
+.calendar-section {
+    margin-bottom: 24px;
+}
+
+.calendar-header {
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 10px;
+}
+
+.split {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+}

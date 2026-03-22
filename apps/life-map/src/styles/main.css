@@ -1,0 +1,603 @@
+:root {
+    --primary-color: #3b82f6;
+    --bg-color: #ffffff;
+    --text-color: #1f2937;
+    --z-map: 0;
+    --z-ui: 1000;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body, html {
+    height: 100%;
+    width: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    overflow: hidden; /* 防止滚动 */
+}
+
+#app {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+#map {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: var(--z-map);
+}
+
+#ui-layer {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: var(--z-ui);
+    pointer-events: none; /* 让点击穿透到地图，除了 UI 元素本身 */
+}
+
+/* 侧边栏导航 (Icons) */
+#sidebar-nav {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 60px;
+    height: 100%;
+    background-color: #ffffff;
+    border-right: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 20px;
+    z-index: 2000;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+}
+
+.nav-item {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #64748b;
+    font-size: 18px;
+    margin-bottom: 12px;
+    transition: all 0.2s;
+}
+
+.nav-item:hover {
+    background-color: #f1f5f9;
+    color: var(--primary-color);
+}
+
+.nav-item.active {
+    background-color: #eff6ff;
+    color: var(--primary-color);
+}
+
+.nav-divider {
+    width: 30px;
+    height: 1px;
+    background-color: #e5e7eb;
+    margin: 8px 0 20px 0;
+}
+
+/* 侧边栏面板容器 */
+#sidebar-panel-container {
+    position: absolute;
+    top: 0;
+    left: 60px; /* 紧贴 Nav */
+    width: 320px;
+    height: 100%;
+    z-index: 1001;
+    pointer-events: none; /* 默认不遮挡地图交互 */
+}
+
+.sidebar-panel {
+    position: absolute;
+    top: 0;
+    left: -320px; /* 默认隐藏 */
+    width: 100%;
+    height: 100%;
+    background: white;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+    transition: left 0.3s ease;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    pointer-events: auto; /* 面板内部可交互 */
+}
+
+.sidebar-panel.active {
+    left: 0;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.panel-header h2 {
+    font-size: 18px;
+    color: var(--text-color);
+}
+
+.panel-content {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* 修改 Search Container 适配面板 */
+.search-container {
+    pointer-events: auto;
+    background: white;
+    padding: 0; /* 移除 padding，由 panel 提供 */
+    border-radius: 0;
+    box-shadow: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: relative;
+    width: 100%;
+}
+
+#search-input {
+    width: 100%; /* 全宽 */
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+/* 路线面板样式适配 */
+/* 复用之前的 .route-points-container 等样式，不需要大改，只需要确保层级正确 */
+
+/* 移除旧的 #btn-back-dashboard 样式，如果还存在的话 */
+#btn-back-dashboard {
+    display: none;
+}
+
+/* 移除旧的 route-editor 样式，因为已经迁移到 sidebar-panel */
+.route-editor {
+    display: none; 
+}
+
+.route-points-container {
+    position: relative;
+    margin-top: 20px;
+    flex: 1;
+    overflow-y: auto;
+    padding-left: 10px;
+}
+
+/* 连接线 */
+.timeline-line {
+    position: absolute;
+    top: 10px;
+    bottom: 10px;
+    left: 24px; /* 圆圈中心位置 */
+    width: 2px;
+    background-color: #e5e7eb;
+    z-index: 0;
+}
+
+.route-points-list {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-height: 100px;
+}
+
+.route-point-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: white;
+    padding: 8px;
+    border-radius: 8px;
+    cursor: grab;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+
+.route-point-item:hover {
+    background-color: #f9fafb;
+    border-color: #e5e7eb;
+}
+
+.route-point-item.dragging {
+    opacity: 0.5;
+    background: #f3f4f6;
+    border: 1px dashed #9ca3af;
+}
+
+.point-marker {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: white;
+    border: 2px solid var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--primary-color);
+    flex-shrink: 0;
+    z-index: 2; /* 盖住线 */
+}
+
+.point-info {
+    flex: 1;
+    overflow: hidden;
+}
+
+.point-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0f172a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.point-address {
+    font-size: 12px;
+    color: #4b5563;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.point-actions {
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.route-point-item:hover .point-actions {
+    opacity: 1;
+}
+
+.btn-remove-point {
+    border: none;
+    background: none;
+    color: #ef4444;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+.btn-remove-point:hover {
+    background-color: #fee2e2;
+}
+
+.empty-route-hint {
+    text-align: center;
+    color: #9ca3af;
+    padding: 20px;
+    font-size: 14px;
+    border: 2px dashed #e5e7eb;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+.route-actions {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-text-danger {
+    background: none;
+    border: none;
+    color: #ef4444;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 8px 12px;
+}
+
+.btn-text-danger:hover {
+    text-decoration: underline;
+}
+
+/* 搜索结果列表 */
+.search-results {
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    margin-top: 4px;
+    max-height: 300px;
+    overflow-y: auto;
+    display: none; /* JS控制显示 */
+}
+
+.search-results ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.search-results li {
+    padding: 10px 12px;
+    border-bottom: 1px solid #f3f4f6;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--text-color);
+}
+
+.search-results li:last-child {
+    border-bottom: none;
+}
+
+/* 卡片编辑器侧边栏 (右侧) */
+.card-editor {
+    position: absolute;
+    top: 0;
+    right: -400px; /* 默认隐藏 */
+    width: 380px;
+    height: 100%;
+    background: white;
+    box-shadow: -2px 0 8px rgba(0,0,0,0.1);
+    z-index: 1001; /* 高于 UI 层 */
+    transition: right 0.3s ease;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.card-editor.active {
+    right: 0;
+}
+
+.editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.editor-header h2 {
+    font-size: 18px;
+    color: var(--text-color);
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #999;
+}
+
+.editor-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.form-group label {
+    font-size: 14px;
+    color: #374151; /* Darker gray for better contrast */
+    font-weight: 500;
+}
+
+.form-group input,
+.form-group textarea {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: inherit;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* 图片预览区域 */
+.image-preview-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.image-preview-item {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid #eee;
+}
+
+.image-preview-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.image-preview-item .remove-img-btn {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.image-preview-item .remove-img-btn:hover {
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.save-btn {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.save-btn:hover {
+    background-color: #2563eb;
+}
+
+.delete-btn {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+/* Custom Map Tooltip - Artistic Design */
+.custom-map-tooltip {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+.custom-map-tooltip::before {
+    display: none !important;
+}
+
+.custom-tooltip-content {
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    border-radius: 12px;
+    box-shadow: 
+        0 4px 6px -1px rgba(0, 0, 0, 0.05),
+        0 10px 15px -3px rgba(0, 0, 0, 0.05),
+        0 0 0 1px rgba(0, 0, 0, 0.02); /* 微妙的边框 */
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 160px; /* 固定宽度以保证排版 */
+    transform: translateY(-10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: tooltip-float-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+    position: relative;
+    overflow: hidden;
+}
+
+/* 移除底部小箭头，改用更现代的悬浮感 */
+.custom-tooltip-content::after {
+    display: none;
+}
+
+.tooltip-image {
+    width: 100%;
+    height: 100px;
+    position: relative;
+    background-color: #f8fafc;
+    /* 图片边缘渐变虚化 - 顶部和底部 */
+    mask-image: linear-gradient(to bottom, 
+        transparent 0%, 
+        black 15%, 
+        black 85%, 
+        transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(to bottom, 
+        transparent 0%, 
+        black 15%, 
+        black 85%, 
+        transparent 100%
+    );
+}
+
+.tooltip-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transform: scale(1.05); /* 轻微放大以配合虚化 */
+    filter: saturate(1.1); /* 增加一点饱和度 */
+}
+
+.tooltip-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: #334155;
+    text-align: center;
+    line-height: 1.5;
+    padding: 8px 12px 12px 12px;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: 0.02em;
+    /* 如果没有图片，增加顶部内边距 */
+    margin-top: -10px; /* 让文字稍微向上侵入图片的虚化区域 */
+    position: relative;
+    z-index: 2;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.8); /* 确保在虚化背景上清晰 */
+}
+
+/* 如果没有图片时的特殊处理 (JS 动态类或 CSS 选择器) */
+.custom-tooltip-content:not(:has(.tooltip-image)) {
+    padding: 10px 16px;
+}
+
+.custom-tooltip-content:not(:has(.tooltip-image)) .tooltip-title {
+    margin-top: 0;
+    padding: 0;
+}
+
+@keyframes tooltip-float-in {
+    from {
+        opacity: 0;
+        transform: translateY(5px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(-10px) scale(1);
+    }
+}
+

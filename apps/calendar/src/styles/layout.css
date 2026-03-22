@@ -2,12 +2,14 @@
    Purpose: Page-level layout containers and top actions.
    Scope: Container, header sections, and general split layout. */
 .container {
-    max-width: 1100px;
-    margin: 40px auto;
+    max-width: 1400px;
+    width: min(1400px, calc(100vw - 104px));
+    margin: 40px auto 40px 84px;
     padding: 20px;
     background-color: white;
     border-radius: 12px;
     box-shadow: 0 2px 18px rgba(0, 0, 0, 0.08);
+    position: relative;
 }
 
 .top-actions {
@@ -16,6 +18,11 @@
     align-items: center;
     gap: 12px;
     margin-bottom: 14px;
+}
+
+.calendar-actions {
+    display: flex;
+    gap: 10px;
 }
 
 .top-actions button {
@@ -33,7 +40,7 @@
 }
 
 .calendar-section {
-    margin-bottom: 24px;
+    min-width: 0;
 }
 
 .calendar-header {
@@ -46,4 +53,209 @@
     display: grid;
     grid-template-columns: 1fr;
     gap: 20px;
+}
+
+.sidebar-mask {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.2);
+    z-index: 1800;
+}
+
+.sidebar-dock {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 1900;
+    display: flex;
+    align-items: flex-start;
+    pointer-events: none;
+}
+
+.sidebar-nav {
+    width: 60px;
+    height: 100vh;
+    background: #ffffff;
+    border-right: 1px solid #e2e8f0;
+    border-radius: 0;
+    box-shadow: 2px 0 8px rgba(15, 23, 42, 0.08);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 18px 8px 12px;
+    gap: 10px;
+    pointer-events: auto;
+}
+
+.sidebar-nav-item {
+    width: 40px;
+    height: 40px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: transparent;
+    color: #64748b;
+    cursor: pointer;
+    transition: all .2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.sidebar-nav-item svg {
+    display: block;
+}
+
+.sidebar-nav-divider {
+    width: 30px;
+    height: 1px;
+    background: #e2e8f0;
+    margin: 2px 0 10px;
+}
+
+.sidebar-nav-item:hover {
+    background: #f1f5f9;
+    color: #1d4ed8;
+}
+
+.sidebar-nav-item.active {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+    color: #1d4ed8;
+}
+
+.sidebar-nav-item::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: calc(100% + 10px);
+    top: 50%;
+    transform: translateY(-50%) translateX(-4px);
+    padding: 5px 8px;
+    border-radius: 6px;
+    background: #0f172a;
+    color: #fff;
+    font-size: 12px;
+    line-height: 1;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: all .2s ease;
+}
+
+.sidebar-nav-item::before {
+    content: '';
+    position: absolute;
+    left: calc(100% + 4px);
+    top: 50%;
+    transform: translateY(-50%) translateX(-4px);
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent #0f172a transparent transparent;
+    opacity: 0;
+    transition: all .2s ease;
+}
+
+.sidebar-nav-item:hover::after,
+.sidebar-nav-item:hover::before {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+}
+
+.sidebar-panel-container {
+    width: 0;
+    min-width: 0;
+    max-width: 0;
+    height: 100vh;
+    margin-left: 0;
+    position: relative;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.sidebar-panel-container.open {
+    width: min(var(--panel-width, 420px), 90vw);
+    min-width: 280px;
+    max-width: 90vw;
+}
+
+.sidebar-panel {
+    position: absolute;
+    top: 0;
+    left: calc(-1 * var(--panel-width, 420px));
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 8px 28px rgba(15, 23, 42, 0.14);
+    padding: 14px;
+    overflow: auto;
+    transition: left .28s ease;
+    pointer-events: none;
+}
+
+.sidebar-panel-body {
+    width: max-content;
+    max-width: 100%;
+    display: grid;
+    gap: 12px;
+}
+
+.sidebar-panel.active {
+    left: 0;
+    pointer-events: auto;
+}
+
+.sidebar-home-link {
+    text-decoration: none;
+}
+
+@media (max-width: 980px) {
+    .container {
+        width: 95%;
+        margin: 40px auto;
+    }
+
+    .sidebar-dock {
+        top: auto;
+        left: 12px;
+        bottom: 12px;
+        flex-direction: column-reverse;
+        align-items: flex-start;
+        height: auto;
+        gap: 8px;
+    }
+
+    .sidebar-nav {
+        height: auto;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: 0 6px 24px rgba(15, 23, 42, 0.12);
+        padding: 10px 8px;
+    }
+
+    .sidebar-panel-container.open {
+        width: min(var(--panel-width, 420px), 92vw);
+        max-width: 92vw;
+        height: min(72vh, 700px);
+        margin-left: 0;
+    }
+
+    .sidebar-nav-item::before,
+    .sidebar-nav-item::after {
+        display: none;
+    }
+
+    .sidebar-panel {
+        left: 0;
+        bottom: -120%;
+        top: auto;
+        transition: bottom .28s ease;
+    }
+
+    .sidebar-panel.active {
+        bottom: 0;
+    }
+
 }
