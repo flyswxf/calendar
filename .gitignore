@@ -1,1 +1,5 @@
 import.env
+keys/
+
+apps/calendar/dist
+apps/calendar/node_modules
