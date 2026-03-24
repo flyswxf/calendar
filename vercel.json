@@ -1,5 +1,5 @@
 {
   "installCommand": "npm --prefix apps/calendar ci",
-  "buildCommand": "npm --prefix apps/calendar run build && mkdir -p out/apps/calendar out/apps && cp index.html out/index.html && cp -r apps/calendar/dist/* out/apps/calendar/ && for app_dir in apps/*; do app_name=$(basename \"$app_dir\"); if [ \"$app_name\" = \"calendar\" ] || [ \"$app_name\" = \"calendar_legacy\" ]; then continue; fi; if [ -f \"$app_dir/index.html\" ]; then cp -r \"$app_dir\" \"out/apps/$app_name\"; fi; done",
+  "buildCommand": "bash build.sh",
   "outputDirectory": "out"
 }
