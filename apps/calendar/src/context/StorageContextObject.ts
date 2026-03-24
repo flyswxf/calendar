@@ -8,6 +8,9 @@ export interface StorageContextType {
   deadlineEvents: DeadlineEvent[];
   dailyActionEvents: DailyActionEvent[];
   semesterStartDate: string | null;
+  isSupabaseConfigured: boolean;
+  authEmail: string | null;
+  authLoading: boolean;
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
   setCourses: React.Dispatch<React.SetStateAction<Course[]>>;
   setFocusSessions: React.Dispatch<React.SetStateAction<FocusSession[]>>;
@@ -15,7 +18,10 @@ export interface StorageContextType {
   setDailyActionEvents: React.Dispatch<React.SetStateAction<DailyActionEvent[]>>;
   setSemesterStartDate: (date: string | null) => void;
   syncUserId: string | null;
-  setSyncUserId: (id: string) => void;
+  setSyncUserId: (id: string | null) => void;
+  sendLoginCode: (email: string) => Promise<{ ok: boolean; message: string }>;
+  signOut: () => Promise<void>;
+  syncNow: () => Promise<void>;
   loading: boolean;
 }
 

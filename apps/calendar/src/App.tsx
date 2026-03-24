@@ -13,6 +13,7 @@ import CalendarIcon from './components/Icon/CalendarIcon';
 import ClockIcon from './components/Icon/ClockIcon';
 import CheckSquareIcon from './components/Icon/CheckSquareIcon';
 import { addDays } from './utils/time';
+import { SupabaseAuthCard } from './components/Auth/SupabaseAuthCard';
 
 function App() {
   const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
@@ -67,6 +68,7 @@ function App() {
           <div className="course-actions" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
             <button id="addCourseBtn" onClick={() => setIsCourseModalOpen(true)}>添加课程</button>
             <CourseImporter />
+            <SupabaseAuthCard />
           </div>
         </div>
 

@@ -3,7 +3,7 @@
  * Generates a constellation/network effect on canvas
  */
 
-document.addEventListener('DOMContentLoaded', () => {
+export function initLandingPage() {
     const canvas = document.getElementById('landing-canvas');
     const ctx = canvas.getContext('2d');
     
@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.addEventListener('click', () => {
         document.body.style.opacity = 0;
         setTimeout(() => {
-            window.location.href = 'dashboard.html';
+            window.location.href = '/dashboard';
         }, 500);
     });
-});
+}

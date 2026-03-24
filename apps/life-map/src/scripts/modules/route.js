@@ -99,7 +99,7 @@ export class RouteManager {
             if (!route) {
                 console.error('Route not found:', routeId);
                 alert('路线不存在或已被删除');
-                window.location.href = 'dashboard.html';
+                window.location.href = '/dashboard';
                 return;
             }
 
@@ -322,7 +322,7 @@ export class RouteManager {
         
         try {
             await this.storageService.deleteRoute(this.currentRoute.id);
-            window.location.href = 'dashboard.html';
+            window.location.href = '/dashboard';
         } catch (error) {
             console.error('Failed to delete route:', error);
             alert('删除失败');

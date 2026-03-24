@@ -1,8 +1,16 @@
 import { StorageService } from './modules/storage.js';
+import { ensureOwnerSession, getSupabaseClient, isSupabaseEnabled } from './modules/supabaseAuth.js';
 
-document.addEventListener('DOMContentLoaded', async () => {
+export async function initDashboardPage() {
+    const authUser = await ensureOwnerSession();
+    if (isSupabaseEnabled() && !authUser) {
+        return;
+    }
+
     const storageService = new StorageService();
     await storageService.init();
+    storageService.setCloudContext(getSupabaseClient(), authUser?.id || null);
+    await storageService.syncCloud();
 
     const statCount = document.getElementById('stat-count');
     const logList = document.getElementById('log-list');
@@ -19,13 +27,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Navigation
     btnOpenMap.addEventListener('click', () => {
-        window.location.href = 'map.html';
+        window.location.href = '/map';
     });
 
     // Create Route
     if (btnCreateRoute) {
         btnCreateRoute.addEventListener('click', () => {
-            window.location.href = 'map.html?routeId=new';
+            window.location.href = '/map?routeId=new';
         });
     }
 
@@ -75,7 +83,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             div.addEventListener('click', () => {
                 // Navigate to detail page
-                window.location.href = `detail.html?id=${place.id}`;
+                window.location.href = `/detail?id=${place.id}`;
             });
 
             container.appendChild(div);
@@ -134,7 +142,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     return;
                 }
                 
-                window.location.href = `map.html?routeId=${route.id}`;
+                window.location.href = `/map?routeId=${route.id}`;
             });
 
             container.appendChild(div);
@@ -153,4 +161,4 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
         window.requestAnimationFrame(step);
     }
-});
+}

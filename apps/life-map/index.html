@@ -1,45 +1,19 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Life Map - Welcome</title>
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="./src/styles/common.css">
-    <link rel="stylesheet" href="./src/styles/landing.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Life Map</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    
-    <canvas id="landing-canvas"></canvas>
-
-    <div class="landing-container fade-in">
-        <div class="logo-area">
-            <!-- Optional SVG Logo could go here -->
-        </div>
-
-        <h1 class="main-title">生活地图</h1>
-        <p class="subtitle mono">DIGITALIZE YOUR FOOTPRINTS // 记录生活的每一步</p>
-
-        <div class="enter-btn-wrapper">
-            <button id="enter-btn" class="btn-primary">
-                初始化系统
-            </button>
-        </div>
-        
-        <div class="coordinate-decoration mono">
-            纬度: 39.9042<br>经度: 116.4074
-        </div>
-        
-        <div class="version-decoration mono">
-            系统版本 1.0.0
-        </div>
-    </div>
-
-    <script src="./src/scripts/landing.js"></script>
+  <div id="root"></div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  <script type="module" src="/src/main.tsx"></script>
 </body>
 </html>

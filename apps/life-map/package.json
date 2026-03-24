@@ -1,5 +1,5 @@
 {
-  "name": "calendar",
+  "name": "life-map",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -7,14 +7,10 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview",
-    "check:daily-action-data": "node ./scripts/check-daily-action-data.mjs"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
-    "@typescript-eslint/typescript-estree": "^8.56.1",
-    "clsx": "^2.1.1",
-    "mammoth": "^1.11.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },

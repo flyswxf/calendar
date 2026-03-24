@@ -1,4 +1,5 @@
 import { StorageService } from './modules/storage.js';
+import { ensureOwnerSession, getSupabaseClient, isSupabaseEnabled } from './modules/supabaseAuth.js';
 
 class DetailPage {
     constructor() {
@@ -20,7 +21,14 @@ class DetailPage {
 
     async init() {
         try {
+            const authUser = await ensureOwnerSession();
+            if (isSupabaseEnabled() && !authUser) {
+                return;
+            }
+
             await this.storageService.init();
+            this.storageService.setCloudContext(getSupabaseClient(), authUser?.id || null);
+            await this.storageService.syncCloud();
             
             // Get ID from URL
             const params = new URLSearchParams(window.location.search);
@@ -28,7 +36,7 @@ class DetailPage {
 
             if (!this.placeId) {
                 alert('无效的访问链接');
-                window.location.href = 'dashboard.html';
+                window.location.href = '/dashboard';
                 return;
             }
 
@@ -37,7 +45,7 @@ class DetailPage {
             
             if (!this.currentPlace) {
                 alert('找不到该记录');
-                window.location.href = 'dashboard.html';
+                window.location.href = '/dashboard';
                 return;
             }
 
@@ -82,12 +90,12 @@ class DetailPage {
         this.elements.btnSave.addEventListener('click', () => this.saveChanges());
 
         // Back Button
-        this.elements.btnBack.addEventListener('click', () => this.handleNavigation('dashboard.html'));
+        this.elements.btnBack.addEventListener('click', () => this.handleNavigation('/dashboard'));
 
         // Fly To Button
         this.elements.btnFlyTo.addEventListener('click', () => {
             const { lat, lng } = this.currentPlace;
-            this.handleNavigation(`map.html?flyTo=${lat},${lng}`);
+            this.handleNavigation(`/map?flyTo=${lat},${lng}`);
         });
 
         // Window Unload Warning
@@ -141,6 +149,8 @@ class DetailPage {
     }
 }
 
-// Initialize
-const detailPage = new DetailPage();
-document.addEventListener('DOMContentLoaded', () => detailPage.init());
+export async function initDetailPage() {
+    const detailPage = new DetailPage();
+    await detailPage.init();
+    return detailPage;
+}

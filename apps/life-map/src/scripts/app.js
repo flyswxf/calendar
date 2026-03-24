@@ -5,6 +5,7 @@ import { StorageService } from './modules/storage.js';
 import { CelebrationManager } from './modules/celebration.js';
 import { RouteManager } from './modules/route.js';
 import { debounce } from './utils/debounce.js';
+import { ensureOwnerSession, getSupabaseClient, isSupabaseEnabled } from './modules/supabaseAuth.js';
 
 class App {
     constructor() {
@@ -20,10 +21,15 @@ class App {
         console.log('App initializing...');
         
         try {
-            // 初始化数据库
-            await this.storageService.init();
+            const authUser = await ensureOwnerSession();
+            if (isSupabaseEnabled() && !authUser) {
+                return;
+            }
 
-            // 初始化地图
+            await this.storageService.init();
+            this.storageService.setCloudContext(getSupabaseClient(), authUser?.id || null);
+            await this.storageService.syncCloud();
+
             this.mapManager.init();
 
             // 绑定侧边栏导航
@@ -101,7 +107,7 @@ class App {
 
                 // Handle Home
                 if (targetId === 'nav-home') {
-                    window.location.href = 'dashboard.html';
+                    window.location.href = '/dashboard';
                     return;
                 }
 
@@ -299,8 +305,8 @@ class App {
     }
 }
 
-// 初始化应用
-const app = new App();
-document.addEventListener('DOMContentLoaded', () => {
-    app.init();
-});
+export async function initMapPage() {
+    const app = new App();
+    await app.init();
+    return app;
+}
