@@ -38,7 +38,7 @@ export function SupabaseAuthCard() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6, minWidth: 260 }}>
         <strong>云同步未启用</strong>
         <span style={{ fontSize: 12, opacity: 0.75 }}>
-          请配置 VITE_SUPABASE_URL 与 VITE_SUPABASE_ANON_KEY
+          请配置 VITE_CALENDAR_SUPABASE_URL 与 VITE_CALENDAR_SUPABASE_ANON_KEY
         </span>
       </div>
     );

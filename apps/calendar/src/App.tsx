@@ -12,20 +12,21 @@ import ActionIcon from './components/Icon/ActionIcon';
 import CalendarIcon from './components/Icon/CalendarIcon';
 import ClockIcon from './components/Icon/ClockIcon';
 import CheckSquareIcon from './components/Icon/CheckSquareIcon';
+import CloudSyncIcon from './components/Icon/CloudSyncIcon';
 import { addDays } from './utils/time';
 import { SupabaseAuthCard } from './components/Auth/SupabaseAuthCard';
 
 function App() {
   const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
   const [viewDate, setViewDate] = useState(new Date());
-  const [activeSidebarPanel, setActiveSidebarPanel] = useState<'reminder' | 'deadline' | 'tasks' | 'actions' | null>(null);
+  const [activeSidebarPanel, setActiveSidebarPanel] = useState<'reminder' | 'deadline' | 'tasks' | 'actions' | 'sync' | null>(null);
   const [panelWidth, setPanelWidth] = useState(360);
   const panelContainerRef = useRef<HTMLDivElement | null>(null);
 
   const prevWeek = () => setViewDate(d => addDays(d, -7));
   const nextWeek = () => setViewDate(d => addDays(d, 7));
   const goToday = () => setViewDate(new Date());
-  const togglePanel = (panel: 'reminder' | 'deadline' | 'tasks' | 'actions') => {
+  const togglePanel = (panel: 'reminder' | 'deadline' | 'tasks' | 'actions' | 'sync') => {
     setActiveSidebarPanel(prev => (prev === panel ? null : panel));
   };
 
@@ -68,7 +69,6 @@ function App() {
           <div className="course-actions" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
             <button id="addCourseBtn" onClick={() => setIsCourseModalOpen(true)}>添加课程</button>
             <CourseImporter />
-            <SupabaseAuthCard />
           </div>
         </div>
 
@@ -115,6 +115,14 @@ function App() {
             >
               <ActionIcon />
             </button>
+            <button
+              className={`sidebar-nav-item ${activeSidebarPanel === 'sync' ? 'active' : ''}`}
+              onClick={() => togglePanel('sync')}
+              data-tooltip="云同步"
+              aria-label="云同步"
+            >
+              <CloudSyncIcon />
+            </button>
           </nav>
           <div className={`sidebar-panel-container ${activeSidebarPanel ? 'open' : ''}`} ref={panelContainerRef} style={panelWidthStyle}>
             <section className={`sidebar-panel ${activeSidebarPanel === 'reminder' ? 'active' : ''}`}>
@@ -137,6 +145,11 @@ function App() {
             <section className={`sidebar-panel ${activeSidebarPanel === 'actions' ? 'active' : ''}`}>
               <div className="sidebar-panel-body">
                 <DailyActionPanel />
+              </div>
+            </section>
+            <section className={`sidebar-panel ${activeSidebarPanel === 'sync' ? 'active' : ''}`}>
+              <div className="sidebar-panel-body">
+                <SupabaseAuthCard />
               </div>
             </section>
           </div>
