@@ -1,30 +1,65 @@
-# Calendar & Personal Website Project
+# My Personal Space
 
 ## 项目简介
-这是一个包含日历、任务管理和番茄钟功能的个人效率工具网站。目前作为个人网站的一部分进行开发。
 
-## 开发计划 (Roadmap)
+这是一个个人效率工具合集，采用 Monorepo 结构组织，包含多个独立子应用。所有子应用通过根目录的主页进行导航。
 
-### 1. 个人网站主页
-- [x] **欢迎界面**: 创建一个简单的 Landing Page。
-- [x] **导航链接**:
-    - 链接到当前的日历/任务/计时功能网站。
-    - 链接到未来的像素画风穿搭预览网站。
+## 子应用概览
 
-### 2. 像素画风穿搭预览功能 (Pixel Fit)
-- [x] **网页入口与框架**: 搭建基本的页面结构。
-- [ ] **前端功能**: 用户上传衣服照片的界面。
-- [ ] **小人模板**: 用n8n做一个最初的小人模板
-- [ ] **后端接口**: 预留处理图片并返回像素风格数据的接口（AI 算法实现待定）。
-- [ ] **换装交互**: 实现用户在小人模型上更换衣物的交互逻辑。
+| 应用 | 路径 | 技术栈 | 状态 |
+|------|------|--------|------|
+| [Calendar](./apps/calendar) | `apps/calendar` | React + TypeScript + Vite | 开发中 |
+| [Life Map](./apps/life-map) | `apps/life-map` | Vanilla JS + Leaflet.js + Vite | 开发中 |
 
-## 已知问题 (Known Issues)
+### 📅 Calendar — 学习日历 & 待办
 
-### 代码质量与架构
-- [ ] **代码拆分**: 部分文件体积过大，需要进一步模块化拆分（注：`src/modules` 目录似乎已开始此工作）。
+日历周视图、课程管理、任务清单、截止日期提醒、每日行动记录、番茄钟计时。支持通过 Supabase 进行云端数据同步。详见 [apps/calendar/README.md](./apps/calendar/README.md)。
 
-### 数据同步
-- [ ] **多端同步问题**: 目前数据存储在本地 (`localStorage`)，导致手机端和电脑端数据不一致。需要引入后端数据库或云同步机制。
+### 🗺️ Life Map — 生活地图
 
-### 功能 Bug
-- [ ] **专注模式逻辑**: 任务标记为“完成”后，仍然可以点击“开始专注”，这是一个逻辑错误，需要修复。
+基于地理位置的生活记录应用，用户可以在地图上标记地点、搜索位置、创建记忆卡片（支持多媒体），并管理出行路线。详见 [apps/life-map/README.md](./apps/life-map/README.md)。
+
+## 如何运行
+
+各子应用独立开发和构建，请进入对应目录操作。例如：
+
+```bash
+# 开发 calendar 应用
+cd apps/calendar
+npm install
+npm run dev
+
+# 开发 life-map 应用
+cd apps/life-map
+npm install
+npm run dev
+```
+
+### 生产构建（Vercel 部署）
+
+项目通过根目录的 `build.sh` 脚本完成整体构建，Vercel 会自动执行该脚本：
+
+```bash
+bash build.sh
+```
+
+构建产物输出到 `out/` 目录，根目录的 `index.html` 作为主页导航入口。
+
+## 项目结构
+
+```
+calendar/
+├── index.html            # 主页导航入口
+├── build.sh              # Vercel 构建脚本
+├── vercel.json           # Vercel 部署配置
+├── apps/
+│   ├── calendar/         # 学习日历 & 待办 (React + TS)
+│   └── life-map/         # 生活地图 (Vanilla JS)
+└── data/                 # 静态资源数据
+```
+
+## 已知问题
+
+- **多端同步**: Calendar 应用支持 Supabase 云端同步，Life Map 同步支持进行中。
+- **专注模式逻辑**: Calendar 中任务标记为"完成"后仍可点击"开始专注"，需要修复。
+- **代码拆分**: 部分文件体积过大，需要进一步模块化拆分。
