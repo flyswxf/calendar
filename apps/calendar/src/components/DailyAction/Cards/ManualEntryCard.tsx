@@ -1,5 +1,6 @@
 import React from 'react';
-import { durationBuckets, pad2 } from '../dailyActionShared';
+import { pad } from '../../../utils/time';
+import { durationBuckets } from '../dailyActionShared';
 
 type Props = {
   manualName: string;
@@ -33,10 +34,10 @@ export const ManualEntryCard: React.FC<Props> = ({
       </div>
       <div className="daily-action-row">
         <select className="daily-action-select" value={manualHour} onChange={(e) => setManualHour(Number(e.target.value))}>
-          {Array.from({ length: 24 }, (_, index) => <option key={`manual-hour-${index}`} value={index}>{pad2(index)}时</option>)}
+          {Array.from({ length: 24 }, (_, index) => <option key={`manual-hour-${index}`} value={index}>{pad(index)}时</option>)}
         </select>
         <select className="daily-action-select" value={manualMinute} onChange={(e) => setManualMinute(Number(e.target.value))}>
-          {Array.from({ length: 12 }, (_, index) => index * 5).map((minute) => <option key={`manual-minute-${minute}`} value={minute}>{pad2(minute)}分</option>)}
+          {Array.from({ length: 12 }, (_, index) => index * 5).map((minute) => <option key={`manual-minute-${minute}`} value={minute}>{pad(minute)}分</option>)}
         </select>
         <select className="daily-action-select" value={manualDurationMin} onChange={(e) => setManualDurationMin(Number(e.target.value))}>
           {durationBuckets.map((duration) => <option key={`duration-${duration}`} value={duration}>{duration} 分钟</option>)}

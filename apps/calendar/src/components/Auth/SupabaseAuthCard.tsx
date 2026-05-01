@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useStorage } from '../../context/useStorage';
+import { useStorage } from '../../context/StorageContext';
 
 export function SupabaseAuthCard() {
   const { isSupabaseConfigured, authEmail, authLoading, sendLoginCode, signOut, syncNow } = useStorage();

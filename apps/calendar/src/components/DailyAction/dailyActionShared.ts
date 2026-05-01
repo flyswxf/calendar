@@ -1,4 +1,5 @@
 import type { DailyActionEvent } from '../../types';
+import { clamp, calcDurationMin } from '../../utils/time';
 
 export type RoughTimeSlot = '清晨' | '上午' | '中午' | '下午' | '傍晚' | '晚上' | '深夜' | '吃完晚饭后';
 export type RoughDurationWord = '很快' | '一会' | '一阵' | '一个多小时' | '一下午';
@@ -81,31 +82,6 @@ export const roughDurationDefaults: Record<RoughDurationWord, number> = {
 export const roughTimeSlots = Object.keys(roughSlotDefaults) as RoughTimeSlot[];
 export const roughDurationWords = Object.keys(roughDurationDefaults) as RoughDurationWord[];
 export const pieColors = ['#2563eb', '#16a34a', '#eab308', '#ec4899', '#8b5cf6', '#f97316', '#14b8a6', '#64748b'];
-
-export function pad2(value: number): string {
-  return String(value).padStart(2, '0');
-}
-
-export function toHM(minutes: number): string {
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  return `${pad2(h)}:${pad2(m)}`;
-}
-
-export function clamp(value: number, min: number, max: number): number {
-  return Math.max(min, Math.min(max, value));
-}
-
-export function dateWithMinutes(date: Date, minutes: number): Date {
-  const d = new Date(date);
-  d.setHours(Math.floor(minutes / 60), minutes % 60, 0, 0);
-  return d;
-}
-
-export function calcDurationMin(startIso: string, endIso: string): number {
-  const diff = new Date(endIso).getTime() - new Date(startIso).getTime();
-  return Math.max(1, Math.round(diff / 60000));
-}
 
 export function dateByKey(dateKey: string): Date {
   const [year, month, day] = dateKey.split('-').map(Number);

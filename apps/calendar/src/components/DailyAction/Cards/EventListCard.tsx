@@ -1,7 +1,8 @@
 import React from 'react';
 import type { DailyActionEvent } from '../../../types';
+import { pad } from '../../../utils/time';
 import type { EditDraft } from '../dailyActionShared';
-import { durationBuckets, getEventDurationMin, nearestBucket, pad2 } from '../dailyActionShared';
+import { durationBuckets, getEventDurationMin, nearestBucket } from '../dailyActionShared';
 
 type Props = {
   now: Date;
@@ -40,10 +41,10 @@ export const EventListCard: React.FC<Props> = ({
                     <input className="daily-action-input" list="daily-action-name-list" value={editDraft?.name ?? ''} onChange={(e) => setEditDraft((prev) => (prev ? { ...prev, name: e.target.value } : prev))} />
                     <div className="daily-action-row">
                       <select className="daily-action-select" value={editDraft?.startHour ?? start.getHours()} onChange={(e) => setEditDraft((prev) => (prev ? { ...prev, startHour: Number(e.target.value) } : prev))}>
-                        {Array.from({ length: 24 }, (_, index) => <option key={`edit-hour-${event.id}-${index}`} value={index}>{pad2(index)}时</option>)}
+                        {Array.from({ length: 24 }, (_, index) => <option key={`edit-hour-${event.id}-${index}`} value={index}>{pad(index)}时</option>)}
                       </select>
                       <select className="daily-action-select" value={editDraft?.startMinute ?? Math.floor(start.getMinutes() / 5) * 5} onChange={(e) => setEditDraft((prev) => (prev ? { ...prev, startMinute: Number(e.target.value) } : prev))}>
-                        {Array.from({ length: 12 }, (_, index) => index * 5).map((minute) => <option key={`edit-minute-${event.id}-${minute}`} value={minute}>{pad2(minute)}分</option>)}
+                        {Array.from({ length: 12 }, (_, index) => index * 5).map((minute) => <option key={`edit-minute-${event.id}-${minute}`} value={minute}>{pad(minute)}分</option>)}
                       </select>
                       <select className="daily-action-select" value={editDraft?.durationMin ?? nearestBucket(duration)} onChange={(e) => setEditDraft((prev) => (prev ? { ...prev, durationMin: Number(e.target.value) } : prev))}>
                         {durationBuckets.map((bucket) => <option key={`edit-duration-${event.id}-${bucket}`} value={bucket}>{bucket} 分钟</option>)}

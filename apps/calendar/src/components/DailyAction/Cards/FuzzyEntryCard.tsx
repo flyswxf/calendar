@@ -1,6 +1,7 @@
 import React from 'react';
+import { fmtHM } from '../../../utils/time';
 import type { Candidate, RoughDurationWord, RoughTimeSlot } from '../dailyActionShared';
-import { roughDurationWords, roughTimeSlots, toHM } from '../dailyActionShared';
+import { roughDurationWords, roughTimeSlots } from '../dailyActionShared';
 
 type Props = {
   fuzzyName: string;
@@ -48,7 +49,7 @@ export const FuzzyEntryCard: React.FC<Props> = ({
           return (
             <button key={candidate.key} className={`daily-action-candidate ${isActive ? 'active' : ''}`} onClick={() => setSelectedCandidateKey(candidate.key)}>
               <strong>{candidate.label}</strong>
-              <span>{toHM(candidate.startMin)} - {toHM(candidate.startMin + candidate.durationMin)}</span>
+              <span>{fmtHM(candidate.startMin)} - {fmtHM(candidate.startMin + candidate.durationMin)}</span>
               <span>{candidate.durationMin} 分钟 · {candidate.reason}</span>
             </button>
           );

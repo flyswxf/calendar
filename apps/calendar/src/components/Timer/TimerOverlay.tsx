@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useTimer } from '../../context/TimerContext';
-import { useStorage } from '../../context/useStorage';
+import { useStorage } from '../../context/StorageContext';
 import { formatHMS } from '../../utils/time';
 import { FocusSession } from '../../types';
 
@@ -9,16 +9,8 @@ type TimerState = 'idle' | 'running' | 'paused';
 
 export const TimerOverlay: React.FC = () => {
   const { closeTimer, currentTask } = useTimer();
-  const { setFocusSessions, setTasks } = useStorage(); // removed focusSessions, tasks from destructuring to avoid stale closure issues if not using functional updates. 
-  // But setTasks needs tasks for mapping.
-  // So we must use functional updates or refs.
-  // Or just rely on useStorage returning current values if context updates? 
-  // Context updates trigger re-render of TimerOverlay.
-  // So render scope variables are fresh.
-  // But setInterval callback is closure created at start.
-  
-  // To solve this, we use a ref to hold the latest finishTimer function, or just use functional state updates everywhere.
-  
+  const { setFocusSessions, setTasks } = useStorage();
+
   const [mode, setMode] = useState<TimerMode>('countdown');
   const [state, setState] = useState<TimerState>('idle');
   const [targetMinutes, setTargetMinutes] = useState(60);

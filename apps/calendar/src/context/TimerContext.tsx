@@ -1,7 +1,21 @@
-import React, { useState } from 'react';
-import { TimerContext } from './TimerContext';
-import { TimerOverlay } from '../components/Timer/TimerOverlay';
+import { createContext, useContext, useState } from 'react';
 import { Task } from '../types';
+import { TimerOverlay } from '../components/Timer/TimerOverlay';
+
+interface TimerContextType {
+  isOpen: boolean;
+  openTimer: (task?: Task) => void;
+  closeTimer: () => void;
+  currentTask: Task | null;
+}
+
+const TimerContext = createContext<TimerContextType | null>(null);
+
+export const useTimer = () => {
+  const context = useContext(TimerContext);
+  if (!context) throw new Error('useTimer must be used within TimerProvider');
+  return context;
+};
 
 export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);

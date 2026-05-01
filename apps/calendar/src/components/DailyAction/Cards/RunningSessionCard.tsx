@@ -1,6 +1,6 @@
 import React from 'react';
+import { pad } from '../../../utils/time';
 import type { ActiveSession } from '../dailyActionShared';
-import { pad2 } from '../dailyActionShared';
 
 type Props = {
   runningName: string;
@@ -37,10 +37,10 @@ export const RunningSessionCard: React.FC<Props> = ({
           <span>{activeSession.name} · 开始于 {new Date(activeSession.startAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
           <div className="daily-action-row">
             <select className="daily-action-select" value={adjustEndHour} onChange={(e) => setAdjustEndHour(Number(e.target.value))}>
-              {Array.from({ length: 24 }, (_, index) => <option key={`adjust-hour-${index}`} value={index}>{pad2(index)}时</option>)}
+              {Array.from({ length: 24 }, (_, index) => <option key={`adjust-hour-${index}`} value={index}>{pad(index)}时</option>)}
             </select>
             <select className="daily-action-select" value={adjustEndMinute} onChange={(e) => setAdjustEndMinute(Number(e.target.value))}>
-              {Array.from({ length: 12 }, (_, index) => index * 5).map((minute) => <option key={`adjust-minute-${minute}`} value={minute}>{pad2(minute)}分</option>)}
+              {Array.from({ length: 12 }, (_, index) => index * 5).map((minute) => <option key={`adjust-minute-${minute}`} value={minute}>{pad(minute)}分</option>)}
             </select>
             <button className="daily-action-btn" onClick={onEnd}>结束并保存</button>
           </div>

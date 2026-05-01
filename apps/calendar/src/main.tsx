@@ -2,7 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
 import { StorageProvider } from './context/StorageContext'
-import { TimerProvider } from './context/TimerProvider'
+import { TimerProvider } from './context/TimerContext'
 
 import './styles/base.css'
 import './styles/layout.css'

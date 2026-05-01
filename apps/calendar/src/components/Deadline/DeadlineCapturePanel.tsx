@@ -1,22 +1,18 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useStorage } from '../../context/useStorage';
+import { useStorage } from '../../context/StorageContext';
 import { DeadlineEvent, DeadlineSource, Task } from '../../types';
+import { escapeICS, pad } from '../../utils/time';
 import { parseDeadlineDraft } from '../../utils/deadlineParser';
 import { extractDeadlineFromImageByModel, VisionProvider } from '../../utils/deadlineVision';
 
 function toLocalInputValue(iso: string): string {
   const d = new Date(iso);
-  const pad = (n: number) => String(n).padStart(2, '0');
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 function buildTaskText(title: string, dueAt: string): string {
   const d = new Date(dueAt);
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  const dd = String(d.getDate()).padStart(2, '0');
-  const hh = String(d.getHours()).padStart(2, '0');
-  const mi = String(d.getMinutes()).padStart(2, '0');
-  return `[DDL ${mm}-${dd} ${hh}:${mi}] ${title}`;
+  return `[DDL ${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}] ${title}`;
 }
 
 const sourceOptions: { value: DeadlineSource; label: string }[] = [
@@ -27,12 +23,7 @@ const sourceOptions: { value: DeadlineSource; label: string }[] = [
 
 function toIcsDate(iso: string): string {
   const d = new Date(iso);
-  const pad = (n: number) => String(n).padStart(2, '0');
   return `${d.getUTCFullYear()}${pad(d.getUTCMonth() + 1)}${pad(d.getUTCDate())}T${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}${pad(d.getUTCSeconds())}Z`;
-}
-
-function escapeIcsText(input: string): string {
-  return input.replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/,/g, '\\,').replace(/;/g, '\\;');
 }
 
 export const DeadlineCapturePanel: React.FC = () => {
@@ -207,8 +198,8 @@ export const DeadlineCapturePanel: React.FC = () => {
     const body = futureEvents.map((event) => {
       const start = toIcsDate(event.dueAt);
       const end = toIcsDate(new Date(new Date(event.dueAt).getTime() + 30 * 60 * 1000).toISOString());
-      const summary = escapeIcsText(`作业截止｜${event.title}`);
-      const desc = escapeIcsText(event.description || '');
+      const summary = escapeICS(`作业截止｜${event.title}`);
+      const desc = escapeICS(event.description || '');
       return [
         'BEGIN:VEVENT',
         `UID:${event.id}@todo-list`,

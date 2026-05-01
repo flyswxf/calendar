@@ -65,3 +65,22 @@ export function formatHMS(ms: number): string {
   const s = total % 60;
   return `${pad(h)}:${pad(m)}:${pad(s)}`;
 }
+
+export function escapeICS(value: string): string {
+  return value
+    .replace(/\\/g, '\\\\')
+    .replace(/\n/g, '\\n')
+    .replace(/,/g, '\\,')
+    .replace(/;/g, '\\;');
+}
+
+export function dateWithMinutes(date: Date, minutes: number): Date {
+  const d = new Date(date);
+  d.setHours(Math.floor(minutes / 60), minutes % 60, 0, 0);
+  return d;
+}
+
+export function calcDurationMin(startIso: string, endIso: string): number {
+  const diff = new Date(endIso).getTime() - new Date(startIso).getTime();
+  return Math.max(1, Math.round(diff / 60000));
+}

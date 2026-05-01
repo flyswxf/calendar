@@ -1,7 +1,38 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { Task, Course, FocusSession, DeadlineEvent, DailyActionEvent } from '../types/index';
-import { StorageContext } from './StorageContextObject';
 import { isSupabaseConfigured, supabase } from '../utils/supabaseClient';
+
+export interface StorageContextType {
+  tasks: Task[];
+  courses: Course[];
+  focusSessions: FocusSession[];
+  deadlineEvents: DeadlineEvent[];
+  dailyActionEvents: DailyActionEvent[];
+  semesterStartDate: string | null;
+  isSupabaseConfigured: boolean;
+  authEmail: string | null;
+  authLoading: boolean;
+  setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
+  setCourses: React.Dispatch<React.SetStateAction<Course[]>>;
+  setFocusSessions: React.Dispatch<React.SetStateAction<FocusSession[]>>;
+  setDeadlineEvents: React.Dispatch<React.SetStateAction<DeadlineEvent[]>>;
+  setDailyActionEvents: React.Dispatch<React.SetStateAction<DailyActionEvent[]>>;
+  setSemesterStartDate: (date: string | null) => void;
+  syncUserId: string | null;
+  setSyncUserId: (id: string | null) => void;
+  sendLoginCode: (email: string) => Promise<{ ok: boolean; message: string }>;
+  signOut: () => Promise<void>;
+  syncNow: () => Promise<void>;
+  loading: boolean;
+}
+
+const StorageContext = createContext<StorageContextType | null>(null);
+
+export const useStorage = () => {
+  const context = useContext(StorageContext);
+  if (!context) throw new Error('useStorage must be used within a StorageProvider');
+  return context;
+};
 
 function resolveNextState<T>(action: React.SetStateAction<T>, prev: T): T {
   return typeof action === 'function' ? (action as (prevState: T) => T)(prev) : action;
@@ -35,7 +66,6 @@ export const StorageProvider: React.FC<{ children: React.ReactNode }> = ({ child
     if (payload.semesterStartDate !== undefined) setSemesterStartDateState(payload.semesterStartDate ?? null);
   }, []);
 
-  // Initial load from localStorage
   useEffect(() => {
     try {
       const localTasks = JSON.parse(localStorage.getItem('tasks') || '[]');

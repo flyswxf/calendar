@@ -1,22 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { useStorage } from '../../context/useStorage';
-import { addDays, getWeekStart, pad, parseHM, toDateKey } from '../../utils/time';
+import { useStorage } from '../../context/StorageContext';
+import { addDays, clamp, escapeICS, getWeekStart, pad, parseHM, toDateKey } from '../../utils/time';
 
 const EXPORT_KEY = 'courseReminderExportWeek';
 const LEGACY_PREF_KEY = 'courseReminderPrefs';
 
-function clampNumber(value: number, min: number, max: number): number {
-  return Math.max(min, Math.min(max, value));
-}
-
 function readExportWeek(): number {
   try {
     const stored = localStorage.getItem(EXPORT_KEY);
-    if (stored) return clampNumber(Number(stored) || 20, 1, 30);
+    if (stored) return clamp(Number(stored) || 20, 1, 30);
     const legacy = localStorage.getItem(LEGACY_PREF_KEY);
     if (!legacy) return 20;
     const parsed = JSON.parse(legacy) as { exportUntilWeek?: number };
-    return clampNumber(Number(parsed.exportUntilWeek) || 20, 1, 30);
+    return clamp(Number(parsed.exportUntilWeek) || 20, 1, 30);
   } catch {
     return 20;
   }
@@ -31,14 +27,6 @@ function buildCourseDate(baseDate: Date, hm: string): Date {
 
 function toICSDate(d: Date): string {
   return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
-}
-
-function escapeICS(value: string): string {
-  return value
-    .replace(/\\/g, '\\\\')
-    .replace(/\n/g, '\\n')
-    .replace(/,/g, '\\,')
-    .replace(/;/g, '\\;');
 }
 
 export const CourseReminderPanel: React.FC = () => {
@@ -138,7 +126,7 @@ export const CourseReminderPanel: React.FC = () => {
               min={1}
               max={30}
               value={exportUntilWeek}
-              onChange={(e) => setExportUntilWeek(clampNumber(Number(e.target.value) || 20, 1, 30))}
+              onChange={(e) => setExportUntilWeek(clamp(Number(e.target.value) || 20, 1, 30))}
             />
             <span>周</span>
           </label>

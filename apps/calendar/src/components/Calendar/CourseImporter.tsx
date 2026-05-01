@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useStorage } from '../../context/useStorage';
+import { useStorage } from '../../context/StorageContext';
 import { parseDocxCourseTable } from '../../utils/docxParser';
 
 export const CourseImporter: React.FC = () => {
