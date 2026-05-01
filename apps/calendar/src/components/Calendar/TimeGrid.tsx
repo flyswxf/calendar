@@ -1,6 +1,7 @@
 import React from 'react';
 import { BASE_START_MIN, END_MIN, fmtHM } from '../../utils/time';
 import { usePixelPerMin } from '../../hooks/usePixelPerMin';
+import styles from './Calendar.module.css';
 
 export const TimeGrid: React.FC = () => {
   const pixelPerMin = usePixelPerMin();
@@ -12,20 +13,18 @@ export const TimeGrid: React.FC = () => {
   }
 
   return (
-    <div className="time-col">
-      <div className="day-header" style={{ visibility: 'hidden', borderBottom: '1px solid transparent' }}>
+    <div className={styles.timeCol}>
+      <div className={styles.dayHeader} style={{ visibility: 'hidden', borderBottom: '1px solid transparent' }}>
         周一<br />
-        <span className="date-label">01</span>
+        <span>01</span>
       </div>
       <div style={{ height: totalHeight, position: 'relative' }}>
         {times.map(t => (
-          <div 
-            key={t} 
-            className="time-label"
-            style={{ 
-              position: 'absolute', 
+          <div
+            key={t}
+            className={styles.timeLabel}
+            style={{
               top: (t - BASE_START_MIN) * pixelPerMin,
-              transform: 'translateY(-50%)'
             }}
           >
             {fmtHM(t)}

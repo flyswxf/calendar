@@ -1,5 +1,6 @@
 import React from 'react';
 import { pieColors } from '../dailyActionShared';
+import styles from '../DailyActionPanel.module.css';
 
 type SummaryRow = {
   name: string;
@@ -14,16 +15,16 @@ type Props = {
 
 export const SummaryCard: React.FC<Props> = ({ pieGradient, rows, total }) => {
   return (
-    <div className="daily-action-card">
+    <div className={styles.card}>
       <h4>今日时间分配</h4>
-      <div className="daily-action-chart-wrap">
-        <div className="daily-action-pie" style={{ background: pieGradient }} />
-        <div className="daily-action-legend">
-          {rows.length === 0 && <span className="daily-action-muted">今天还没有事件记录</span>}
+      <div className={styles.chartWrap}>
+        <div className={styles.pie} style={{ background: pieGradient }} />
+        <div className={styles.legend}>
+          {rows.length === 0 && <span className={styles.muted}>今天还没有事件记录</span>}
           {rows.map((item, index) => {
             const ratio = total > 0 ? Math.round((item.durationMin / total) * 100) : 0;
             return (
-              <div key={item.name} className="daily-action-legend-item">
+              <div key={item.name} className={styles.legendItem}>
                 <i style={{ background: pieColors[index % pieColors.length] }} />
                 <span>{item.name}</span>
                 <b>{item.durationMin} 分钟（{ratio}%）</b>

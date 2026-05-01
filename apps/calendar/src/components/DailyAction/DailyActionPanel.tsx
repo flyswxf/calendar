@@ -1,13 +1,14 @@
 import React from 'react';
 import { EventListCard, FuzzyEntryCard, ManualEntryCard, RunningSessionCard, SummaryCard } from './Cards/index';
 import { useDailyActionPanel } from './useDailyActionPanel';
+import styles from './DailyActionPanel.module.css';
 
 export const DailyActionPanel: React.FC = () => {
   const vm = useDailyActionPanel();
 
   return (
-    <section className="daily-action-panel">
-      <div className="daily-action-header">
+    <section className={styles.panel}>
+      <div className={styles.header}>
         <h3>今日行动记录</h3>
         <p>{vm.todayKey} · 记录今天发生的事件并复盘时间分配</p>
       </div>

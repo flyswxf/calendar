@@ -4,6 +4,7 @@ import { DeadlineEvent, DeadlineSource, Task } from '../../types';
 import { escapeICS, pad } from '../../utils/time';
 import { parseDeadlineDraft } from '../../utils/deadlineParser';
 import { extractDeadlineFromImageByModel, VisionProvider } from '../../utils/deadlineVision';
+import styles from './DeadlineCapturePanel.module.css';
 
 function toLocalInputValue(iso: string): string {
   const d = new Date(iso);
@@ -57,7 +58,6 @@ export const DeadlineCapturePanel: React.FC = () => {
   useEffect(() => {
     localStorage.setItem('deadlineVisionApiKey', visionApiKey);
   }, [visionApiKey]);
-
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -226,37 +226,37 @@ export const DeadlineCapturePanel: React.FC = () => {
   };
 
   return (
-    <div className="deadline-capture-panel">
-      <div className="deadline-capture-header">
-        <div className="deadline-capture-title">
+    <div className={styles.panel}>
+      <div className={styles.headerRow}>
+        <div className={styles.headerTitle}>
           <h3>作业截止管理</h3>
           <p>支持多模态识图、超星文本和手动录入，保存后自动生成 deadline event。</p>
         </div>
-        <span className="deadline-count-badge">待完成 {upcomingCount}</span>
+        <span className={styles.countBadge}>待完成 {upcomingCount}</span>
       </div>
 
-      <div className="deadline-mode-row">
-        <label className="deadline-inline">
+      <div className={styles.modeRow}>
+        <label className={styles.inline}>
           数据来源
-          <select value={inputMode} onChange={(e) => setInputMode(e.target.value as DeadlineSource)} className="deadline-select">
+          <select value={inputMode} onChange={(e) => setInputMode(e.target.value as DeadlineSource)} className={styles.select}>
             {sourceOptions.map((option) => (
               <option key={option.value} value={option.value}>{option.label}</option>
             ))}
           </select>
         </label>
 
-        <label className="deadline-upload-btn">
+        <label className={styles.uploadBtn}>
           上传作业图片
           <input type="file" accept="image/*" onChange={handleImageSelect} style={{ display: 'none' }} />
         </label>
-        <button className="deadline-action-btn" onClick={handleAnalyzeText} disabled={isOcrLoading}>解析文本</button>
+        <button className={styles.actionBtn} onClick={handleAnalyzeText} disabled={isOcrLoading}>解析文本</button>
       </div>
 
-      <div className="deadline-mode-row">
-        <label className="deadline-field">
+      <div className={styles.modeRow}>
+        <label className={styles.field}>
           模型通道
           <select
-            className="deadline-select"
+            className={styles.select}
             value={visionProvider}
             onChange={(e) => setVisionProvider(e.target.value as VisionProvider)}
           >
@@ -264,11 +264,11 @@ export const DeadlineCapturePanel: React.FC = () => {
             <option value="openrouter">OpenRouter 免费模型</option>
           </select>
         </label>
-        <label className="deadline-field">
+        <label className={styles.field}>
           API Key
           <input
             type="password"
-            className="deadline-input"
+            className={styles.input}
             value={visionApiKey}
             onChange={(e) => setVisionApiKey(e.target.value)}
             placeholder={visionProvider === 'google' ? '填入 Google API Key' : '填入 OpenRouter API Key'}
@@ -279,37 +279,37 @@ export const DeadlineCapturePanel: React.FC = () => {
       <textarea
         value={rawText}
         onChange={(e) => setRawText(e.target.value)}
-        className="deadline-textarea"
+        className={styles.textarea}
         placeholder="粘贴超星作业文本，或上传图片后由模型返回关键原文。"
       />
 
-      <div className="deadline-form-grid">
-        <label className="deadline-field">
+      <div className={styles.formGrid}>
+        <label className={styles.field}>
           作业标题
-          <input value={title} onChange={(e) => setTitle(e.target.value)} className="deadline-input" />
+          <input value={title} onChange={(e) => setTitle(e.target.value)} className={styles.input} />
         </label>
-        <label className="deadline-field">
+        <label className={styles.field}>
           所属课程
-          <input value={courseName} onChange={(e) => setCourseName(e.target.value)} className="deadline-input" />
+          <input value={courseName} onChange={(e) => setCourseName(e.target.value)} className={styles.input} />
         </label>
-        <label className="deadline-field">
+        <label className={styles.field}>
           截止时间
-          <input type="datetime-local" value={dueAt} onChange={(e) => setDueAt(e.target.value)} className="deadline-input" />
+          <input type="datetime-local" value={dueAt} onChange={(e) => setDueAt(e.target.value)} className={styles.input} />
         </label>
       </div>
 
       <textarea
         value={description}
         onChange={(e) => setDescription(e.target.value)}
-        className="deadline-textarea"
+        className={styles.textarea}
         placeholder="补充说明（如提交平台、文件要求等）"
       />
 
-      <div className="deadline-footer">
-        <button className="deadline-save-btn" onClick={handleSave} disabled={isOcrLoading}>保存截止事件</button>
-        <button className="deadline-save-btn" onClick={handleRequestNotify}>开启提醒</button>
-        <button className="deadline-save-btn" onClick={handleExportIcs}>导出ICS</button>
-        <span className="deadline-message">{message}</span>
+      <div className={styles.footer}>
+        <button className={styles.saveBtn} onClick={handleSave} disabled={isOcrLoading}>保存截止事件</button>
+        <button className={styles.saveBtn} onClick={handleRequestNotify}>开启提醒</button>
+        <button className={styles.saveBtn} onClick={handleExportIcs}>导出ICS</button>
+        <span className={styles.message}>{message}</span>
       </div>
     </div>
   );

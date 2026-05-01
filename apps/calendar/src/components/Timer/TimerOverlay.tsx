@@ -3,6 +3,7 @@ import { useTimer } from '../../context/TimerContext';
 import { useStorage } from '../../context/StorageContext';
 import { formatHMS } from '../../utils/time';
 import { FocusSession } from '../../types';
+import styles from './TimerOverlay.module.css';
 
 type TimerMode = 'countdown' | 'stopwatch';
 type TimerState = 'idle' | 'running' | 'paused';
@@ -14,14 +15,13 @@ export const TimerOverlay: React.FC = () => {
   const [mode, setMode] = useState<TimerMode>('countdown');
   const [state, setState] = useState<TimerState>('idle');
   const [targetMinutes, setTargetMinutes] = useState(60);
-  const [elapsed, setElapsed] = useState(0); 
+  const [elapsed, setElapsed] = useState(0);
 
   const intervalRef = useRef<number | null>(null);
   const startTimeRef = useRef<number>(0);
   const pausedTimeRef = useRef<number>(0);
   const pausedAtRef = useRef<number>(0);
 
-  // We need a ref to access current mode/target inside the interval callback
   const modeRef = useRef(mode);
   const targetMinutesRef = useRef(targetMinutes);
 
@@ -31,7 +31,7 @@ export const TimerOverlay: React.FC = () => {
   const finishTimer = useCallback(() => {
     if (!startTimeRef.current) return;
     const now = Date.now();
-    
+
     const newSession: FocusSession = {
       id: crypto.randomUUID(),
       title: currentTask?.text || '专注',
@@ -44,11 +44,11 @@ export const TimerOverlay: React.FC = () => {
     setFocusSessions(prev => [...prev, newSession]);
 
     if (currentTask) {
-      setTasks(prev => prev.map(t => 
+      setTasks(prev => prev.map(t =>
         t.id === currentTask.id ? { ...t, completed: true } : t
       ));
     }
-    
+
     reset();
     closeTimer();
   }, [currentTask, setFocusSessions, setTasks, closeTimer]);
@@ -88,7 +88,6 @@ export const TimerOverlay: React.FC = () => {
     if (modeRef.current === 'countdown') {
       const targetMs = targetMinutesRef.current * 60 * 1000;
       if (currentElapsed >= targetMs) {
-        // Timer finished
         if (intervalRef.current) clearInterval(intervalRef.current);
         finishTimer();
       }
@@ -100,7 +99,7 @@ export const TimerOverlay: React.FC = () => {
 
   const startTimer = () => {
     if (state === 'running') return;
-    
+
     if (state === 'idle') {
       startTimeRef.current = Date.now();
       pausedTimeRef.current = 0;
@@ -128,48 +127,46 @@ export const TimerOverlay: React.FC = () => {
   };
 
   return (
-    <div className="timer-overlay" aria-hidden="false">
-      <div className="timer-panel">
-        <div className="timer-header">
-          <span id="timerTaskTitle" style={{ fontWeight: 'bold', fontSize: '1.2em' }}>{currentTask?.text || '专注'}</span>
-          <button className="close-modal" id="exitTimer" onClick={stopTimer}>×</button>
+    <div className={styles.overlay} aria-hidden="false">
+      <div className={styles.panel}>
+        <div className={styles.header}>
+          <span style={{ fontWeight: 'bold', fontSize: '1.2em' }}>{currentTask?.text || '专注'}</span>
+          <button className={styles.close} onClick={stopTimer}>×</button>
         </div>
-        
-        <div className="timer-body">
+
+        <div className={styles.body}>
           {state === 'idle' && (
-            <div className="timer-mode">
-              <label><input type="radio" name="timerMode" checked={mode==='countdown'} onChange={() => setMode('countdown')} /> 倒计时</label>
-              <label><input type="radio" name="timerMode" checked={mode==='stopwatch'} onChange={() => setMode('stopwatch')} /> 正计时</label>
+            <div className={styles.mode}>
+              <label><input type="radio" name="timerMode" checked={mode === 'countdown'} onChange={() => setMode('countdown')} /> 倒计时</label>
+              <label><input type="radio" name="timerMode" checked={mode === 'stopwatch'} onChange={() => setMode('stopwatch')} /> 正计时</label>
             </div>
           )}
 
           {state === 'idle' && mode === 'countdown' && (
-            <div className="countdown-setup" id="countdownSetup">
-              <button onClick={() => setTargetMinutes(m => Math.max(1, m-5))} style={{ marginRight: 10 }}>-</button>
-              <span className="time-number" id="setupMinutes">{targetMinutes}</span>
-              <span className="time-suffix">分钟</span>
-              <button onClick={() => setTargetMinutes(m => m+5)} style={{ marginLeft: 10 }}>+</button>
+            <div className={styles.setup}>
+              <button onClick={() => setTargetMinutes(m => Math.max(1, m - 5))} style={{ marginRight: 10 }}>-</button>
+              <span className={styles.timeNumber}>{targetMinutes}</span>
+              <span className={styles.timeSuffix}>分钟</span>
+              <button onClick={() => setTargetMinutes(m => m + 5)} style={{ marginLeft: 10 }}>+</button>
             </div>
           )}
 
-          <div className="running-time" id="runningTime">
+          <div className={styles.runningTime}>
             {displayTime()}
           </div>
 
-          <div className="timer-actions">
+          <div className={styles.actions}>
             {state === 'idle' ? (
-              <button id="startTimer" onClick={startTimer}>开始</button>
+              <button className={styles.startBtn} onClick={startTimer}>开始</button>
             ) : (
               <>
                 {state === 'running' ? (
-                  <button id="pauseTimer" onClick={pauseTimer}>暂停</button>
+                  <button className={styles.pauseBtn} onClick={pauseTimer}>暂停</button>
                 ) : (
-                  <button id="pauseTimer" onClick={startTimer}>继续</button>
+                  <button className={styles.pauseBtn} onClick={startTimer}>继续</button>
                 )}
-                {/* Reset button logic can be added if needed, for now just keeping structure similar */}
-                {/* <button id="resetTimer">重置</button> */}
-                <button id="finishTimer" onClick={finishTimer}>完成</button>
-                <button id="stopTimer" onClick={stopTimer}>终止</button>
+                <button className={styles.finishBtn} onClick={finishTimer}>完成</button>
+                <button className={styles.stopBtn} onClick={stopTimer}>终止</button>
               </>
             )}
           </div>

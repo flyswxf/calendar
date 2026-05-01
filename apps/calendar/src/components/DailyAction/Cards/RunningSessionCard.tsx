@@ -1,6 +1,7 @@
 import React from 'react';
 import { pad } from '../../../utils/time';
 import type { ActiveSession } from '../dailyActionShared';
+import styles from '../DailyActionPanel.module.css';
 
 type Props = {
   runningName: string;
@@ -26,23 +27,23 @@ export const RunningSessionCard: React.FC<Props> = ({
   onEnd
 }) => {
   return (
-    <div className="daily-action-card">
+    <div className={styles.card}>
       <h4>开始 / 结束事件（可调整结束时间）</h4>
-      <div className="daily-action-row">
-        <input className="daily-action-input" list="daily-action-name-list" value={runningName} onChange={(e) => setRunningName(e.target.value)} placeholder="当前正在做什么" disabled={Boolean(activeSession)} />
-        <button className="daily-action-btn primary" onClick={onStart} disabled={Boolean(activeSession)}>开始</button>
+      <div className={styles.row}>
+        <input className={styles.input} list="daily-action-name-list" value={runningName} onChange={(e) => setRunningName(e.target.value)} placeholder="当前正在做什么" disabled={Boolean(activeSession)} />
+        <button className={`${styles.btn} ${styles.primary}`} onClick={onStart} disabled={Boolean(activeSession)}>开始</button>
       </div>
       {activeSession && (
-        <div className="daily-action-running">
+        <div className={styles.running}>
           <span>{activeSession.name} · 开始于 {new Date(activeSession.startAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-          <div className="daily-action-row">
-            <select className="daily-action-select" value={adjustEndHour} onChange={(e) => setAdjustEndHour(Number(e.target.value))}>
+          <div className={styles.row}>
+            <select className={styles.select} value={adjustEndHour} onChange={(e) => setAdjustEndHour(Number(e.target.value))}>
               {Array.from({ length: 24 }, (_, index) => <option key={`adjust-hour-${index}`} value={index}>{pad(index)}时</option>)}
             </select>
-            <select className="daily-action-select" value={adjustEndMinute} onChange={(e) => setAdjustEndMinute(Number(e.target.value))}>
+            <select className={styles.select} value={adjustEndMinute} onChange={(e) => setAdjustEndMinute(Number(e.target.value))}>
               {Array.from({ length: 12 }, (_, index) => index * 5).map((minute) => <option key={`adjust-minute-${minute}`} value={minute}>{pad(minute)}分</option>)}
             </select>
-            <button className="daily-action-btn" onClick={onEnd}>结束并保存</button>
+            <button className={styles.btn} onClick={onEnd}>结束并保存</button>
           </div>
         </div>
       )}

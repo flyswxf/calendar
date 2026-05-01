@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useStorage } from '../../context/StorageContext';
 import { addDays, clamp, escapeICS, getWeekStart, pad, parseHM, toDateKey } from '../../utils/time';
+import styles from './CourseReminderPanel.module.css';
 
 const EXPORT_KEY = 'courseReminderExportWeek';
 const LEGACY_PREF_KEY = 'courseReminderPrefs';
@@ -108,20 +109,20 @@ export const CourseReminderPanel: React.FC = () => {
   };
 
   return (
-    <section className="course-reminder-panel">
-      <div className="course-reminder-header">
-        <div className="course-reminder-title">
+    <section className={styles.panel}>
+      <div className={styles.header}>
+        <div className={styles.title}>
           <h3>手机日历导出</h3>
           <p>将课程表导出为 .ics日历文件</p>
         </div>
       </div>
 
-      <div className="course-reminder-card">
-        <div className="course-reminder-controls">
-          <label className="course-reminder-inline">
+      <div className={styles.card}>
+        <div className={styles.controls}>
+          <label className={styles.inline}>
             <span>导出到第</span>
             <input
-              className="course-reminder-input"
+              className={styles.input}
               type="number"
               min={1}
               max={30}
@@ -131,12 +132,12 @@ export const CourseReminderPanel: React.FC = () => {
             <span>周</span>
           </label>
         </div>
-        <div className="course-reminder-actions">
-          <button className="course-reminder-btn primary" onClick={exportICS}>导出 .ics（手机日历）</button>
+        <div className={styles.actions}>
+          <button className={styles.btn} onClick={exportICS}>导出 .ics（手机日历）</button>
         </div>
       </div>
 
-      {message && <div className="course-reminder-message">{message}</div>}
+      {message && <div className={styles.message}>{message}</div>}
     </section>
   );
 };

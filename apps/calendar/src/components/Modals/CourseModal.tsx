@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useStorage } from '../../context/StorageContext';
 import { parseHM } from '../../utils/time';
+import styles from './CourseModal.module.css';
 
 interface CourseModalProps {
   isOpen: boolean;
@@ -9,7 +10,7 @@ interface CourseModalProps {
 
 export const CourseModal: React.FC<CourseModalProps> = ({ isOpen, onClose }) => {
   const { courses, setCourses } = useStorage();
-  
+
   const [title, setTitle] = useState('');
   const [day, setDay] = useState(1);
   const [start, setStart] = useState('08:00');
@@ -36,26 +37,25 @@ export const CourseModal: React.FC<CourseModalProps> = ({ isOpen, onClose }) => 
 
     setCourses([...courses, newCourse]);
     onClose();
-    // Reset form?
     setTitle('');
     setLocation('');
   };
 
   return (
-    <div className="modal" aria-hidden="false" style={{ display: 'flex' }}>
-      <div className="modal-content">
-        <div className="modal-header">
+    <div className={styles.modal} aria-hidden="false" style={{ display: 'flex' }}>
+      <div className={styles.content}>
+        <div className={styles.header}>
           <h3>添加课程</h3>
-          <button className="close-modal" onClick={onClose}>×</button>
+          <button className={styles.close} onClick={onClose}>×</button>
         </div>
-        <div className="modal-body">
+        <div className={styles.body}>
           <label>
             课程名称
-            <input 
-              type="text" 
-              value={title} 
-              onChange={e => setTitle(e.target.value)} 
-              placeholder="例如：高等数学" 
+            <input
+              type="text"
+              value={title}
+              onChange={e => setTitle(e.target.value)}
+              placeholder="例如：高等数学"
             />
           </label>
           <label>
@@ -67,7 +67,7 @@ export const CourseModal: React.FC<CourseModalProps> = ({ isOpen, onClose }) => 
               <option value="4">周四</option>
               <option value="5">周五</option>
               <option value="6">周六</option>
-              <option value="0">周日</option> 
+              <option value="0">周日</option>
             </select>
           </label>
           <div className="time-range">
@@ -82,17 +82,17 @@ export const CourseModal: React.FC<CourseModalProps> = ({ isOpen, onClose }) => 
           </div>
           <label>
             教室
-            <input 
-              type="text" 
-              value={location} 
-              onChange={e => setLocation(e.target.value)} 
-              placeholder="例如：3-201" 
+            <input
+              type="text"
+              value={location}
+              onChange={e => setLocation(e.target.value)}
+              placeholder="例如：3-201"
             />
           </label>
         </div>
-        <div className="modal-footer">
-          <button className="btn-secondary" onClick={onClose}>取消</button>
-          <button className="btn-primary" onClick={handleSave}>保存</button>
+        <div className={styles.actions}>
+          <button onClick={onClose}>取消</button>
+          <button onClick={handleSave}>保存</button>
         </div>
       </div>
     </div>

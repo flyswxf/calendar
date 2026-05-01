@@ -2,10 +2,11 @@ import React from 'react';
 import { Course, DeadlineEvent, FocusSession } from '../../types';
 import { EventBlock } from './EventBlock';
 import { parseHM, toDateKey } from '../../utils/time';
+import styles from './Calendar.module.css';
 
 interface DayColumnProps {
   date: Date;
-  dayIndex: number; // 0-6 (Sun-Sat)
+  dayIndex: number;
   courses: Course[];
   focusSessions: FocusSession[];
   deadlineEvents: DeadlineEvent[];
@@ -14,26 +15,24 @@ interface DayColumnProps {
   onDeadlineClick?: (event: DeadlineEvent) => void;
 }
 
-export const DayColumn: React.FC<DayColumnProps> = ({ 
-  date, 
-  dayIndex, 
-  courses, 
+const DAY_NAMES = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+
+export const DayColumn: React.FC<DayColumnProps> = ({
+  date,
+  dayIndex,
+  courses,
   focusSessions,
   deadlineEvents,
   onCourseClick,
   onSessionClick,
   onDeadlineClick
 }) => {
-  // Filter courses for this day of week
   const dayCourses = courses.filter(c => {
-    // If c.day is 1 (Mon), it matches dayIndex 1.
-    // If c.day is 7 (Sun), it matches dayIndex 0.
     const courseDay = parseInt(String(c.day));
     if (dayIndex === 0) return courseDay === 7;
     return courseDay === dayIndex;
   });
 
-  // Filter focus sessions for this specific date
   const dateKey = toDateKey(date);
   const isToday = dateKey === toDateKey(new Date());
 
@@ -42,19 +41,19 @@ export const DayColumn: React.FC<DayColumnProps> = ({
     return toDateKey(sessionDate) === dateKey;
   });
 
-  const dayDeadlines = deadlineEvents.filter((event) => {
+  const dayDeadlines = deadlineEvents.filter(event => {
     const dueDate = new Date(event.dueAt);
     return toDateKey(dueDate) === dateKey;
   });
 
   return (
-    <div className={`day-col${isToday ? ' today' : ''}`} data-day={dayIndex}>
-      <div className="day-header">
-        {['周日', '周一', '周二', '周三', '周四', '周五', '周六'][dayIndex]}
-        <br/>
-        <span className="date-label">{date.getDate()}</span>
+    <div className={`${styles.dayCol}${isToday ? ` ${styles.today}` : ''}`} data-day={dayIndex}>
+      <div className={styles.dayHeader}>
+        {DAY_NAMES[dayIndex]}
+        <br />
+        <span>{date.getDate()}</span>
       </div>
-      <div className="day-body" style={{ position: 'relative', height: '100%' }}>
+      <div className={styles.dayBody} style={{ position: 'relative', height: '100%' }}>
         {dayCourses.map(course => (
           <EventBlock
             key={course.id}
@@ -83,7 +82,7 @@ export const DayColumn: React.FC<DayColumnProps> = ({
             />
           );
         })}
-        {dayDeadlines.map((event) => {
+        {dayDeadlines.map(event => {
           const due = new Date(event.dueAt);
           const startMin = due.getHours() * 60 + due.getMinutes();
           const endMin = Math.min(startMin + 30, 23 * 60);

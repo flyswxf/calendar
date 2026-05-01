@@ -15,27 +15,31 @@ import CheckSquareIcon from './components/Icon/CheckSquareIcon';
 import CloudSyncIcon from './components/Icon/CloudSyncIcon';
 import { addDays } from './utils/time';
 import { SupabaseAuthCard } from './components/Auth/SupabaseAuthCard';
+import layout from './App.module.css';
+import calendar from './components/Calendar/Calendar.module.css';
+
+type Panel = 'reminder' | 'deadline' | 'tasks' | 'actions' | 'sync';
 
 function App() {
   const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
   const [viewDate, setViewDate] = useState(new Date());
-  const [activeSidebarPanel, setActiveSidebarPanel] = useState<'reminder' | 'deadline' | 'tasks' | 'actions' | 'sync' | null>(null);
+  const [activeSidebarPanel, setActiveSidebarPanel] = useState<Panel | null>(null);
   const [panelWidth, setPanelWidth] = useState(360);
   const panelContainerRef = useRef<HTMLDivElement | null>(null);
 
   const prevWeek = () => setViewDate(d => addDays(d, -7));
   const nextWeek = () => setViewDate(d => addDays(d, 7));
   const goToday = () => setViewDate(new Date());
-  const togglePanel = (panel: 'reminder' | 'deadline' | 'tasks' | 'actions' | 'sync') => {
+  const togglePanel = (panel: Panel) => {
     setActiveSidebarPanel(prev => (prev === panel ? null : panel));
   };
 
   useEffect(() => {
     const container = panelContainerRef.current;
     if (!container) return;
-    const activePanel = container.querySelector<HTMLElement>('.sidebar-panel.active');
+    const activePanel = container.querySelector<HTMLElement>(`[data-panel="${activeSidebarPanel}"]`);
     if (!activePanel) return;
-    const content = activePanel.querySelector<HTMLElement>('.sidebar-panel-body') || activePanel;
+    const content = activePanel.querySelector<HTMLElement>(`[data-panel-body]`) || activePanel;
     const updateWidth = () => {
       const contentWidth = Math.ceil(content.scrollWidth || content.getBoundingClientRect().width);
       const extraSpace = 50;
@@ -57,11 +61,11 @@ function App() {
 
   return (
     <>
-      <div className="container">
+      <div className={layout.container}>
         <h1>学习日历与待办</h1>
 
-        <div className="top-actions">
-          <div className="calendar-actions">
+        <div className={layout.topActions}>
+          <div className={layout.calendarActions}>
             <button id="prevWeek" onClick={prevWeek}>上一周</button>
             <button id="goToday" onClick={goToday}>今天</button>
             <button id="nextWeek" onClick={nextWeek}>下一周</button>
@@ -72,83 +76,60 @@ function App() {
           </div>
         </div>
 
-        <section className="calendar-section">
+        <section className={calendar.section}>
           <WeekView viewDate={viewDate} />
         </section>
 
-        {activeSidebarPanel && <div className="sidebar-mask" onClick={() => setActiveSidebarPanel(null)} />}
-        <div className="sidebar-dock">
-          <nav className={`sidebar-nav${activeSidebarPanel ? ' panel-open' : ''}`}>
-            <a href="../../index.html" className="sidebar-nav-item sidebar-home-link" data-tooltip="返回主页" aria-label="返回主页">
+        {activeSidebarPanel && <div className={layout.sidebarMask} onClick={() => setActiveSidebarPanel(null)} />}
+        <div className={layout.sidebarDock}>
+          <nav className={`${layout.sidebarNav}${activeSidebarPanel ? ` ${layout.panelOpen}` : ''}`}>
+            <a href="../../index.html" className={`${layout.sidebarNavItem} ${layout.sidebarHomeLink}`} data-tooltip="返回主页" aria-label="返回主页">
               <ArrowLeftIcon />
             </a>
-            <div className="sidebar-nav-divider"></div>
-            <button
-              className={`sidebar-nav-item ${activeSidebarPanel === 'reminder' ? 'active' : ''}`}
-              onClick={() => togglePanel('reminder')}
-              data-tooltip="手机日历"
-              aria-label="手机日历"
-            >
-              <CalendarIcon />
-            </button>
-            <button
-              className={`sidebar-nav-item ${activeSidebarPanel === 'deadline' ? 'active' : ''}`}
-              onClick={() => togglePanel('deadline')}
-              data-tooltip="作业截止"
-              aria-label="作业截止"
-            >
-              <ClockIcon />
-            </button>
-            <button
-              className={`sidebar-nav-item ${activeSidebarPanel === 'tasks' ? 'active' : ''}`}
-              onClick={() => togglePanel('tasks')}
-              data-tooltip="待办任务"
-              aria-label="待办任务"
-            >
-              <CheckSquareIcon />
-            </button>
-            <button
-              className={`sidebar-nav-item ${activeSidebarPanel === 'actions' ? 'active' : ''}`}
-              onClick={() => togglePanel('actions')}
-              data-tooltip="行动记录"
-              aria-label="行动记录"
-            >
-              <ActionIcon />
-            </button>
-            <button
-              className={`sidebar-nav-item ${activeSidebarPanel === 'sync' ? 'active' : ''}`}
-              onClick={() => togglePanel('sync')}
-              data-tooltip="云同步"
-              aria-label="云同步"
-            >
-              <CloudSyncIcon />
-            </button>
+            <div className={layout.sidebarNavDivider}></div>
+            {([
+              ['reminder', '手机日历', CalendarIcon],
+              ['deadline', '作业截止', ClockIcon],
+              ['tasks', '待办任务', CheckSquareIcon],
+              ['actions', '行动记录', ActionIcon],
+              ['sync', '云同步', CloudSyncIcon],
+            ] as const).map(([panel, tooltip, Icon]) => (
+              <button
+                key={panel}
+                className={`${layout.sidebarNavItem} ${activeSidebarPanel === panel ? layout.active : ''}`}
+                onClick={() => togglePanel(panel)}
+                data-tooltip={tooltip}
+                aria-label={tooltip}
+              >
+                <Icon />
+              </button>
+            ))}
           </nav>
-          <div className={`sidebar-panel-container ${activeSidebarPanel ? 'open' : ''}`} ref={panelContainerRef} style={panelWidthStyle}>
-            <section className={`sidebar-panel ${activeSidebarPanel === 'reminder' ? 'active' : ''}`}>
-              <div className="sidebar-panel-body">
+          <div className={`${layout.sidebarPanelContainer} ${activeSidebarPanel ? layout.open : ''}`} ref={panelContainerRef} style={panelWidthStyle}>
+            <section className={`${layout.sidebarPanel} ${activeSidebarPanel === 'reminder' ? layout.active : ''}`} data-panel="reminder">
+              <div className={layout.sidebarPanelBody} data-panel-body>
                 <CourseReminderPanel />
               </div>
             </section>
-            <section className={`sidebar-panel ${activeSidebarPanel === 'deadline' ? 'active' : ''}`}>
-              <div className="sidebar-panel-body">
+            <section className={`${layout.sidebarPanel} ${activeSidebarPanel === 'deadline' ? layout.active : ''}`} data-panel="deadline">
+              <div className={layout.sidebarPanelBody} data-panel-body>
                 <DeadlineCapturePanel />
               </div>
             </section>
-            <section className={`sidebar-panel ${activeSidebarPanel === 'tasks' ? 'active' : ''}`}>
-              <div className="sidebar-panel-body">
-                <div className="split">
+            <section className={`${layout.sidebarPanel} ${activeSidebarPanel === 'tasks' ? layout.active : ''}`} data-panel="tasks">
+              <div className={layout.sidebarPanelBody} data-panel-body>
+                <div className={layout.split}>
                   <TaskList />
                 </div>
               </div>
             </section>
-            <section className={`sidebar-panel ${activeSidebarPanel === 'actions' ? 'active' : ''}`}>
-              <div className="sidebar-panel-body">
+            <section className={`${layout.sidebarPanel} ${activeSidebarPanel === 'actions' ? layout.active : ''}`} data-panel="actions">
+              <div className={layout.sidebarPanelBody} data-panel-body>
                 <DailyActionPanel />
               </div>
             </section>
-            <section className={`sidebar-panel ${activeSidebarPanel === 'sync' ? 'active' : ''}`}>
-              <div className="sidebar-panel-body">
+            <section className={`${layout.sidebarPanel} ${activeSidebarPanel === 'sync' ? layout.active : ''}`} data-panel="sync">
+              <div className={layout.sidebarPanelBody} data-panel-body>
                 <SupabaseAuthCard />
               </div>
             </section>
@@ -156,11 +137,10 @@ function App() {
         </div>
       </div>
 
-
       {isCourseModalOpen && (
-        <CourseModal 
-          isOpen={isCourseModalOpen} 
-          onClose={() => setIsCourseModalOpen(false)} 
+        <CourseModal
+          isOpen={isCourseModalOpen}
+          onClose={() => setIsCourseModalOpen(false)}
         />
       )}
     </>
