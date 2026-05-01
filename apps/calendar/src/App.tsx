@@ -78,7 +78,7 @@ function App() {
 
         {activeSidebarPanel && <div className="sidebar-mask" onClick={() => setActiveSidebarPanel(null)} />}
         <div className="sidebar-dock">
-          <nav className="sidebar-nav">
+          <nav className={`sidebar-nav${activeSidebarPanel ? ' panel-open' : ''}`}>
             <a href="../../index.html" className="sidebar-nav-item sidebar-home-link" data-tooltip="返回主页" aria-label="返回主页">
               <ArrowLeftIcon />
             </a>

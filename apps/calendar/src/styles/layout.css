@@ -86,6 +86,8 @@
     padding: 18px 8px 12px;
     gap: 10px;
     pointer-events: auto;
+    z-index: 10;
+    position: relative;
 }
 
 .sidebar-nav-item {
@@ -160,6 +162,11 @@
 .sidebar-nav-item:hover::before {
     opacity: 1;
     transform: translateY(-50%) translateX(0);
+}
+
+.sidebar-nav.panel-open .sidebar-nav-item::after,
+.sidebar-nav.panel-open .sidebar-nav-item::before {
+    display: none;
 }
 
 .sidebar-panel-container {

@@ -34,7 +34,7 @@ npm install
 npm run dev
 ```
 
-启动后访问 http://localhost:5173，支持热更新。
+启动后访问 http://localhost:5173 ，支持热更新。
 
 ### 生产构建
 

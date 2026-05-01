@@ -1,5 +1,32 @@
-import.env
-keys/
+# 依赖
+node_modules/
 
-apps/calendar/dist
-apps/calendar/node_modules
+# 环境变量
+.env
+.env.*
+!.env.example
+
+# 构建产物
+dist/
+dist-ssr/
+out/
+
+# 日志
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# 编辑器
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db
+
+# 本地个人数据
+data/
