@@ -18,7 +18,7 @@ import {
   RoughTimeSlot,
   pieColors,
   ActiveSession,
-  EditDraft
+  EditDraft,
 } from './dailyActionShared';
 
 export function useDailyActionPanel() {
@@ -38,7 +38,8 @@ export function useDailyActionPanel() {
   const [adjustEndMinute, setAdjustEndMinute] = useState(Math.floor(now.getMinutes() / 5) * 5);
   const [editDraft, setEditDraft] = useState<EditDraft | null>(null);
   const todayKey = toDateKey(now);
-  const fuzzyStrategyMode: 'legacy' | 'b_prepared' = localStorage.getItem('dailyActionFuzzyStrategy') === 'b_prepared' ? 'b_prepared' : 'legacy';
+  const fuzzyStrategyMode: 'legacy' | 'b_prepared' =
+    localStorage.getItem('dailyActionFuzzyStrategy') === 'b_prepared' ? 'b_prepared' : 'legacy';
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(new Date()), 30 * 1000);
@@ -74,7 +75,13 @@ export function useDailyActionPanel() {
     const nextEvents: DailyActionEvent[] = [];
     for (const course of courses) {
       if (course.day !== day) continue;
-      if (todayWeekNumber && Array.isArray(course.weeks) && course.weeks.length > 0 && !course.weeks.includes(todayWeekNumber)) continue;
+      if (
+        todayWeekNumber &&
+        Array.isArray(course.weeks) &&
+        course.weeks.length > 0 &&
+        !course.weeks.includes(todayWeekNumber)
+      )
+        continue;
       const courseStartMin = parseHM(course.start);
       const courseEndMin = parseHM(course.end);
       const startAt = dateWithMinutes(today, courseStartMin);
@@ -92,7 +99,7 @@ export function useDailyActionPanel() {
         dateKey: todayDateKey,
         createdAt: Date.now(),
         updatedAt: Date.now(),
-        autoCourseKey
+        autoCourseKey,
       });
     }
     if (nextEvents.length > 0) {
@@ -100,7 +107,9 @@ export function useDailyActionPanel() {
         const existsKeys = new Set(prev.map((item) => item.autoCourseKey).filter(Boolean));
         const filtered = nextEvents.filter((item) => !existsKeys.has(item.autoCourseKey));
         if (filtered.length === 0) return prev;
-        return [...prev, ...filtered].sort((a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime());
+        return [...prev, ...filtered].sort(
+          (a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime(),
+        );
       });
     }
   }, [courses, now, semesterStartDate, setDailyActionEvents]);
@@ -117,7 +126,10 @@ export function useDailyActionPanel() {
       const hit = counter.get(event.name) ?? 0;
       counter.set(event.name, hit + 1);
     }
-    return [...counter.entries()].sort((a, b) => b[1] - a[1]).map(([name]) => name).slice(0, 12);
+    return [...counter.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .map(([name]) => name)
+      .slice(0, 12);
   }, [dailyActionEvents]);
 
   const nameStats = useMemo(() => buildNameStats(dailyActionEvents), [dailyActionEvents]);
@@ -133,7 +145,8 @@ export function useDailyActionPanel() {
         const d = new Date(event.endAt as string);
         return d.getHours() * 60 + d.getMinutes();
       });
-    const dinnerAnchor = dinnerEndMinutes.length > 0 ? Math.max(...dinnerEndMinutes) + 10 : roughSlotDefaults.吃完晚饭后;
+    const dinnerAnchor =
+      dinnerEndMinutes.length > 0 ? Math.max(...dinnerEndMinutes) + 10 : roughSlotDefaults.吃完晚饭后;
     const slotCenterRaw = fuzzySlot === '吃完晚饭后' ? dinnerAnchor : roughSlotDefaults[fuzzySlot];
     const slotCenter = fuzzySlot === '上午' && isEarlyClassDay ? slotCenterRaw - 75 : slotCenterRaw;
     const durationCenter = roughDurationDefaults[fuzzyDurationWord];
@@ -157,22 +170,22 @@ export function useDailyActionPanel() {
         label: '推荐',
         startMin: mainStart,
         durationMin: mainDuration,
-        reason: `${sourceText}${historyText}`
+        reason: `${sourceText}${historyText}`,
       },
       {
         key: 'candidate-short',
         label: '偏短',
         startMin: shortStart,
         durationMin: shortDuration,
-        reason: '更保守的短时长估计'
+        reason: '更保守的短时长估计',
       },
       {
         key: 'candidate-long',
         label: '偏长',
         startMin: longStart,
         durationMin: longDuration,
-        reason: '更宽松的长时长估计'
-      }
+        reason: '更宽松的长时长估计',
+      },
     ] satisfies Candidate[];
   }, [fuzzyDurationWord, fuzzyName, fuzzySlot, nameStats, now, todayEvents]);
 
@@ -184,7 +197,8 @@ export function useDailyActionPanel() {
         const d = new Date(event.endAt as string);
         return d.getHours() * 60 + d.getMinutes();
       });
-    const dinnerAnchor = dinnerEndMinutes.length > 0 ? Math.max(...dinnerEndMinutes) + 10 : roughSlotDefaults.吃完晚饭后;
+    const dinnerAnchor =
+      dinnerEndMinutes.length > 0 ? Math.max(...dinnerEndMinutes) + 10 : roughSlotDefaults.吃完晚饭后;
     return buildBPreparedCandidates({
       fuzzyName,
       fuzzySlot,
@@ -195,7 +209,7 @@ export function useDailyActionPanel() {
       baseDurationMin: roughDurationDefaults[fuzzyDurationWord],
       fallbackAvgStats: nameStats,
       advancedStats: nameStatsV2,
-      minSamplesForStrictStats: 5
+      minSamplesForStrictStats: 5,
     });
   }, [fuzzyDurationWord, fuzzyName, fuzzySlot, nameStats, nameStatsV2, now, todayEvents]);
 
@@ -255,9 +269,11 @@ export function useDailyActionPanel() {
       durationMin: normalized.durationMin,
       dateKey: todayKey,
       createdAt: Date.now(),
-      updatedAt: Date.now()
+      updatedAt: Date.now(),
     };
-    setDailyActionEvents((prev) => [...prev, eventItem].sort((a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime()));
+    setDailyActionEvents((prev) =>
+      [...prev, eventItem].sort((a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime()),
+    );
     setManualName('');
   };
 
@@ -267,7 +283,7 @@ export function useDailyActionPanel() {
     const session: ActiveSession = {
       name,
       startAt: new Date().toISOString(),
-      dateKey: todayKey
+      dateKey: todayKey,
     };
     setActiveSession(session);
     localStorage.setItem(ACTIVE_SESSION_KEY, JSON.stringify(session));
@@ -292,9 +308,11 @@ export function useDailyActionPanel() {
       durationMin: normalized.durationMin,
       dateKey: activeSession.dateKey,
       createdAt: Date.now(),
-      updatedAt: Date.now()
+      updatedAt: Date.now(),
     };
-    setDailyActionEvents((prev) => [...prev, eventItem].sort((a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime()));
+    setDailyActionEvents((prev) =>
+      [...prev, eventItem].sort((a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime()),
+    );
     localStorage.removeItem(ACTIVE_SESSION_KEY);
     setActiveSession(null);
     setRunningName('');
@@ -303,7 +321,8 @@ export function useDailyActionPanel() {
   const handleAddFromCandidate = () => {
     const name = fuzzyName.trim();
     if (!name) return;
-    const selected = fuzzyCandidates.find((candidate) => candidate.key === selectedCandidateKey) ?? fuzzyCandidates[0];
+    const selected =
+      fuzzyCandidates.find((candidate) => candidate.key === selectedCandidateKey) ?? fuzzyCandidates[0];
     const startAt = dateWithMinutes(now, selected.startMin);
     const endAt = new Date(startAt.getTime() + selected.durationMin * 60000);
     const normalized = clampEventRange(todayKey, startAt, endAt);
@@ -317,9 +336,11 @@ export function useDailyActionPanel() {
       durationMin: normalized.durationMin,
       dateKey: todayKey,
       createdAt: Date.now(),
-      updatedAt: Date.now()
+      updatedAt: Date.now(),
     };
-    setDailyActionEvents((prev) => [...prev, eventItem].sort((a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime()));
+    setDailyActionEvents((prev) =>
+      [...prev, eventItem].sort((a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime()),
+    );
     setFuzzyName('');
   };
 
@@ -337,7 +358,7 @@ export function useDailyActionPanel() {
       name: event.name,
       startHour: start.getHours(),
       startMinute: Math.floor(start.getMinutes() / 5) * 5,
-      durationMin: nearestBucket(event.durationMin)
+      durationMin: nearestBucket(event.durationMin),
     });
   };
 
@@ -345,22 +366,26 @@ export function useDailyActionPanel() {
     if (!editDraft) return;
     const name = editDraft.name.trim();
     if (!name) return;
-    setDailyActionEvents((prev) => prev.map((event) => {
-      if (event.id !== editDraft.id) return event;
-      const startAt = dateWithMinutes(now, editDraft.startHour * 60 + editDraft.startMinute);
-      const endAt = new Date(startAt.getTime() + editDraft.durationMin * 60000);
-      const normalized = clampEventRange(event.dateKey, startAt, endAt);
-      const confidence: DailyActionEvent['confidence'] = event.source === 'fuzzy' ? 'fuzzy' : 'adjusted';
-      return {
-        ...event,
-        name,
-        startAt: normalized.startAtIso,
-        endAt: normalized.endAtIso,
-        durationMin: normalized.durationMin,
-        confidence,
-        updatedAt: Date.now()
-      };
-    }).sort((a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime()));
+    setDailyActionEvents((prev) =>
+      prev
+        .map((event) => {
+          if (event.id !== editDraft.id) return event;
+          const startAt = dateWithMinutes(now, editDraft.startHour * 60 + editDraft.startMinute);
+          const endAt = new Date(startAt.getTime() + editDraft.durationMin * 60000);
+          const normalized = clampEventRange(event.dateKey, startAt, endAt);
+          const confidence: DailyActionEvent['confidence'] = event.source === 'fuzzy' ? 'fuzzy' : 'adjusted';
+          return {
+            ...event,
+            name,
+            startAt: normalized.startAtIso,
+            endAt: normalized.endAtIso,
+            durationMin: normalized.durationMin,
+            confidence,
+            updatedAt: Date.now(),
+          };
+        })
+        .sort((a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime()),
+    );
     setEditDraft(null);
   };
 
@@ -406,6 +431,6 @@ export function useDailyActionPanel() {
     handleAddFromCandidate,
     handleDelete,
     handleStartEdit,
-    handleSaveEdit
+    handleSaveEdit,
   };
 }

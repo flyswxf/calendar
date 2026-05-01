@@ -1,3 +1,7 @@
+/**
+ * 定时器上下文
+ * 全局控制 Timer 弹窗的开关与当前任务传递
+ */
 import { createContext, useContext, useState } from 'react';
 import { Task } from '../types';
 import { TimerOverlay } from '../components/Timer/TimerOverlay';

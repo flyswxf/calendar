@@ -1,5 +1,15 @@
+/**
+ * 今日行动记录面板
+ * 组装 Manual / Running / Fuzzy / Summary / EventList 五个卡片
+ */
 import React from 'react';
-import { EventListCard, FuzzyEntryCard, ManualEntryCard, RunningSessionCard, SummaryCard } from './Cards/index';
+import {
+  EventListCard,
+  FuzzyEntryCard,
+  ManualEntryCard,
+  RunningSessionCard,
+  SummaryCard,
+} from './Cards/index';
 import { useDailyActionPanel } from './useDailyActionPanel';
 import styles from './DailyActionPanel.module.css';
 
@@ -13,6 +23,7 @@ export const DailyActionPanel: React.FC = () => {
         <p>{vm.todayKey} · 记录今天发生的事件并复盘时间分配</p>
       </div>
 
+      {/* 五个功能卡片 */}
       <ManualEntryCard
         manualName={vm.manualName}
         setManualName={vm.setManualName}
@@ -58,8 +69,11 @@ export const DailyActionPanel: React.FC = () => {
         onDelete={vm.handleDelete}
       />
 
+      {/* 事件名候选列表 */}
       <datalist id="daily-action-name-list">
-        {vm.nameSuggestions.map((name) => <option key={name} value={name} />)}
+        {vm.nameSuggestions.map((name) => (
+          <option key={name} value={name} />
+        ))}
       </datalist>
     </section>
   );

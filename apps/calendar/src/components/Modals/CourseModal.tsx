@@ -1,3 +1,6 @@
+/**
+ * 添加/编辑课程弹窗
+ */
 import React, { useState } from 'react';
 import { useStorage } from '../../context/StorageContext';
 import { parseHM } from '../../utils/time';
@@ -10,7 +13,6 @@ interface CourseModalProps {
 
 export const CourseModal: React.FC<CourseModalProps> = ({ isOpen, onClose }) => {
   const { courses, setCourses } = useStorage();
-
   const [title, setTitle] = useState('');
   const [day, setDay] = useState(1);
   const [start, setStart] = useState('08:00');
@@ -26,16 +28,17 @@ export const CourseModal: React.FC<CourseModalProps> = ({ isOpen, onClose }) => 
       return;
     }
 
-    const newCourse = {
-      id: crypto.randomUUID(),
-      title: title.trim(),
-      day,
-      start,
-      end,
-      location: location.trim()
-    };
-
-    setCourses([...courses, newCourse]);
+    setCourses([
+      ...courses,
+      {
+        id: crypto.randomUUID(),
+        title: title.trim(),
+        day,
+        start,
+        end,
+        location: location.trim(),
+      },
+    ]);
     onClose();
     setTitle('');
     setLocation('');
@@ -46,21 +49,24 @@ export const CourseModal: React.FC<CourseModalProps> = ({ isOpen, onClose }) => 
       <div className={styles.content}>
         <div className={styles.header}>
           <h3>添加课程</h3>
-          <button className={styles.close} onClick={onClose}>×</button>
+          <button className={styles.close} onClick={onClose}>
+            ×
+          </button>
         </div>
         <div className={styles.body}>
           <label>
             课程名称
             <input
+              className="input-base"
               type="text"
               value={title}
-              onChange={e => setTitle(e.target.value)}
+              onChange={(e) => setTitle(e.target.value)}
               placeholder="例如：高等数学"
             />
           </label>
           <label>
             上课日
-            <select value={day} onChange={e => setDay(Number(e.target.value))}>
+            <select className="input-base" value={day} onChange={(e) => setDay(Number(e.target.value))}>
               <option value="1">周一</option>
               <option value="2">周二</option>
               <option value="3">周三</option>
@@ -72,27 +78,40 @@ export const CourseModal: React.FC<CourseModalProps> = ({ isOpen, onClose }) => 
           </label>
           <div className="time-range">
             <label>
-              开始
-              <input type="time" value={start} onChange={e => setStart(e.target.value)} />
+              开始{' '}
+              <input
+                className="input-base"
+                type="time"
+                value={start}
+                onChange={(e) => setStart(e.target.value)}
+              />
             </label>
             <label>
-              结束
-              <input type="time" value={end} onChange={e => setEnd(e.target.value)} />
+              结束{' '}
+              <input
+                className="input-base"
+                type="time"
+                value={end}
+                onChange={(e) => setEnd(e.target.value)}
+              />
             </label>
           </div>
           <label>
             教室
             <input
+              className="input-base"
               type="text"
               value={location}
-              onChange={e => setLocation(e.target.value)}
+              onChange={(e) => setLocation(e.target.value)}
               placeholder="例如：3-201"
             />
           </label>
         </div>
         <div className={styles.actions}>
           <button onClick={onClose}>取消</button>
-          <button onClick={handleSave}>保存</button>
+          <button className="btn-primary" onClick={handleSave}>
+            保存
+          </button>
         </div>
       </div>
     </div>

@@ -1,4 +1,9 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+/**
+ * 全局数据存储上下文
+ * 统一管理 5 类实体数据（tasks / courses / focusSessions / deadlineEvents / dailyActionEvents）
+ * 提供 localStorage 自动持久化 + Supabase 云同步
+ */
+import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
 import { Task, Course, FocusSession, DeadlineEvent, DailyActionEvent } from '../types/index';
 import { isSupabaseConfigured, supabase } from '../utils/supabaseClient';
 
@@ -34,55 +39,66 @@ export const useStorage = () => {
   return context;
 };
 
-function resolveNextState<T>(action: React.SetStateAction<T>, prev: T): T {
-  return typeof action === 'function' ? (action as (prevState: T) => T)(prev) : action;
+/**
+ * 当前快照类型 —— 传入 saveToRemote 时需要五类数据的一次完整快照
+ */
+type StateSnapshot = {
+  tasks: Task[];
+  courses: Course[];
+  focusSessions: FocusSession[];
+  deadlineEvents: DeadlineEvent[];
+  dailyActionEvents: DailyActionEvent[];
+  semesterStartDate: string | null;
+};
+
+/**
+ * 工厂函数：创建一个同时写 localStorage 并触发云同步的 setter
+ * 消除 setTasks/setCourses/setFocusSessions/setDeadlineEvents/setDailyActionEvents 的五次重复
+ */
+function createSyncedSetter<T>(
+  setState: React.Dispatch<React.SetStateAction<T>>,
+  storageKey: string,
+  updateSnapshot: (prev: T, next: T) => Partial<StateSnapshot>,
+) {
+  return (
+    action: React.SetStateAction<T>,
+    snapshot: StateSnapshot,
+    saveToRemote: (s: StateSnapshot) => void,
+  ) => {
+    setState((prev) => {
+      const next = typeof action === 'function' ? (action as (prevState: T) => T)(prev) : action;
+      localStorage.setItem(storageKey, JSON.stringify(next));
+      saveToRemote({ ...snapshot, ...updateSnapshot(prev, next) });
+      return next;
+    });
+  };
 }
 
 export const StorageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // ---- 5 类业务实体 state ----
   const [tasks, setTasksState] = useState<Task[]>([]);
   const [courses, setCoursesState] = useState<Course[]>([]);
   const [focusSessions, setFocusSessionsState] = useState<FocusSession[]>([]);
   const [deadlineEvents, setDeadlineEventsState] = useState<DeadlineEvent[]>([]);
   const [dailyActionEvents, setDailyActionEventsState] = useState<DailyActionEvent[]>([]);
   const [semesterStartDate, setSemesterStartDateState] = useState<string | null>(null);
+
+  // ---- 认证 / 同步 ----
   const [syncUserId, setSyncUserIdState] = useState<string | null>(null);
   const [authEmail, setAuthEmail] = useState<string | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [loading, setLoading] = useState(true);
 
-  const loadPayloadToState = useCallback((payload: Partial<{
-    tasks: Task[];
-    courses: Course[];
-    focusSessions: FocusSession[];
-    deadlineEvents: DeadlineEvent[];
-    dailyActionEvents: DailyActionEvent[];
-    semesterStartDate: string | null;
-  }>) => {
-    if (Array.isArray(payload.tasks)) setTasksState(payload.tasks);
-    if (Array.isArray(payload.courses)) setCoursesState(payload.courses);
-    if (Array.isArray(payload.focusSessions)) setFocusSessionsState(payload.focusSessions);
-    if (Array.isArray(payload.deadlineEvents)) setDeadlineEventsState(payload.deadlineEvents);
-    if (Array.isArray(payload.dailyActionEvents)) setDailyActionEventsState(payload.dailyActionEvents);
-    if (payload.semesterStartDate !== undefined) setSemesterStartDateState(payload.semesterStartDate ?? null);
-  }, []);
-
+  // ---- 本地初始化：从 localStorage 恢复数据 ----
   useEffect(() => {
     try {
-      const localTasks = JSON.parse(localStorage.getItem('tasks') || '[]');
-      const localCourses = JSON.parse(localStorage.getItem('courses') || '[]');
-      const localFocusSessions = JSON.parse(localStorage.getItem('focusSessions') || '[]');
-      const localDeadlineEvents = JSON.parse(localStorage.getItem('deadlineEvents') || '[]');
-      const localDailyActionEvents = JSON.parse(localStorage.getItem('dailyActionEvents') || '[]');
-      const localSemesterStart = localStorage.getItem('semesterStartDate');
-      const localSyncUserId = localStorage.getItem('syncUserId');
-
-      setTasksState(localTasks);
-      setCoursesState(localCourses);
-      setFocusSessionsState(localFocusSessions);
-      setDeadlineEventsState(localDeadlineEvents);
-      setDailyActionEventsState(localDailyActionEvents);
-      setSemesterStartDateState(localSemesterStart);
-      setSyncUserIdState(localSyncUserId);
+      setTasksState(JSON.parse(localStorage.getItem('tasks') || '[]'));
+      setCoursesState(JSON.parse(localStorage.getItem('courses') || '[]'));
+      setFocusSessionsState(JSON.parse(localStorage.getItem('focusSessions') || '[]'));
+      setDeadlineEventsState(JSON.parse(localStorage.getItem('deadlineEvents') || '[]'));
+      setDailyActionEventsState(JSON.parse(localStorage.getItem('dailyActionEvents') || '[]'));
+      setSemesterStartDateState(localStorage.getItem('semesterStartDate'));
+      setSyncUserIdState(localStorage.getItem('syncUserId'));
     } catch (e) {
       console.error('Failed to load from localStorage', e);
     } finally {
@@ -90,6 +106,7 @@ export const StorageProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, []);
 
+  // ---- Supabase 会话监听 ----
   useEffect(() => {
     if (!supabase) {
       setAuthLoading(false);
@@ -97,16 +114,19 @@ export const StorageProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
 
     let mounted = true;
-    supabase.auth.getSession().then(({ data }) => {
-      if (!mounted) return;
-      const user = data.session?.user ?? null;
-      setSyncUserIdState(user?.id ?? null);
-      setAuthEmail(user?.email ?? null);
-      setAuthLoading(false);
-    }).catch(() => {
-      if (!mounted) return;
-      setAuthLoading(false);
-    });
+    supabase.auth
+      .getSession()
+      .then(({ data }) => {
+        if (!mounted) return;
+        const user = data.session?.user ?? null;
+        setSyncUserIdState(user?.id ?? null);
+        setAuthEmail(user?.email ?? null);
+        setAuthLoading(false);
+      })
+      .catch(() => {
+        if (!mounted) return;
+        setAuthLoading(false);
+      });
 
     const { data: authSub } = supabase.auth.onAuthStateChange((_event, session) => {
       const user = session?.user ?? null;
@@ -120,124 +140,146 @@ export const StorageProvider: React.FC<{ children: React.ReactNode }> = ({ child
     };
   }, []);
 
-  useEffect(() => {
-    if (!syncUserId) return;
-    localStorage.setItem('syncUserId', syncUserId);
-
-    const loadRemote = async () => {
-      if (!supabase) return;
-      try {
-        const { data, error } = await supabase
-          .from('calendar_state')
-          .select('payload')
-          .eq('user_id', syncUserId)
-          .maybeSingle();
-        if (error) {
-          console.error('Failed to load from Supabase', error);
-          return;
-        }
-        if (!data?.payload || typeof data.payload !== 'object') return;
-        loadPayloadToState(data.payload as Record<string, unknown>);
-      } catch (e) {
-        console.error('Failed to load from remote', e);
-      }
-    };
-    loadRemote();
-  }, [loadPayloadToState, syncUserId]);
-
-  const saveToRemote = useCallback(async (payload: {
-    tasks: Task[];
-    courses: Course[];
-    focusSessions: FocusSession[];
-    deadlineEvents: DeadlineEvent[];
-    dailyActionEvents: DailyActionEvent[];
-    semesterStartDate: string | null;
-  }) => {
-    if (!syncUserId) return;
-    if (!supabase) return;
-    try {
-      const { error } = await supabase
-        .from('calendar_state')
-        .upsert({
-          user_id: syncUserId,
-          payload,
-          updated_at: new Date().toISOString()
-        }, { onConflict: 'user_id' });
-      if (error) {
-        console.error('Failed to save to Supabase', error);
-      }
-    } catch (e) {
-      console.error('Failed to save to remote', e);
-    }
-  }, [syncUserId]);
-
-  const setTasks = useCallback((action: React.SetStateAction<Task[]>) => {
-    setTasksState(prev => {
-      const newTasks = resolveNextState(action, prev);
-      localStorage.setItem('tasks', JSON.stringify(newTasks));
-      saveToRemote({ tasks: newTasks, courses, focusSessions, deadlineEvents, dailyActionEvents, semesterStartDate });
-      return newTasks;
-    });
-  }, [courses, focusSessions, deadlineEvents, dailyActionEvents, saveToRemote, semesterStartDate]);
-
-  const setCourses = useCallback((action: React.SetStateAction<Course[]>) => {
-    setCoursesState(prev => {
-      const newCourses = resolveNextState(action, prev);
-      localStorage.setItem('courses', JSON.stringify(newCourses));
-      saveToRemote({ tasks, courses: newCourses, focusSessions, deadlineEvents, dailyActionEvents, semesterStartDate });
-      return newCourses;
-    });
-  }, [tasks, focusSessions, deadlineEvents, dailyActionEvents, saveToRemote, semesterStartDate]);
-
-  const setFocusSessions = useCallback((action: React.SetStateAction<FocusSession[]>) => {
-    setFocusSessionsState(prev => {
-      const newSessions = resolveNextState(action, prev);
-      localStorage.setItem('focusSessions', JSON.stringify(newSessions));
-      saveToRemote({ tasks, courses, focusSessions: newSessions, deadlineEvents, dailyActionEvents, semesterStartDate });
-      return newSessions;
-    });
-  }, [tasks, courses, deadlineEvents, dailyActionEvents, saveToRemote, semesterStartDate]);
-
-  const setDeadlineEvents = useCallback((action: React.SetStateAction<DeadlineEvent[]>) => {
-    setDeadlineEventsState(prev => {
-      const newDeadlines = resolveNextState(action, prev);
-      localStorage.setItem('deadlineEvents', JSON.stringify(newDeadlines));
-      saveToRemote({ tasks, courses, focusSessions, deadlineEvents: newDeadlines, dailyActionEvents, semesterStartDate });
-      return newDeadlines;
-    });
-  }, [tasks, courses, focusSessions, dailyActionEvents, saveToRemote, semesterStartDate]);
-
-  const setDailyActionEvents = useCallback((action: React.SetStateAction<DailyActionEvent[]>) => {
-    setDailyActionEventsState(prev => {
-      const newEvents = resolveNextState(action, prev);
-      localStorage.setItem('dailyActionEvents', JSON.stringify(newEvents));
-      saveToRemote({ tasks, courses, focusSessions, deadlineEvents, dailyActionEvents: newEvents, semesterStartDate });
-      return newEvents;
-    });
-  }, [tasks, courses, focusSessions, deadlineEvents, saveToRemote, semesterStartDate]);
-
-  const setSyncUserId = useCallback((id: string | null) => {
-    setSyncUserIdState(id);
-    if (id) {
-      localStorage.setItem('syncUserId', id);
-      return;
-    }
-    localStorage.removeItem('syncUserId');
+  // ---- 登录后拉取远端数据 ----
+  const loadRemotePayload = useCallback((payload: Record<string, unknown>) => {
+    if (Array.isArray(payload.tasks)) setTasksState(payload.tasks);
+    if (Array.isArray(payload.courses)) setCoursesState(payload.courses);
+    if (Array.isArray(payload.focusSessions)) setFocusSessionsState(payload.focusSessions);
+    if (Array.isArray(payload.deadlineEvents)) setDeadlineEventsState(payload.deadlineEvents);
+    if (Array.isArray(payload.dailyActionEvents)) setDailyActionEventsState(payload.dailyActionEvents);
+    if (payload.semesterStartDate !== undefined)
+      setSemesterStartDateState(payload.semesterStartDate as string | null);
   }, []);
 
-  const setSemesterStartDate = useCallback((date: string | null) => {
-    setSemesterStartDateState(prevDate => {
-      if (prevDate === date) return prevDate;
-      saveToRemote({ tasks, courses, focusSessions, deadlineEvents, dailyActionEvents, semesterStartDate: date });
-      return date;
-    });
-    if (date) {
-      localStorage.setItem('semesterStartDate', date);
-    } else {
-      localStorage.removeItem('semesterStartDate');
-    }
-  }, [courses, dailyActionEvents, deadlineEvents, focusSessions, saveToRemote, tasks]);
+  useEffect(() => {
+    if (!syncUserId || !supabase) return;
+    localStorage.setItem('syncUserId', syncUserId);
 
+    supabase
+      .from('calendar_state')
+      .select('payload')
+      .eq('user_id', syncUserId)
+      .maybeSingle()
+      .then(
+        ({ data, error }) => {
+          if (error) {
+            console.error('Failed to load from Supabase', error);
+            return;
+          }
+          if (data?.payload && typeof data.payload === 'object') {
+            loadRemotePayload(data.payload as Record<string, unknown>);
+          }
+        },
+        (err: unknown) => console.error('Failed to load from remote', err),
+      );
+  }, [syncUserId, loadRemotePayload]);
+
+  // ---- 向远端推送快照 ----
+  const saveToRemote = useCallback(
+    async (snapshot: StateSnapshot) => {
+      if (!syncUserId || !supabase) return;
+      try {
+        const { error } = await supabase.from('calendar_state').upsert(
+          {
+            user_id: syncUserId,
+            payload: snapshot,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: 'user_id' },
+        );
+        if (error) console.error('Failed to save to Supabase', error);
+      } catch (e) {
+        console.error('Failed to save to remote', e);
+      }
+    },
+    [syncUserId],
+  );
+
+  // 当前五类数据的一次快照引用（供 setter 闭包使用）
+  const getSnapshot = useCallback(
+    (): StateSnapshot => ({
+      tasks,
+      courses,
+      focusSessions,
+      deadlineEvents,
+      dailyActionEvents,
+      semesterStartDate,
+    }),
+    [tasks, courses, focusSessions, deadlineEvents, dailyActionEvents, semesterStartDate],
+  );
+
+  // ---- 五类数据 setter（工厂函数批量生成）----
+  const setTasks = useCallback(
+    (action: React.SetStateAction<Task[]>) => {
+      createSyncedSetter(setTasksState, 'tasks', (_prev, next) => ({
+        tasks: next,
+      }))(action, getSnapshot(), saveToRemote);
+    },
+    [getSnapshot, saveToRemote],
+  );
+
+  const setCourses = useCallback(
+    (action: React.SetStateAction<Course[]>) => {
+      createSyncedSetter(setCoursesState, 'courses', (_prev, next) => ({
+        courses: next,
+      }))(action, getSnapshot(), saveToRemote);
+    },
+    [getSnapshot, saveToRemote],
+  );
+
+  const setFocusSessions = useCallback(
+    (action: React.SetStateAction<FocusSession[]>) => {
+      createSyncedSetter(setFocusSessionsState, 'focusSessions', (_prev, next) => ({
+        focusSessions: next,
+      }))(action, getSnapshot(), saveToRemote);
+    },
+    [getSnapshot, saveToRemote],
+  );
+
+  const setDeadlineEvents = useCallback(
+    (action: React.SetStateAction<DeadlineEvent[]>) => {
+      createSyncedSetter(setDeadlineEventsState, 'deadlineEvents', (_prev, next) => ({
+        deadlineEvents: next,
+      }))(action, getSnapshot(), saveToRemote);
+    },
+    [getSnapshot, saveToRemote],
+  );
+
+  const setDailyActionEvents = useCallback(
+    (action: React.SetStateAction<DailyActionEvent[]>) => {
+      createSyncedSetter(setDailyActionEventsState, 'dailyActionEvents', (_prev, next) => ({
+        dailyActionEvents: next,
+      }))(action, getSnapshot(), saveToRemote);
+    },
+    [getSnapshot, saveToRemote],
+  );
+
+  // ---- 学期起始日 & syncUserId 变更逻辑稍有不同，保留独立实现 ----
+  const setSyncUserId = useCallback((id: string | null) => {
+    setSyncUserIdState(id);
+    id ? localStorage.setItem('syncUserId', id) : localStorage.removeItem('syncUserId');
+  }, []);
+
+  const setSemesterStartDate = useCallback(
+    (date: string | null) => {
+      setSemesterStartDateState((prevDate) => {
+        if (prevDate === date) return prevDate;
+        saveToRemote({
+          tasks,
+          courses,
+          focusSessions,
+          deadlineEvents,
+          dailyActionEvents,
+          semesterStartDate: date,
+        });
+        return date;
+      });
+      date ? localStorage.setItem('semesterStartDate', date) : localStorage.removeItem('semesterStartDate');
+    },
+    [tasks, courses, focusSessions, deadlineEvents, dailyActionEvents, saveToRemote],
+  );
+
+  // ---- 认证 API ----
   const sendLoginCode = useCallback(async (email: string) => {
     if (!supabase) return { ok: false, message: '未配置 Supabase 环境变量' };
     const normalized = email.trim().toLowerCase();
@@ -245,7 +287,7 @@ export const StorageProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const redirectTo = `${window.location.origin}${window.location.pathname}`;
     const { error } = await supabase.auth.signInWithOtp({
       email: normalized,
-      options: { emailRedirectTo: redirectTo }
+      options: { emailRedirectTo: redirectTo },
     });
     if (error) return { ok: false, message: error.message };
     return { ok: true, message: '登录邮件已发送，请在邮箱中点击链接完成登录' };
@@ -257,32 +299,62 @@ export const StorageProvider: React.FC<{ children: React.ReactNode }> = ({ child
   }, []);
 
   const syncNow = useCallback(async () => {
-    await saveToRemote({ tasks, courses, focusSessions, deadlineEvents, dailyActionEvents, semesterStartDate });
-  }, [courses, dailyActionEvents, deadlineEvents, focusSessions, saveToRemote, semesterStartDate, tasks]);
+    await saveToRemote({
+      tasks,
+      courses,
+      focusSessions,
+      deadlineEvents,
+      dailyActionEvents,
+      semesterStartDate,
+    });
+  }, [tasks, courses, focusSessions, deadlineEvents, dailyActionEvents, semesterStartDate, saveToRemote]);
 
-  const value = {
-    tasks,
-    courses,
-    focusSessions,
-    deadlineEvents,
-    dailyActionEvents,
-    semesterStartDate,
-    isSupabaseConfigured,
-    authEmail,
-    authLoading,
-    setTasks,
-    setCourses,
-    setFocusSessions,
-    setDeadlineEvents,
-    setDailyActionEvents,
-    setSemesterStartDate,
-    syncUserId,
-    setSyncUserId,
-    sendLoginCode,
-    signOut,
-    syncNow,
-    loading
-  };
+  // ---- context value（useMemo 避免每次渲染重建） ----
+  const value = useMemo<StorageContextType>(
+    () => ({
+      tasks,
+      courses,
+      focusSessions,
+      deadlineEvents,
+      dailyActionEvents,
+      semesterStartDate,
+      isSupabaseConfigured,
+      authEmail,
+      authLoading,
+      setTasks,
+      setCourses,
+      setFocusSessions,
+      setDeadlineEvents,
+      setDailyActionEvents,
+      setSemesterStartDate,
+      syncUserId,
+      setSyncUserId,
+      sendLoginCode,
+      signOut,
+      syncNow,
+      loading,
+    }),
+    [
+      tasks,
+      courses,
+      focusSessions,
+      deadlineEvents,
+      dailyActionEvents,
+      semesterStartDate,
+      authEmail,
+      authLoading,
+      setTasks,
+      setCourses,
+      setFocusSessions,
+      setDeadlineEvents,
+      setDailyActionEvents,
+      syncUserId,
+      sendLoginCode,
+      signOut,
+      syncNow,
+      loading,
+    ],
+  );
 
   return <StorageContext.Provider value={value}>{children}</StorageContext.Provider>;
 };

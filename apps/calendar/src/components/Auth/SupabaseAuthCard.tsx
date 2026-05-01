@@ -1,3 +1,7 @@
+/**
+ * Supabase 云同步认证卡片
+ * 邮箱 OTP 登录 / 退出 / 手动同步
+ */
 import { useMemo, useState } from 'react';
 import { useStorage } from '../../context/StorageContext';
 
@@ -7,9 +11,7 @@ export function SupabaseAuthCard() {
   const [submitting, setSubmitting] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
 
-  const canSubmit = useMemo(() => {
-    return emailInput.trim().length > 0 && !submitting;
-  }, [emailInput, submitting]);
+  const canSubmit = useMemo(() => emailInput.trim().length > 0 && !submitting, [emailInput, submitting]);
 
   const handleSend = async () => {
     if (!canSubmit) return;
@@ -35,7 +37,14 @@ export function SupabaseAuthCard() {
 
   if (!isSupabaseConfigured) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, minWidth: 260 }}>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 6,
+          minWidth: 260,
+        }}
+      >
         <strong>云同步未启用</strong>
         <span style={{ fontSize: 12, opacity: 0.75 }}>
           请配置 VITE_CALENDAR_SUPABASE_URL 与 VITE_CALENDAR_SUPABASE_ANON_KEY
@@ -54,19 +63,31 @@ export function SupabaseAuthCard() {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 280 }}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 8,
+        minWidth: 280,
+      }}
+    >
       <strong>Supabase 云同步</strong>
       {authEmail ? (
         <>
           <span style={{ fontSize: 12, opacity: 0.85 }}>当前账号：{authEmail}</span>
           <div style={{ display: 'flex', gap: 8 }}>
-            <button type="button" onClick={handleSyncNow} disabled={submitting}>立即同步</button>
-            <button type="button" onClick={handleSignOut} disabled={submitting}>退出登录</button>
+            <button type="button" onClick={handleSyncNow} disabled={submitting}>
+              立即同步
+            </button>
+            <button type="button" onClick={handleSignOut} disabled={submitting}>
+              退出登录
+            </button>
           </div>
         </>
       ) : (
         <>
           <input
+            className="input-base"
             type="email"
             value={emailInput}
             onChange={(e) => setEmailInput(e.target.value)}

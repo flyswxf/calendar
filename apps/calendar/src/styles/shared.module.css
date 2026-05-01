@@ -55,9 +55,9 @@
   --text-lg: 18px;
   --text-xl: 20px;
 
-  --transition-fast: .2s ease;
-  --transition-normal: .24s ease;
-  --transition-slow: .28s ease;
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.24s ease;
+  --transition-slow: 0.28s ease;
 
   --shadow-sm: 0 2px 18px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 8px 28px rgba(15, 23, 42, 0.14);
@@ -68,4 +68,30 @@
   --sidebar-nav-width: 60px;
   --panel-z-mask: 1800;
   --panel-z-dock: 1900;
+}
+
+/* 统一输入框/下拉框基础样式 */
+:global(.input-base) {
+  border: 1px solid var(--color-border-input);
+  border-radius: var(--radius-md);
+  color: var(--color-text-body);
+  background: var(--color-bg-white);
+  outline: none;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+:global(.input-base):focus {
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.14);
+}
+
+/* 统一蓝色主按钮 */
+:global(.btn-primary) {
+  background: #3b82f6;
+  color: #fff;
+}
+:global(.btn-primary):disabled {
+  background: #93c5fd;
+  cursor: not-allowed;
 }

@@ -1,3 +1,7 @@
+/**
+ * 每像素对应分钟数 hook
+ * 根据窗口宽度自动调整日历网格的缩放比例
+ */
 import { useState, useEffect } from 'react';
 
 export function usePixelPerMin() {
@@ -14,7 +18,7 @@ export function usePixelPerMin() {
       }
     };
 
-    handleResize(); // Initial call
+    handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);

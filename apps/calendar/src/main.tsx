@@ -1,11 +1,15 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App'
-import { StorageProvider } from './context/StorageContext'
-import { TimerProvider } from './context/TimerContext'
+/**
+ * 应用入口
+ * 提供 Storage → Timer → App 三层 Provider 嵌套
+ */
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+import { StorageProvider } from './context/StorageContext';
+import { TimerProvider } from './context/TimerContext';
 
-import './styles/shared.module.css'
-import './styles/base.css'
+import './styles/shared.module.css';
+import './styles/base.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -14,5 +18,5 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <App />
       </TimerProvider>
     </StorageProvider>
-  </React.StrictMode>
-)
+  </React.StrictMode>,
+);

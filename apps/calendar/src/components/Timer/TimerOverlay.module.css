@@ -8,7 +8,7 @@
   z-index: 60;
 }
 
-.overlay[aria-hidden="false"] {
+.overlay[aria-hidden='false'] {
   display: flex;
 }
 

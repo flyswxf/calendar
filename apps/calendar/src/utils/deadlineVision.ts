@@ -30,7 +30,10 @@ JSON结构如下：
 function stripCodeFence(text: string): string {
   const trimmed = text.trim();
   if (!trimmed.startsWith('```')) return trimmed;
-  return trimmed.replace(/^```[a-zA-Z]*\s*/, '').replace(/```$/, '').trim();
+  return trimmed
+    .replace(/^```[a-zA-Z]*\s*/, '')
+    .replace(/```$/, '')
+    .trim();
 }
 
 function pickJsonText(raw: string): string {
@@ -57,8 +60,9 @@ function parseDraft(text: string): VisionDeadlineDraft {
     dueAt: normalizeDueAt(parsed.dueAt),
     courseName: parsed.courseName?.trim() || undefined,
     description: parsed.description?.trim() || undefined,
-    confidence: typeof parsed.confidence === 'number' ? Math.max(0, Math.min(1, parsed.confidence)) : undefined,
-    rawText: parsed.rawText?.trim() || undefined
+    confidence:
+      typeof parsed.confidence === 'number' ? Math.max(0, Math.min(1, parsed.confidence)) : undefined,
+    rawText: parsed.rawText?.trim() || undefined,
   };
 }
 
@@ -90,15 +94,20 @@ async function callGoogle(file: File, apiKey: string, model: string): Promise<st
         {
           parts: [
             { text: PROMPT },
-            { inline_data: { mime_type: file.type || 'image/jpeg', data: base64 } }
-          ]
-        }
+            {
+              inline_data: {
+                mime_type: file.type || 'image/jpeg',
+                data: base64,
+              },
+            },
+          ],
+        },
       ],
-      generationConfig: { temperature: 0 }
-    })
+      generationConfig: { temperature: 0 },
+    }),
   });
   if (!response.ok) throw new Error(`Google API 调用失败: ${response.status}`);
-  const json = await response.json() as {
+  const json = (await response.json()) as {
     candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
   };
   const text = json.candidates?.[0]?.content?.parts?.map((part) => part.text || '').join('\n') || '';
@@ -112,7 +121,7 @@ async function callOpenRouter(file: File, apiKey: string, model: string): Promis
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`
+      Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
       model,
@@ -122,14 +131,19 @@ async function callOpenRouter(file: File, apiKey: string, model: string): Promis
           role: 'user',
           content: [
             { type: 'text', text: PROMPT },
-            { type: 'image_url', image_url: { url: `data:${file.type || 'image/jpeg'};base64,${base64}` } }
-          ]
-        }
-      ]
-    })
+            {
+              type: 'image_url',
+              image_url: {
+                url: `data:${file.type || 'image/jpeg'};base64,${base64}`,
+              },
+            },
+          ],
+        },
+      ],
+    }),
   });
   if (!response.ok) throw new Error(`OpenRouter API 调用失败: ${response.status}`);
-  const json = await response.json() as {
+  const json = (await response.json()) as {
     choices?: Array<{ message?: { content?: string } }>;
   };
   const text = json.choices?.[0]?.message?.content || '';
@@ -137,11 +151,16 @@ async function callOpenRouter(file: File, apiKey: string, model: string): Promis
   return text;
 }
 
-export async function extractDeadlineFromImageByModel(file: File, config: VisionRequestConfig): Promise<VisionDeadlineDraft> {
+export async function extractDeadlineFromImageByModel(
+  file: File,
+  config: VisionRequestConfig,
+): Promise<VisionDeadlineDraft> {
   if (!config.apiKey.trim()) throw new Error('请先填写模型 API Key');
-  const model = config.model?.trim() || (config.provider === 'google' ? 'gemini-2.5-flash' : 'openrouter/free');
-  const raw = config.provider === 'google'
-    ? await callGoogle(file, config.apiKey.trim(), model)
-    : await callOpenRouter(file, config.apiKey.trim(), model);
+  const model =
+    config.model?.trim() || (config.provider === 'google' ? 'gemini-2.5-flash' : 'openrouter/free');
+  const raw =
+    config.provider === 'google'
+      ? await callGoogle(file, config.apiKey.trim(), model)
+      : await callOpenRouter(file, config.apiKey.trim(), model);
   return parseDraft(raw);
 }

@@ -74,14 +74,18 @@ function normalizeLines(rawText: string): string[] {
 
 function detectDueAt(lines: string[], now: Date): { dueAt: string; confidence: number } | null {
   const merged = lines.join(' ');
-  const dateTokenMatch = merged.match(/(\d{4}[-/.年]\d{1,2}[-/.月]\d{1,2}日?|\d{1,2}[-/.月]\d{1,2}日?|今天|明天|后天)/);
+  const dateTokenMatch = merged.match(
+    /(\d{4}[-/.年]\d{1,2}[-/.月]\d{1,2}日?|\d{1,2}[-/.月]\d{1,2}日?|今天|明天|后天)/,
+  );
   if (!dateTokenMatch) return null;
   const baseDate = parseChineseDate(dateTokenMatch[1], now);
   if (!baseDate) return null;
 
   const timeMatch = merged.match(/(\d{1,2}[:：]\d{1,2})/);
   const parsedTime = timeMatch ? parseTime(timeMatch[1]) : null;
-  const due = parsedTime ? toDateAtTime(baseDate, parsedTime.hour, parsedTime.minute) : toDateAtTime(baseDate, 23, 59);
+  const due = parsedTime
+    ? toDateAtTime(baseDate, parsedTime.hour, parsedTime.minute)
+    : toDateAtTime(baseDate, 23, 59);
 
   const confidence = parsedTime ? 0.88 : 0.72;
   return { dueAt: due.toISOString(), confidence };
@@ -105,6 +109,6 @@ export function parseDeadlineDraft(rawText: string, source: DeadlineSource): Dea
     courseName,
     description,
     source,
-    confidence: dueInfo.confidence
+    confidence: dueInfo.confidence,
   };
 }

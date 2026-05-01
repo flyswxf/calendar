@@ -1,3 +1,7 @@
+/**
+ * 时间标签列
+ * 在日历网格左侧显示 7:00 - 23:00 的整点标签
+ */
 import React from 'react';
 import { BASE_START_MIN, END_MIN, fmtHM } from '../../utils/time';
 import { usePixelPerMin } from '../../hooks/usePixelPerMin';
@@ -14,19 +18,18 @@ export const TimeGrid: React.FC = () => {
 
   return (
     <div className={styles.timeCol}>
-      <div className={styles.dayHeader} style={{ visibility: 'hidden', borderBottom: '1px solid transparent' }}>
-        周一<br />
+      {/* 占位：高度与各日列 header 对齐 */}
+      <div
+        className={styles.dayHeader}
+        style={{ visibility: 'hidden', borderBottom: '1px solid transparent' }}
+      >
+        周一
+        <br />
         <span>01</span>
       </div>
       <div style={{ height: totalHeight, position: 'relative' }}>
-        {times.map(t => (
-          <div
-            key={t}
-            className={styles.timeLabel}
-            style={{
-              top: (t - BASE_START_MIN) * pixelPerMin,
-            }}
-          >
+        {times.map((t) => (
+          <div key={t} className={styles.timeLabel} style={{ top: (t - BASE_START_MIN) * pixelPerMin }}>
             {fmtHM(t)}
           </div>
         ))}

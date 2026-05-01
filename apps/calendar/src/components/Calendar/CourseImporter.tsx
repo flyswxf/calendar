@@ -1,3 +1,7 @@
+/**
+ * 课程导入组件
+ * 支持从 .docx 格式课表文件一键导入课程数据
+ */
 import React, { useState } from 'react';
 import { useStorage } from '../../context/StorageContext';
 import { parseDocxCourseTable } from '../../utils/docxParser';
@@ -23,21 +27,20 @@ export const CourseImporter: React.FC = () => {
         return;
       }
 
-      if (window.confirm(`成功提取到 ${newCourses.length} 门课程。是否将其导入并覆盖现有课表？(取消将仅追加)`)) {
-        // 覆盖模式
+      if (
+        window.confirm(`成功提取到 ${newCourses.length} 门课程。是否将其导入并覆盖现有课表？(取消将仅追加)`)
+      ) {
         setCourses(newCourses);
       } else {
-        // 追加模式
-        setCourses(prev => [...prev, ...newCourses]);
+        setCourses((prev) => [...prev, ...newCourses]);
       }
-      
+
       alert('导入成功！');
     } catch (err) {
       console.error(err);
       setError('解析文件时出错，请检查文件格式。');
     } finally {
       setLoading(false);
-      // 清空 input 以便允许再次选择同一文件
       event.target.value = '';
     }
   };
@@ -57,33 +60,36 @@ export const CourseImporter: React.FC = () => {
         style={{
           cursor: loading ? 'wait' : 'pointer',
           padding: '8px 16px',
-          backgroundColor: '#3b82f6',
-          color: 'white',
           borderRadius: '6px',
           fontSize: '14px',
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '6px'
         }}
       >
         {loading ? '解析中...' : '导入课表(.docx)'}
       </label>
       {error && (
-        <div style={{ 
-          position: 'fixed', 
-          top: '20px', 
-          right: '20px', 
-          background: '#fee2e2', 
-          color: '#ef4444', 
-          padding: '10px 20px', 
-          borderRadius: '8px',
-          boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-          zIndex: 1000
-        }}>
+        <div
+          style={{
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
+            background: '#fee2e2',
+            color: '#ef4444',
+            padding: '10px 20px',
+            borderRadius: '8px',
+            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+            zIndex: 1000,
+          }}
+        >
           {error}
-          <button 
+          <button
             onClick={() => setError(null)}
-            style={{ marginLeft: '10px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px' }}
+            style={{
+              marginLeft: '10px',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '16px',
+            }}
           >
             ×
           </button>

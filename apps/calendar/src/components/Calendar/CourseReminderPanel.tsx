@@ -1,3 +1,7 @@
+/**
+ * 手机日历导出面板
+ * 将课表导出为 .ics 格式文件，可导入手机日历 App
+ */
 import React, { useEffect, useState } from 'react';
 import { useStorage } from '../../context/StorageContext';
 import { addDays, clamp, escapeICS, getWeekStart, pad, parseHM, toDateKey } from '../../utils/time';
@@ -6,6 +10,7 @@ import styles from './CourseReminderPanel.module.css';
 const EXPORT_KEY = 'courseReminderExportWeek';
 const LEGACY_PREF_KEY = 'courseReminderPrefs';
 
+/** 兼容旧 localStorage 读取导出周数 */
 function readExportWeek(): number {
   try {
     const stored = localStorage.getItem(EXPORT_KEY);
@@ -19,6 +24,7 @@ function readExportWeek(): number {
   }
 }
 
+/** 构建某天的上课 Date */
 function buildCourseDate(baseDate: Date, hm: string): Date {
   const mins = parseHM(hm);
   const d = new Date(baseDate);
@@ -26,6 +32,7 @@ function buildCourseDate(baseDate: Date, hm: string): Date {
   return d;
 }
 
+/** Date → ICS 本地时间串 YYYYMMDDTHHmmSS */
 function toICSDate(d: Date): string {
   return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
 }
@@ -39,6 +46,7 @@ export const CourseReminderPanel: React.FC = () => {
     localStorage.setItem(EXPORT_KEY, String(exportUntilWeek));
   }, [exportUntilWeek]);
 
+  /** 构建并下载 ICS 文件 */
   const exportICS = () => {
     if (!semesterStartDate) {
       setMessage('请先在周视图把当前周设置为正确周次，再导出日历。');
@@ -56,14 +64,15 @@ export const CourseReminderPanel: React.FC = () => {
       'VERSION:2.0',
       'PRODID:-//todo_list//course-reminder//CN',
       'CALSCALE:GREGORIAN',
-      'METHOD:PUBLISH'
+      'METHOD:PUBLISH',
     ];
 
     let eventCount = 0;
     for (const course of courses) {
-      const targetWeeks = course.weeks && course.weeks.length > 0
-        ? course.weeks.filter((w) => w > 0 && w <= exportUntilWeek)
-        : Array.from({ length: exportUntilWeek }, (_, i) => i + 1);
+      const targetWeeks =
+        course.weeks && course.weeks.length > 0
+          ? course.weeks.filter((w) => w > 0 && w <= exportUntilWeek)
+          : Array.from({ length: exportUntilWeek }, (_, i) => i + 1);
 
       for (const week of targetWeeks) {
         const dayOffset = course.day === 7 ? 6 : course.day - 1;
@@ -71,36 +80,40 @@ export const CourseReminderPanel: React.FC = () => {
         const startAt = buildCourseDate(baseDate, course.start);
         const endAt = buildCourseDate(baseDate, course.end);
         if (endAt < now) continue;
-        const uid = `${course.id}-${toDateKey(baseDate)}-${course.start}@todo-list.local`;
-        const dtStamp = toICSDate(new Date());
-        const description = escapeICS(`地点：${course.location || '未知地点'}\n教师：${course.teacher || '未填写'}\n周次：第${week}周`);
 
-        lines.push('BEGIN:VEVENT');
-        lines.push(`UID:${uid}`);
-        lines.push(`DTSTAMP:${dtStamp}`);
-        lines.push(`DTSTART:${toICSDate(startAt)}`);
-        lines.push(`DTEND:${toICSDate(endAt)}`);
-        lines.push(`SUMMARY:${escapeICS(`课程：${course.title}`)}`);
-        lines.push(`DESCRIPTION:${description}`);
-        lines.push(`LOCATION:${escapeICS(course.location || '未知地点')}`);
-        lines.push('END:VEVENT');
+        const uid = `${course.id}-${toDateKey(baseDate)}-${course.start}@todo-list.local`;
+        const desc = escapeICS(
+          `地点：${course.location || '未知地点'}\n教师：${course.teacher || '未填写'}\n周次：第${week}周`,
+        );
+
+        lines.push(
+          'BEGIN:VEVENT',
+          `UID:${uid}`,
+          `DTSTAMP:${toICSDate(new Date())}`,
+          `DTSTART:${toICSDate(startAt)}`,
+          `DTEND:${toICSDate(endAt)}`,
+          `SUMMARY:${escapeICS(`课程：${course.title}`)}`,
+          `DESCRIPTION:${desc}`,
+          `LOCATION:${escapeICS(course.location || '未知地点')}`,
+          'END:VEVENT',
+        );
         eventCount++;
       }
     }
 
     lines.push('END:VCALENDAR');
-
     if (eventCount === 0) {
       setMessage('没有可导出的未来课程。');
       return;
     }
 
-    const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
+    const blob = new Blob([lines.join('\r\n')], {
+      type: 'text/calendar;charset=utf-8',
+    });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    const fileDate = toDateKey(new Date()).replace(/-/g, '');
     a.href = url;
-    a.download = `course-reminders-${fileDate}.ics`;
+    a.download = `course-reminders-${toDateKey(new Date()).replace(/-/g, '')}.ics`;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -113,7 +126,7 @@ export const CourseReminderPanel: React.FC = () => {
       <div className={styles.header}>
         <div className={styles.title}>
           <h3>手机日历导出</h3>
-          <p>将课程表导出为 .ics日历文件</p>
+          <p>将课程表导出为 .ics 日历文件</p>
         </div>
       </div>
 
@@ -122,7 +135,7 @@ export const CourseReminderPanel: React.FC = () => {
           <label className={styles.inline}>
             <span>导出到第</span>
             <input
-              className={styles.input}
+              className={`${styles.input} input-base`}
               type="number"
               min={1}
               max={30}
@@ -133,7 +146,9 @@ export const CourseReminderPanel: React.FC = () => {
           </label>
         </div>
         <div className={styles.actions}>
-          <button className={styles.btn} onClick={exportICS}>导出 .ics（手机日历）</button>
+          <button className={styles.btn} onClick={exportICS}>
+            导出 .ics（手机日历）
+          </button>
         </div>
       </div>
 

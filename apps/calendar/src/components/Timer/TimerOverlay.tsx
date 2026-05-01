@@ -1,3 +1,7 @@
+/**
+ * 专注定时器弹窗
+ * 倒计时 / 正计时模式，完成后自动记录 FocusSession 并标记任务完成
+ */
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useTimer } from '../../context/TimerContext';
 import { useStorage } from '../../context/StorageContext';
@@ -22,49 +26,48 @@ export const TimerOverlay: React.FC = () => {
   const pausedTimeRef = useRef<number>(0);
   const pausedAtRef = useRef<number>(0);
 
+  // 用 ref 避免闭包陈旧问题
   const modeRef = useRef(mode);
   const targetMinutesRef = useRef(targetMinutes);
+  useEffect(() => {
+    modeRef.current = mode;
+  }, [mode]);
+  useEffect(() => {
+    targetMinutesRef.current = targetMinutes;
+  }, [targetMinutes]);
 
-  useEffect(() => { modeRef.current = mode; }, [mode]);
-  useEffect(() => { targetMinutesRef.current = targetMinutes; }, [targetMinutes]);
-
+  /** 记录完成会话 + 标记任务完成 */
   const finishTimer = useCallback(() => {
     if (!startTimeRef.current) return;
     const now = Date.now();
-
     const newSession: FocusSession = {
       id: crypto.randomUUID(),
       title: currentTask?.text || '专注',
       start: new Date(startTimeRef.current).toISOString(),
       end: new Date(now).toISOString(),
       mode: modeRef.current,
-      completed: true
+      completed: true,
     };
-
-    setFocusSessions(prev => [...prev, newSession]);
-
+    setFocusSessions((prev) => [...prev, newSession]);
     if (currentTask) {
-      setTasks(prev => prev.map(t =>
-        t.id === currentTask.id ? { ...t, completed: true } : t
-      ));
+      setTasks((prev) => prev.map((t) => (t.id === currentTask.id ? { ...t, completed: true } : t)));
     }
-
     reset();
     closeTimer();
   }, [currentTask, setFocusSessions, setTasks, closeTimer]);
 
+  /** 终止：记录未完成会话并关闭 */
   const stopTimer = () => {
     if (state !== 'idle' && startTimeRef.current) {
-      const now = Date.now();
       const newSession: FocusSession = {
         id: crypto.randomUUID(),
         title: currentTask?.text || '专注',
         start: new Date(startTimeRef.current).toISOString(),
-        end: new Date(now).toISOString(),
+        end: new Date().toISOString(),
         mode: modeRef.current,
-        completed: false
+        completed: false,
       };
-      setFocusSessions(prev => [...prev, newSession]);
+      setFocusSessions((prev) => [...prev, newSession]);
     }
     reset();
     closeTimer();
@@ -80,11 +83,11 @@ export const TimerOverlay: React.FC = () => {
     pausedAtRef.current = 0;
   };
 
+  /** 每 250ms 更新 elapsed */
   const tick = useCallback(() => {
     const now = Date.now();
     const currentElapsed = now - startTimeRef.current - pausedTimeRef.current;
     setElapsed(currentElapsed);
-
     if (modeRef.current === 'countdown') {
       const targetMs = targetMinutesRef.current * 60 * 1000;
       if (currentElapsed >= targetMs) {
@@ -95,19 +98,18 @@ export const TimerOverlay: React.FC = () => {
   }, [finishTimer]);
 
   const tickRef = useRef(tick);
-  useEffect(() => { tickRef.current = tick; }, [tick]);
+  useEffect(() => {
+    tickRef.current = tick;
+  }, [tick]);
 
   const startTimer = () => {
     if (state === 'running') return;
-
     if (state === 'idle') {
       startTimeRef.current = Date.now();
       pausedTimeRef.current = 0;
     } else if (state === 'paused') {
-      const pauseDuration = Date.now() - pausedAtRef.current;
-      pausedTimeRef.current += pauseDuration;
+      pausedTimeRef.current += Date.now() - pausedAtRef.current;
     }
-
     setState('running');
     intervalRef.current = window.setInterval(() => tickRef.current(), 250);
   };
@@ -121,9 +123,7 @@ export const TimerOverlay: React.FC = () => {
 
   const displayTime = () => {
     if (mode === 'stopwatch') return formatHMS(elapsed);
-    const targetMs = targetMinutes * 60 * 1000;
-    const remain = Math.max(0, targetMs - elapsed);
-    return formatHMS(remain);
+    return formatHMS(Math.max(0, targetMinutes * 60 * 1000 - elapsed));
   };
 
   return (
@@ -131,42 +131,70 @@ export const TimerOverlay: React.FC = () => {
       <div className={styles.panel}>
         <div className={styles.header}>
           <span style={{ fontWeight: 'bold', fontSize: '1.2em' }}>{currentTask?.text || '专注'}</span>
-          <button className={styles.close} onClick={stopTimer}>×</button>
+          <button className={styles.close} onClick={stopTimer}>
+            ×
+          </button>
         </div>
 
         <div className={styles.body}>
+          {/* 空闲态：模式选择 */}
           {state === 'idle' && (
             <div className={styles.mode}>
-              <label><input type="radio" name="timerMode" checked={mode === 'countdown'} onChange={() => setMode('countdown')} /> 倒计时</label>
-              <label><input type="radio" name="timerMode" checked={mode === 'stopwatch'} onChange={() => setMode('stopwatch')} /> 正计时</label>
+              <label>
+                <input
+                  type="radio"
+                  name="timerMode"
+                  checked={mode === 'countdown'}
+                  onChange={() => setMode('countdown')}
+                />{' '}
+                倒计时
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="timerMode"
+                  checked={mode === 'stopwatch'}
+                  onChange={() => setMode('stopwatch')}
+                />{' '}
+                正计时
+              </label>
             </div>
           )}
 
+          {/* 空闲态：倒计时时长设置 */}
           {state === 'idle' && mode === 'countdown' && (
             <div className={styles.setup}>
-              <button onClick={() => setTargetMinutes(m => Math.max(1, m - 5))} style={{ marginRight: 10 }}>-</button>
+              <button onClick={() => setTargetMinutes((m) => Math.max(1, m - 5))} style={{ marginRight: 10 }}>
+                -
+              </button>
               <span className={styles.timeNumber}>{targetMinutes}</span>
               <span className={styles.timeSuffix}>分钟</span>
-              <button onClick={() => setTargetMinutes(m => m + 5)} style={{ marginLeft: 10 }}>+</button>
+              <button onClick={() => setTargetMinutes((m) => m + 5)} style={{ marginLeft: 10 }}>
+                +
+              </button>
             </div>
           )}
 
-          <div className={styles.runningTime}>
-            {displayTime()}
-          </div>
+          {/* 时间显示 */}
+          <div className={styles.runningTime}>{displayTime()}</div>
 
+          {/* 操作按钮 */}
           <div className={styles.actions}>
             {state === 'idle' ? (
-              <button className={styles.startBtn} onClick={startTimer}>开始</button>
+              <button className={styles.startBtn} onClick={startTimer}>
+                开始
+              </button>
             ) : (
               <>
-                {state === 'running' ? (
-                  <button className={styles.pauseBtn} onClick={pauseTimer}>暂停</button>
-                ) : (
-                  <button className={styles.pauseBtn} onClick={startTimer}>继续</button>
-                )}
-                <button className={styles.finishBtn} onClick={finishTimer}>完成</button>
-                <button className={styles.stopBtn} onClick={stopTimer}>终止</button>
+                <button className={styles.pauseBtn} onClick={state === 'running' ? pauseTimer : startTimer}>
+                  {state === 'running' ? '暂停' : '继续'}
+                </button>
+                <button className={styles.finishBtn} onClick={finishTimer}>
+                  完成
+                </button>
+                <button className={styles.stopBtn} onClick={stopTimer}>
+                  终止
+                </button>
               </>
             )}
           </div>

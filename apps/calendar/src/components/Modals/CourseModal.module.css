@@ -12,7 +12,7 @@
   transition: opacity var(--transition-normal);
 }
 
-.modal[aria-hidden="false"] {
+.modal[aria-hidden='false'] {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
@@ -28,7 +28,7 @@
   transition: transform var(--transition-normal);
 }
 
-.modal[aria-hidden="false"] .content {
+.modal[aria-hidden='false'] .content {
   transform: translateY(0);
 }
 
@@ -61,8 +61,7 @@
   width: 100%;
   margin-top: 6px;
   padding: 8px 10px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
 }
 
 .actions {
@@ -74,8 +73,6 @@
   padding: 8px 14px;
   border-radius: var(--radius-md);
   border: none;
-  background: var(--color-primary);
-  color: #fff;
 }
 
 .close {
